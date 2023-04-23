@@ -40,3 +40,15 @@ $ git remote show [url] - 仓库信息
 
   
 
+- .gitignore配置不生效
+
+  解决方法: git清除本地缓存（改变成未track状态），然后再提交
+
+  ```
+  $ git rm -r --cached .
+  $ git add .
+  $ git commit -m 'update .gitignore'
+  $ git push -u origin master
+  ```
+
+  

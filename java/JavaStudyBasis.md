@@ -94,7 +94,7 @@ javadoc文档注释 /**    */
 
 注释内容可以被 JDK 提供的 javadoc 所解析,生成一套以网页文件形式体现的该程序的说明文档，一般写在类
 
-<img src="C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220329140126433.png" alt="命令"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220329140126433.png" alt="命令"  />
 
 
 
@@ -104,7 +104,7 @@ javadoc文档注释 /**    */
 
 绝对路径：从顶级目录（盘符）开始定位，形成的路径
 
-![](https://img-blog.csdnimg.cn/e99f2f1ca7c9417999d92e1a96cb943a.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/e99f2f1ca7c9417999d92e1a96cb943a.gif)
 
 查看所有子级目录：tree
 
@@ -218,7 +218,7 @@ if(Math.abs(num1 - num2) < 0.00001) {
 
 **读取**：二进制 👉 码值 👉 字符 👉 显示
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220330112151460.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220330112151460.png)
 
 
 
@@ -379,7 +379,7 @@ int n = m++; // n = m, m = m + 1;
 System.out.println(j+","+n); // 9,8
 ```
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220331141400707.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220331141400707.png)
 
 
 
@@ -482,7 +482,7 @@ int max2 = max1 > n3 ? max1 : n3;
 >
 > **只有单目运算符、赋值运算符是从右往左运算的**
 
-<img src="C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401125637495.png"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401125637495.png"  />
 
 ---
 
@@ -527,15 +527,15 @@ int max2 = max1 > n3 ? max1 : n3;
 
 ## 关键字
 
-<img src="C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401185942215.png"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401185942215.png"  />
 
-<img src="C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401190044068.png"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401190044068.png"  />
 
 
 
 ## 保留字
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401190146234.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401190146234.png)
 
 ---
 
@@ -654,11 +654,11 @@ int max2 = max1 > n3 ? max1 : n3;
 
 ## 位运算详解
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401205511486.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401205511486.png)
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401205551732.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401205551732.png)
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220401205956785.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220401205956785.png)
 
 
 
@@ -686,7 +686,7 @@ int max2 = max1 > n3 ? max1 : n3;
 
 ### 单分支 if
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220402114125693.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220402114125693.png)
 
 
 
@@ -701,7 +701,7 @@ else{
 }
 ```
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220402114429031.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220402114429031.png)
 
 
 
@@ -723,7 +723,7 @@ else{
 >
 > 2.如果有else，条件都不成立时则默认执行else
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220402115255823.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220402115255823.png)
 
 
 
@@ -792,7 +792,7 @@ switch(表达式){
 
 #### 流程图
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220402124655351.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220402124655351.png)
 
 #### 细节
 
@@ -849,7 +849,7 @@ for (int i = start; i <= end; i++){
 
 #### 流程图
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220402132445073.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220402132445073.png)
 
 
 
@@ -1135,7 +1135,7 @@ public class Break {
 
 > 引用赋值：数组在默认情况下是以引用传递，赋的值是地址
 
-![](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220406225408269.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220406225408269.png)
 
 
 
@@ -1313,7 +1313,7 @@ public class SeqSearch {
 
 ### 原理
 
-![image-20220408135257461](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220408135257461.png)
+![image-20220408135257461](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220408135257461.png)
 
 
 
@@ -1464,7 +1464,7 @@ public class CreateObject {
 
 ### 对象在内存中的存在形式
 
-![image-20220410200557594](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220410200557594.png)
+![image-20220410200557594](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220410200557594.png)
 
 
 
@@ -1503,13 +1503,13 @@ class CloneObject {
 3. 把地址赋给对象名，对象名就会**指向对象**
 4. 进行**指定初始化**（对象.属性）
 
-![image-20220411120637155](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220411120637155.png)
+![image-20220411120637155](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220411120637155.png)
 
 
 
 ### 对象创建流程详解（含构造器）
 
-![image-20220415091456534](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220415091456534.png)
+![image-20220415091456534](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220415091456534.png)
 
 1. 加载Person类信息(Person.class)，只加载一次
 
@@ -1679,7 +1679,7 @@ public class Method {
 
 #### 调用机制
 
-![image-20220411130119407](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220411130119407.png)
+![image-20220411130119407](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220411130119407.png)
 
 
 
@@ -1733,7 +1733,7 @@ public class Method {
 
 - **引用数据类型**，传递的是地址（**值也是地址**，**形参影响实参**）
 
-  ![image-20220412215741601](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220412215741601.png)
+  ![image-20220412215741601](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220412215741601.png)
 
 
 
@@ -1899,7 +1899,7 @@ class Characters {
 
 - this的地址与对象的地址相同
 
-![image-20220415111041822](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220415111041822.png)
+![image-20220415111041822](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220415111041822.png)
 
 **哪个对象调用，this就代表哪个对象**
 
@@ -2265,7 +2265,7 @@ new Father() {    @Override...    }.方法();
 
 
 
-![image-20220418212719208](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220418212719208.png)
+![image-20220418212719208](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220418212719208.png)
 
 **注意**：只有默认和public才能修饰类！
 
@@ -2332,7 +2332,7 @@ class 子类 extends 父类 {
 
 ### 原理图
 
-![image-20220419192707168](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220419192707168.png)
+![image-20220419192707168](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220419192707168.png)
 
 
 
@@ -2374,7 +2374,7 @@ class 子类 extends 父类 {
 
 **注意：如果找到了，但不能访问，则会报错；如果没有找到，则提示方法不存在**
 
-![image-20220420215906574](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220420215906574.png)
+![image-20220420215906574](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220420215906574.png)
 
 （这里可以加强对Java内存结构的理解）
 
@@ -3075,7 +3075,7 @@ IDEA中 `ctrl + alt + B `可以查看 Throwable 类的类图
 
 （下图列举的部分异常中，红色为编译异常，蓝色为运行异常）
 
-<img src="A:\picture\java\note\异常体系图.jpeg" style="zoom: 50%;" />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%BC%82%E5%B8%B8%E4%BD%93%E7%B3%BB%E5%9B%BE.jpeg" style="zoom: 50%;" />
 
 ## 异常处理方式
 
@@ -3145,7 +3145,7 @@ try {
 
 - 子类重写父类方法时，抛出的异常与父类一致或是父类异常的子类型
 
-<img src="A:\picture\java\note\throws处理机制.gif" style="zoom:67%;" />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/throws%E5%A4%84%E7%90%86%E6%9C%BA%E5%88%B6.gif" style="zoom:67%;" />
 
 ```java
 class A throws Exception {
@@ -3208,7 +3208,7 @@ public class AgeException extends Exception{
 
 ## throw与throws
 
-![image-20220709222903265](C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220709222903265.png)
+![image-20220709222903265](https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220709222903265.png)
 
 
 
@@ -3234,7 +3234,7 @@ public class AgeException extends Exception{
 
 > 与八种基本数据类型对应的引用类型—包装类
 
-<img src="A:\picture\java\note\包装类.gif" style="zoom:67%;" />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8C%85%E8%A3%85%E7%B1%BB.gif" style="zoom:67%;" />
 
 
 
@@ -3359,7 +3359,7 @@ public class AgeException extends Exception{
 1. String 是 final 类，代表不可变的字符序列
 
 2. 字符串是不可变的。一个字符串对象一旦被分配，其内容不可变
-   <img src="C:\Users\16271\AppData\Roaming\Typora\typora-user-images\image-20220506202455822.png" alt="image-20220506202455822" style="zoom: 67%;" />
+   <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/image-20220506202455822.png" alt="image-20220506202455822" style="zoom: 67%;" />
 
 3. 常量相加 👉 池
 
@@ -3488,9 +3488,9 @@ String str = buffer.toString();
 
 > [StringBuilder](https://baike.baidu.com/item/StringBuilder)是一个可变的字符序列。此类提供一个与 StringBuffer 兼容的 API，但不保证同步。该类被设计用作 StringBuffer 的一个简易替换，用在字符串缓冲区被单个线程使用的时候（这种情况很普遍）。
 
-<img src="A:\picture\java\note\String比较.gif"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/String%E6%AF%94%E8%BE%83.gif"  />
 
-![](A:\picture\java\note\String选择.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/String%E9%80%89%E6%8B%A9.gif)
 
 
 
@@ -3718,7 +3718,7 @@ System.out.println("日：" + c.get(Calendar.DAY_OF_MONTH));
 
 > 针对前两代日期类的不足，JDK 8加入了第三代日期类（LocalDate，LocalTime，LocalDateTime...）
 
-<img src="A:\picture\java\note\第三代日期类.gif" style="zoom: 80%;" />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%AC%AC%E4%B8%89%E4%BB%A3%E6%97%A5%E6%9C%9F%E7%B1%BB.gif" style="zoom: 80%;" />
 
 前两代日期类的不足：
 
@@ -3828,9 +3828,9 @@ public class Practice01 {
 
 👇黄色为接口，蓝色为实现类
 
-<img src="A:\picture\java\note\Collection接口.gif"  />
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/Collection%E6%8E%A5%E5%8F%A3.gif"  />
 
-![](A:\picture\java\note\Map接口.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Map%E6%8E%A5%E5%8F%A3.gif)
 
 
 
@@ -3949,7 +3949,7 @@ for ( 元素类型 元素名 : 集合名或数组名 ) {
 - 是由数组来实现数据存储的
 - 基本等同于 Vector，除了ArrayList 是线程不安全的（执行效率高）
 
-![](A:\picture\java\note\ArrayList底层操作机制.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/ArrayList%E5%BA%95%E5%B1%82%E6%93%8D%E4%BD%9C%E6%9C%BA%E5%88%B6.gif)
 
 
 
@@ -3957,9 +3957,9 @@ for ( 元素类型 元素名 : 集合名或数组名 ) {
 
 #### Vector 类
 
-![](A:\picture\java\note\Vector类.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Vector%E7%B1%BB.gif)
 
-![](A:\picture\java\note\ArrayList和Vector比较.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/ArrayList%E5%92%8CVector%E6%AF%94%E8%BE%83.gif)
 
 
 
@@ -3971,9 +3971,9 @@ for ( 元素类型 元素名 : 集合名或数组名 ) {
 2. 可以添加任意元素（可重复），包括 null
 3. 线程不安全，没有实现同步
 
-![](A:\picture\java\note\LinkedList.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/LinkedList.gif)
 
-![](A:\picture\java\note\ArrayList和LinkedList比较.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/ArrayList%E5%92%8CLinkedList%E6%AF%94%E8%BE%83.gif)
 
 
 
@@ -4001,15 +4001,15 @@ for ( 元素类型 元素名 : 集合名或数组名 ) {
 >
 > HashSet 的底层是 HashMap
 
-![](A:\picture\java\note\HashSet.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/HashSet.gif)
 
 
 
 👇**底层**
 
-![](A:\picture\java\note\HashSet底层.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/HashSet%E5%BA%95%E5%B1%82.gif)
 
-![](A:\picture\java\note\HashSet扩容.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/HashSet%E6%89%A9%E5%AE%B9.gif)
 
 
 
@@ -4047,7 +4047,7 @@ for ( 元素类型 元素名 : 集合名或数组名 ) {
 >
 > 底层是 LinkedHashMap
 
-![](A:\picture\java\note\LinkedHashSet.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/LinkedHashSet.gif)
 
 
 
@@ -4083,9 +4083,9 @@ TreeSet treeset = new TreeSet(new Comparator() {
 >
 > 常用实现类：Hashtable，Properties , HashMap，TreeMap
 
-![](A:\picture\java\note\Map接口实现类.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Map%E6%8E%A5%E5%8F%A3%E5%AE%9E%E7%8E%B0%E7%B1%BB.gif)
 
-![](A:\picture\java\note\Map接口特点.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Map%E6%8E%A5%E5%8F%A3%E7%89%B9%E7%82%B9.gif)
 
 
 
@@ -4186,9 +4186,7 @@ while (iterator3.hasNext()) {
 >
 > 线程不安全
 
-![](A:\picture\java\note\HashMap.gif)
-
-![](A:\picture\java\note\HashMap扩容机制.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/HashMap%E6%89%A9%E5%AE%B9%E6%9C%BA%E5%88%B6.gif)
 
 
 
@@ -4206,7 +4204,7 @@ while (iterator3.hasNext()) {
 >
 > 使用基本和 HashMap 一样
 
-![](A:\picture\java\note\HashTable.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/HashTable.gif)
 
 ![](A:\picture\java\note\HashTable和HashMap对比.gif)
 
@@ -4252,7 +4250,7 @@ TreeSet treeset = new TreeSet(new Comparator() {
 
 ## 集合实现类的选择
 
-![](A:\picture\java\note\集合实现类的选择.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E9%9B%86%E5%90%88%E5%AE%9E%E7%8E%B0%E7%B1%BB%E7%9A%84%E9%80%89%E6%8B%A9.gif)
 
 
 
@@ -4326,7 +4324,7 @@ TreeSet treeset = new TreeSet(new Comparator() {
 >
 > 减少了类型转换次数，提高效率
 
-![](A:\picture\java\note\泛型.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E6%B3%9B%E5%9E%8B.gif)
 
 
 
@@ -4345,7 +4343,7 @@ TreeSet treeset = new TreeSet(new Comparator() {
 
 ### 类
 
-![](A:\picture\java\note\自定义泛型.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%9B%E5%9E%8B.gif)
 
 **代码演示**
 
@@ -4388,7 +4386,7 @@ class Person<S, Y> {
 
 ### 接口
 
-![](A:\picture\java\note\自定义泛型接口.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%9B%E5%9E%8B%E6%8E%A5%E5%8F%A3.gif)
 
 
 
@@ -4396,7 +4394,7 @@ class Person<S, Y> {
 
 ### 方法
 
-![](A:\picture\java\note\自定义泛型方法.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%87%AA%E5%AE%9A%E4%B9%89%E6%B3%9B%E5%9E%8B%E6%96%B9%E6%B3%95.gif)
 
 
 
@@ -4506,7 +4504,7 @@ class MyPanel extends JPanel {
 
 
 
-![](A:\picture\java\note\Graphics.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Graphics.gif)
 
 
 
@@ -4794,7 +4792,7 @@ public class CpuNums {
 
 
 
-![](A:\picture\java\note\线程两种基本使用的区别.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BA%BF%E7%A8%8B%E4%B8%A4%E7%A7%8D%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E7%9A%84%E5%8C%BA%E5%88%AB.gif)
 
 
 
@@ -4851,13 +4849,13 @@ class Exit extends Thread {
 
 ## 线程常用方法
 
-![](A:\picture\java\note\线程常用方法1.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BA%BF%E7%A8%8B%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%951.gif)
 
-![](A:\picture\java\note\线程常用方法细节.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BA%BF%E7%A8%8B%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95%E7%BB%86%E8%8A%82.gif)
 
 
 
-![](A:\picture\java\note\线程常用方法2.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BA%BF%E7%A8%8B%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%952.gif)
 
 
 
@@ -4869,7 +4867,7 @@ class Exit extends Thread {
 
 守护线程可以监控管理用户线程
 
-![](A:\picture\java\note\用户线程and守护线程.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%94%A8%E6%88%B7%E7%BA%BF%E7%A8%8Band%E5%AE%88%E6%8A%A4%E7%BA%BF%E7%A8%8B.gif)
 
 
 
@@ -4879,9 +4877,9 @@ class Exit extends Thread {
 
 ## 线程状态
 
-![](A:\picture\java\note\线程状态.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BA%BF%E7%A8%8B%E7%8A%B6%E6%80%81.gif)
 
-![](A:\picture\java\note\线程状态转换图.gif)
+<img src="A:\picture\java\note\线程状态转换图.gif" style="zoom: 80%;" />
 
 
 
@@ -4895,7 +4893,7 @@ class Exit extends Thread {
 
 线程同步可以保证数据在同一时刻，最多有一个线程访问，以保证数据的完整性
 
-![](A:\picture\java\note\Synchronized.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Synchronized.gif)
 
 
 
@@ -4909,9 +4907,9 @@ this 对象锁是非公平锁
 
 
 
-![](A:\picture\java\note\互斥锁.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E4%BA%92%E6%96%A5%E9%94%81.gif)
 
-![](A:\picture\java\note\互斥锁细节.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E4%BA%92%E6%96%A5%E9%94%81%E7%BB%86%E8%8A%82.gif)
 
 
 
@@ -5156,7 +5154,7 @@ public class EnemyTank extends Tank implements Runnable {
 
 ## 文件基础
 
-![](A:\picture\java\note\文件流.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E6%96%87%E4%BB%B6%E6%B5%81.gif)
 
 
 
@@ -5207,9 +5205,9 @@ public class EnemyTank extends Tank implements Runnable {
 
 ## IO流原理
 
-![](A:\picture\java\note\IO流原理.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/IO%E6%B5%81%E5%8E%9F%E7%90%86.gif)
 
-![](A:\picture\java\note\IO流原理2.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/IO%E6%B5%81%E5%8E%9F%E7%90%862.gif)
 
 
 
@@ -5222,7 +5220,7 @@ public class EnemyTank extends Tank implements Runnable {
 - 按数据流的流向分为：输入流，输出流
 - 按流的角色分为：节点流，处理流（包装流）
 
-![](A:\picture\java\note\流的分类.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E6%B5%81%E7%9A%84%E5%88%86%E7%B1%BB.gif)
 
 
 
@@ -5238,15 +5236,15 @@ public class EnemyTank extends Tank implements Runnable {
 
 > 文件字节输入流
 
-![](A:\picture\java\note\FileInputStream1.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileInputStream1.gif)
 
 程序读取数据
 
-![](A:\picture\java\note\FileInputStream2.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileInputStream2.gif)
 
 最后需要释放流
 
-![](A:\picture\java\note\FileInputStream3.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileInputStream3.gif)
 
 
 
@@ -5256,11 +5254,11 @@ public class EnemyTank extends Tank implements Runnable {
 
 使用构造器时，append 决定文件内容是覆盖还是追加
 
-![](A:\picture\java\note\FileOutputStream1.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileOutputStream1.gif)
 
 程序将数据写入到文件
 
-![](A:\picture\java\note\FileOutputStream2.gif)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileOutputStream2.gif)
 
 
 
@@ -5274,7 +5272,7 @@ public class EnemyTank extends Tank implements Runnable {
 
 > 文件字符输入流
 
-![](A:\picture\java\note\FileReader.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileReader.png)
 
 
 
@@ -5284,7 +5282,7 @@ public class EnemyTank extends Tank implements Runnable {
 
 使用后必须 close 或 flush，否则无法写入到指定文件
 
-![](A:\picture\java\note\FileWriter.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/FileWriter.png)
 
 
 
@@ -5301,15 +5299,15 @@ public class EnemyTank extends Tank implements Runnable {
 >
 > 一个流对象经过其他流的多次包装，称为流的链接。
 
-![](A:\picture\java\note\节点流和处理流.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%8A%82%E7%82%B9%E6%B5%81%E5%92%8C%E5%A4%84%E7%90%86%E6%B5%81.png)
 
 
 
 BufferedReader 处理流中，封装了节点流
 
-![](A:\picture\java\note\BufferedReader02.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/BufferedReader02.png)
 
-![](A:\picture\java\note\节点流和处理流2.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%8A%82%E7%82%B9%E6%B5%81%E5%92%8C%E5%A4%84%E7%90%86%E6%B5%812.png)
 
 
 
@@ -5424,11 +5422,11 @@ public class BufferedCopy02 {
 
 ## 对象处理流
 
-![](A:\picture\java\note\序列化反序列化01.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%9601.png)
 
-![](A:\picture\java\note\序列化反序列化.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%BA%8F%E5%88%97%E5%8C%96%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96.png)
 
-![](A:\picture\java\note\对象处理流.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%AF%B9%E8%B1%A1%E5%A4%84%E7%90%86%E6%B5%81.png)
 
 ![](A:\picture\java\note\对象处理流细节.png)
 
@@ -5438,7 +5436,7 @@ public class BufferedCopy02 {
 
 ## 标准输入输出流
 
-![](A:\picture\java\note\标准输入输出.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E6%A0%87%E5%87%86%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA.png)
 
 
 
@@ -5446,7 +5444,7 @@ public class BufferedCopy02 {
 
 ## 转换流
 
-![](A:\picture\java\note\转换流.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%BD%AC%E6%8D%A2%E6%B5%81.png)
 
 
 
@@ -5464,7 +5462,7 @@ PrintStream 和 PrintWriter
 
 ## Properties
 
-![](A:\picture\java\note\properties01.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/properties01.png)
 
 ![](A:\picture\java\note\properties02.png)
 
@@ -5559,9 +5557,9 @@ public class Properties02 {
 
 ## 反射机制
 
-![](A:\picture\java\note\反射机制.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E6%9C%BA%E5%88%B6.png)
 
-![](A:\picture\java\note\java程序三个阶段.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/java%E7%A8%8B%E5%BA%8F%E4%B8%89%E4%B8%AA%E9%98%B6%E6%AE%B5.png)
 
 
 
@@ -5569,7 +5567,7 @@ public class Properties02 {
 
 ### 反射相关类
 
-![](A:\picture\java\note\反射相关类.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E7%9B%B8%E5%85%B3%E7%B1%BB.png)
 
 
 
@@ -5594,13 +5592,13 @@ public class Properties02 {
 
 ## Class 类
 
-![](A:\picture\java\note\class类.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/class%E7%B1%BB.png)
 
 
 
 ### 常用方法
 
-![](A:\picture\java\note\class类常用方法.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/class%E7%B1%BB%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95.png)
 
 
 
@@ -5627,7 +5625,7 @@ public class Properties02 {
 
 
 
-![](A:\picture\java\note\class类型对象.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/class%E7%B1%BB%E5%9E%8B%E5%AF%B9%E8%B1%A1.png)
 
 
 
@@ -5658,7 +5656,7 @@ public class Properties02 {
 
 ### 类加载流程图
 
-![](A:\picture\java\note\类加载流程图.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%B1%BB%E5%8A%A0%E8%BD%BD%E6%B5%81%E7%A8%8B%E5%9B%BE.png)
 
 
 
@@ -5670,7 +5668,7 @@ public class Properties02 {
 
 ### java.lang.Class 类
 
-![](A:\picture\java\note\反射获取类结构信息1.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF1.png)
 
 
 
@@ -5678,7 +5676,7 @@ public class Properties02 {
 
 ### java.lang.reflect.Field 类
 
-![](A:\picture\java\note\反射获取类结构信息2.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF2.png)
 
 
 
@@ -5686,13 +5684,13 @@ public class Properties02 {
 
 ### java.lang.reflect.Method 类
 
-![](A:\picture\java\note\反射获取类结构信息3.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF3.png)
 
 
 
 ### java.lang.reflect.Constructor 类
 
-![](A:\picture\java\note\反射获取类结构信息4.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E8%8E%B7%E5%8F%96%E7%B1%BB%E7%BB%93%E6%9E%84%E4%BF%A1%E6%81%AF4.png)
 
 
 
@@ -5702,7 +5700,7 @@ public class Properties02 {
 
 ## 反射创建对象实例
 
-![](A:\picture\java\note\通过反射创建对象.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E9%80%9A%E8%BF%87%E5%8F%8D%E5%B0%84%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1.png)
 
 
 
@@ -5718,13 +5716,13 @@ setAccessible(true)，使用反射可以访问 private 成员
 
 ### 访问属性
 
-![](A:\picture\java\note\反射爆破1.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E7%88%86%E7%A0%B41.png)
 
 
 
 ### 访问方法
 
-![](A:\picture\java\note\反射爆破2.png)
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E5%8F%8D%E5%B0%84%E7%88%86%E7%A0%B42.png)
 
 
 
