@@ -52,3 +52,7 @@ $ git remote show [url] - 仓库信息
   ```
 
   
+
+## commit 注释
+
+add <file> 然后 commit 即可，不使用 add .
