@@ -51,6 +51,13 @@ $ git remote show [url] - 仓库信息
   $ git push -u origin master
   ```
 
+- kex_exchange_identification
+
+  ```
+  $ ssh -T git@github.com 验证
+  $ ssh -T git@github.com -p 22 指定端口号为 22
+  ```
+
   
 
 ## commit 注释
