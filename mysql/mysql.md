@@ -47,7 +47,7 @@ DBMS ---> SQL ---> DB
 
 ```
 启动：
-	net start mysql
+net start mysql
 暂停：
 	net stop mysql
 ```
@@ -149,7 +149,7 @@ DBMS ---> SQL ---> DB
 
 # DDL
 
-## 创建表
+## create 创建表
 
 ```sql
 create table 表名(
@@ -159,6 +159,20 @@ create table 表名(
     字段名n 数据类型 --> 这里没有逗号
 );
 ```
+
+
+
+
+
+## 复制表
+
+将一个查询结果当成另一张表创建
+
+```sql
+create table 表 as (select * from 要复制的表);
+```
+
+
 
 
 
@@ -180,7 +194,7 @@ create table 表名(
 
 
 
-## 删除表
+## drop 删除表
 
 语法
 
@@ -212,7 +226,7 @@ drop table if exists 表名;
 
 
 
-# DQL单表查询
+# DQL 单表查询
 
 ## 书写顺序和执行顺序
 
@@ -440,5 +454,119 @@ from
     表名
 order by
     字段1 asc, 字段2 desc; --> 先按照字段1排序，当字段1相同时，再排字段2
+```
+
+
+
+
+
+## limit 分页查询
+
+> limit 约束查询结果的行数，即查询某个区间的数据
+
+
+
+1. limit length;
+
+   ```sql
+   select
+   	...
+   from
+   	...
+   limit 5; -- 查询前5条数据
+   ```
+
+   
+
+2. limit startIndex, length
+
+   ```sql
+   select
+   	...
+   from
+   	...
+   limit 2, 5 -- 查询第3-5条数据
+   ```
+
+- startIndex = (pageNo - 1) * length
+
+- limit (pageNo - 1) * pageSize, pageSize
+
+
+
+
+
+
+
+# DQL 多表查询
+
+## 连接查询
+
+
+
+
+
+
+
+
+
+# DML
+
+## insert 插入数据
+
+```sql
+-- 一条数据
+insert into 表(字段1, 字段2...) values
+    (值1, 值2...);
+
+-- 多条数据
+insert into 表(字段1, 字段2...) values
+    (值1, 值2...),
+    (值1, 值2...),
+    ...;
+```
+
+注意：
+
+- 表后字段省略，相当于所有字段
+- 字段与值的个数和类型要对应
+- 其他字段默认为 null
+
+
+
+
+
+## delete 删除数据
+
+```sql
+delete from 表 where 条件; -- 没有条件限制会删除所有数据
+```
+
+优点：支持回滚，可以恢复数据
+缺点：效率低
+
+
+
+
+
+## truncate 删除数据(DDL)
+
+```sql
+truncate table 表;
+```
+
+删除数据后表还在
+
+优点：效率高
+缺点：不持支回滚
+
+
+
+
+
+## update 修改数据
+
+```sql
+update 表名 set 字段1=值1, 字段2=值2... where 条件; -- 没有条件限制会更新所有数据
 ```
 
