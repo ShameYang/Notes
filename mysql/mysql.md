@@ -47,7 +47,7 @@ DBMS ---> SQL ---> DB
 
 ```
 启动：
-net start mysql
+	net start mysql
 暂停：
 	net stop mysql
 ```
@@ -75,7 +75,7 @@ net start mysql
 
 ```sql
 -- 查看所有数据库
-	show databases;
+show databases;
 	
 -- 使用数据库
 	use 数据库名;
