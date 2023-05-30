@@ -502,6 +502,107 @@ order by
 
 ## 连接查询
 
+语法
+`select 字段1, 字段2 from 表1, 表2;`
+
+
+
+分类：
+
+- 内连接
+- 外连接
+- 全连接
+
+
+
+### 笛卡尔积现象
+
+当两张表进行连接查询，在没有任何条件限制时，最终查询结果数 = 两张表行数乘积
+
+
+
+### 消除笛卡尔积
+
+```sql
+-- SQL92语法
+select
+    表1.字段, 表2.字段
+from
+    表1, 表2
+where
+    表1.字段 = 表2.字段;
+```
+
+
+
+
+
+## 连接查询 - 内连接
+
+> 内连接的表之间没有主次关系
+
+### 等值连接
+
+连接条件是等值关系
+
+```sql
+-- SQL99语法（推荐）- 表连接条件独立
+select
+    表1.字段, 表2.字段
+from
+    表1
+inner join -- inner可省略
+    表2
+on
+    表1.字段 = 表2.字段 --> 等值
+where
+    ...;
+```
+
+### 非等值连接
+
+连接条件不是等量关系
+
+```sql
+select
+    e.ename, e.sal, s.grade
+from
+    emp e
+inner join
+    salgrade s
+on
+    e.sal between s.losal and s.hisal; -- 不是等量关系
+```
+
+### 自连接
+
+把一张表看成两张表
+
+```sql
+select
+    a.ename as '员工名', b.ename as '领导名'
+from
+    emp a
+inner join
+    emp b
+on
+    a.mgr = b.empno; -- 员工的领导编号 = 领导的员工编号
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
