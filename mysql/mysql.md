@@ -75,7 +75,7 @@ DBMS ---> SQL ---> DB
 
 ```sql
 -- 查看所有数据库
-show databases;
+	show databases;
 	
 -- 使用数据库
 	use 数据库名;
