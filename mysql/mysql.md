@@ -595,6 +595,39 @@ on
 
 
 
+## 连接查询 - 外连接
+
+> 外连接的表之间有主次关系
+>
+> 
+>
+> 主表的数据会被全部查询出来（左或右出现哪个，哪个就是主表）
+
+### 右外连接（右连接）
+
+```sql
+select
+    e.name, d.name
+from
+    dept d
+right outer join -- 出现 right，右边的 emp 为主表
+    emp e
+on
+    e.deptno = d.deptno;
+```
+
+### 左外连接（左连接）
+
+```sql
+select
+    e.name, d.name
+from
+    dept d
+left outer join -- 出现 left，左边的 dept 为主表
+    emp e
+on
+    e.deptno = d.deptno;
+```
 
 
 
@@ -602,8 +635,96 @@ on
 
 
 
+## 多表连接
+
+```sql
+-- 内外连接可以混合
+select
+    ...
+from
+    a
+join
+    b
+on
+    a和b的连接条件
+join
+    c
+on
+    a和c的连接条件
+...
+```
 
 
+
+
+
+
+
+## 子查询
+
+select 语句中嵌套 select 语句
+可以出现在 select、from、where 子句中
+
+- where
+
+```sql
+-- 案例：找出比最低工资高的员工姓名和工资
+select
+    ename, sal
+from
+    emp
+where
+    sal > (select min(sal) from emp);
+```
+
+- from
+  技巧：将子查询的结果当作一张临时表
+
+```sql
+-- 案例：找出每个岗位的平均工资的薪资等级
+select
+    e.*, s.grade
+from
+    (select job, avg(sal) as avgsal from emp group by job) as e
+inner join
+    salgrade as s
+on
+    avgsal between s.losal and s.hisal;
+```
+
+- select（了解）
+  select 后边的子查询只能返回1条结果，否则报错
+
+```sql
+-- 案例：找出每个员工的部门名称，要求显示员工名和部门名
+select
+    e.name,
+    (select d.dname from dept d where e.deptno = d.deptno) as dname
+from
+    emp e;
+```
+
+
+
+
+
+## union
+
+> 表连接时，匹配的次数满足笛卡尔积（匹配次数 = 两条语句次数乘积）
+>
+> 
+>
+> 使用 union 在减少匹配次数时，还可以对查询结果进行拼接，效率更高（匹配次数 = 两条语句次数之和）
+>
+> 
+>
+> 注意：字段的个数应相同
+
+```sql
+select 字段 from 表
+union
+select 字段 from 表;
+```
 
 
 
@@ -673,3 +794,132 @@ truncate table 表;
 update 表名 set 字段1=值1, 字段2=值2... where 条件; -- 没有条件限制会更新所有数据
 ```
 
+
+
+
+
+
+
+# 约束
+
+> 约束（constraint），创建表时对字段进行约束，保证数据的有效性和完整性
+
+- 非空约束：not null
+
+- 唯一性约束：
+
+  - 列唯一：unique 
+
+  - 联合唯一约束：unique(字段1，字段2...)
+
+- 主键约束：primary key 主键非空且唯一
+
+  - 单一主键
+  - 复合主键
+
+- 外键约束：foreign key
+
+- 默认值约束：default
+
+- 检查约束：check（mysql不支持，oracle支持）
+
+
+
+## 外键约束
+
+> 添加外键，可以连接两张表，减少数据的冗余
+
+- 外键可以为 null
+- 与外键关联的字段必须为 unique
+
+
+
+语法：
+
+`foreign key (外键名) references 另一张表名(另一张表的字段)`
+
+
+
+
+
+例：学生表添加外键，关联课程表
+
+```sql
+create table student{
+    sno char(8) primary key,
+    ssex char(1) not null,
+    foreign key (s_cno) references course(cno)
+};
+```
+
+
+
+
+
+
+
+# 存储引擎
+
+> 存储引擎是 MySQL中特有的术语，不同的存储引擎，表存储数据的方式不同
+
+## 指定存储引擎
+
+可以在建表时指定存储引擎
+
+
+
+MySQL默认存储引擎：InnoDB	默认字符编码方式：utf8
+
+```sql
+create table name(
+	...
+)ENGINE = InnoDB DEFAULT CHARSET = utf8;
+```
+
+## 查看支持哪些引擎
+
+`show engines \G`
+
+## 常用存储引擎
+
+- InnoDB
+- MyISAM
+- MEMORY
+
+### InnoDB
+
+默认，重量级引擎
+
+主要特点：安全，支持事务
+
+
+
+表的内容存储在 InnoDB 表空间 tablespace（存储数据+索引）
+
+### MyISAM
+
+特点：可被转换为压缩、只读表来节省空间
+
+
+
+每个表对应三个文件：
+
+- 格式文件（frm）
+- 数据文件（MYD）
+- 索引文件（MYI）
+
+### MEMORY
+
+数据和索引都存储在内存中
+
+优点：查询效率最高，不需要和硬盘交互
+
+缺点：不安全，关机后数据消失
+
+
+
+
+
+
+
+# 事务
