@@ -982,9 +982,11 @@ InnoDB存储引擎：提供一组记录事务性活动的日志文件
 
 
 
+
+
 ## 事务的特性
 
-A（atomicity）、C（consistency）、I（isolation）、D（durability）
+A（Atomicity）、C（Consistency）、I（Isolation）、D（Durability）
 
 - A：原子性
 
@@ -1001,3 +1003,52 @@ A（atomicity）、C（consistency）、I（isolation）、D（durability）
 - D：持久性
 
   事务结束的保障。事务提交，相当于把没有保存到硬盘上的数据保存到硬盘上
+
+
+
+
+
+## 隔离级别
+
+> 大多数数据库隔离级别都是二档起步
+>
+> MySQL 的默认隔离级别是 repeatable read
+
+- 读未提交：read uncommitted
+
+  ​	事务 A 可以读取到事务 B 未提交的数据
+
+  ​	存在问题：脏读现象，读到脏数据
+
+  
+
+- 读已提交：read committed
+
+  ​	事务 A 只能读取到事务 B 提交后的数据
+
+  ​	解决了脏读，但是不可重复读取数据
+
+  
+
+- 可重复读：repeatable read
+
+  ​	事务开启后，每次读取当前事务的数据都是一致的，直到该事务结束
+
+  ​	存在问题：幻影读，读到的数据都是幻象
+
+  
+
+- 序列化 / 串行化：serializable
+
+  ​	隔离级别最高，解决了所有问题，但效率最低，事务排队，不能并发
+
+  
+
+```sql
+-- 设置全局隔离级别
+  set global transaction isolation level 隔离级别;
+  
+-- 查看隔离级别
+  select @@transaction_isolation; -- mysql 8.0
+```
+
