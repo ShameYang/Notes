@@ -1248,7 +1248,7 @@ revoke 权限 on 数据库名.表名 from '用户名'@'主机名';
 ## 数据导入
 
 ```sql
-source 路径;
+source 路径
 ```
 
 
