@@ -148,7 +148,7 @@ public class JDBC01 {
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
-            //6.释放资源
+            //5.释放资源
             if (stmt != null) {
                 try {
                     stmt.close();
