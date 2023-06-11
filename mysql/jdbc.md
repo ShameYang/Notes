@@ -133,7 +133,6 @@ public class JDBC01 {
         //分别创建 Connection、Statement、ResultSet 对象
         Connection conn = null;
         Statement stmt = null;
-        ResultSet rs = null;
         try {
             //1.注册驱动
             Class.forName("com.mysql.cj.jdbc.Driver"); //这里是 MySQL 8.0 写法
