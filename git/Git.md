@@ -3,13 +3,13 @@
 提交代码到 GitHub
 
 ```
-$ git init - 初始化仓库 //初始化一次即可
+$ git init - 初始化仓库（初始化一次即可）
 
 $ git add - 将文件添加到暂存区
 $ git status - 查看仓库状态
 $ git commit -m "..." - 提交and提交信息到本地仓库
 
-$ git remote add [alias] [url] - 创建远程仓库
+$ git remote add [alias] [url] - 创建远程仓库 （创建一次即可）
 $ git push -u [alias] [branch] - 提交到远程仓库
 ```
 
