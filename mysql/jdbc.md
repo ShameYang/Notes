@@ -28,7 +28,7 @@
 
 # JDBC 编程步骤
 
-前置工作：在项目下创建一个 lib 文件夹，将 mysql.jar 拷贝到该目录下，右键 add as library（等同于为 jar 包配置环境变量）
+> 前置工作：在项目根目录下创建一个 lib 文件夹，将 mysql.jar 拷贝到该目录下，右键 add as library（等同于为 jar 包配置环境变量）
 
 
 
@@ -218,7 +218,13 @@ public class JDBC01 {
 
 
 
-## 读取配置文件
+
+
+
+
+
+
+# 读取配置文件完成 JDBC
 
 > src 包下新建 resources 包，新建 db.properties 配置文件
 >
@@ -299,3 +305,195 @@ public class JDBC_Properties_Test {
 }
 ```
 
+
+
+
+
+
+
+# 模拟用户登录
+
+> 1. 提供一个输入界面，可以让用户输入用户名和密码
+> 2. 底层数据库中需要一张用户表，表中存储用户信息
+> 3. 当 java 程序接收到用户名和密码时，连接数据库验证用户名和密码
+
+
+
+## 程序代码
+
+> 存在问题：SQL 注入
+>
+> 问题主要原因：用户提供的信息参与了 SQL 语句的编译
+>
+> 例如：
+>
+>   用户名 abc，密码 aaaaa ' or ' 1 = 1 也会显示登录成功
+
+```java
+public class SimulateLogin {
+    public static void main(String[] args) {
+        //初始化一个界面，可以让用户输入用户名和密码
+        Map<String, String> userLoginInfo = initUI();
+
+        //连接数据库验证用户名和密码是否正确
+        boolean ok = checkNameAndPwd(userLoginInfo.get("loginName"), userLoginInfo.get("loginPwd"));
+
+        System.out.println(ok ? "登录成功" : "登录失败");
+    }
+
+    /**
+     * 验证用户名和密码
+     * @param loginName 用户名
+     * @param loginPwd 密码
+     * @return true 表示登录成功，false 表示登录失败
+     */
+    private static boolean checkNameAndPwd(String loginName, String loginPwd) {
+        boolean ok = false;
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        //资源绑定器
+        ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+        String driver = bundle.getString("driver");
+        String url = bundle.getString("url");
+        String user = bundle.getString("user");
+        String password = bundle.getString("password");
+
+        try {
+            //1.注册驱动
+            Class.forName(driver);
+            //2.获取数据库连接
+            conn = DriverManager.getConnection(url, user, password);
+            //3.获取数据库操作对象
+            stmt = conn.createStatement();
+            //4.执行 SQL 语句
+            String sql = "select * from t_user where login_name = '" + loginName
+                    + "' and login_pwd = '" + loginPwd + "'";
+            rs = stmt.executeQuery(sql);
+            //5.处理查询结果集
+            //如果以上 sql 语句中用户名和密码正确，那么结果最多返回一条记录，所以无需循环
+            if (rs.next()) {
+                ok = true;
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        } finally {
+            //6.释放资源
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return ok;
+    }
+
+    /**
+     * 初始化界面，接收用户输入
+     * @return 存储用户名和密码的 Map 集合
+     */
+    private static Map<String, String> initUI() {
+        //登录界面
+        System.out.println("--- 欢迎使用模拟系统！请输入用户名和密码 ---");
+        Scanner sc = new Scanner(System.in);
+        System.out.print("用户名：");
+        String loginName = sc.nextLine();
+        System.out.print("密码：");
+        String loginPwd = sc.nextLine();
+
+        //将用户名和密码存放到 Map 集合中
+        Map<String, String> userLoginInfo = new HashMap<>();
+        userLoginInfo.put("loginName", loginName);
+        userLoginInfo.put("loginPwd", loginPwd);
+
+        //返回 Map
+        return userLoginInfo;
+    }
+}
+```
+
+## sql 文件
+
+```sql
+# 用户信息表，模拟用户登录使用
+drop table if exists t_user;
+
+create table t_user
+(
+    id         int primary key auto_increment,
+    login_name varchar(255) unique,
+    login_pwd  varchar(255) not null,
+    real_name  varchar(255)
+);
+
+insert into t_user(login_name, login_pwd, real_name)
+values ('admin', '123', '管理员'),
+       ('ZhangSan', '123', '张三');
+
+select * from t_user;
+```
+
+
+
+## 解决 SQL 注入问题
+
+> SQL 注入的根本原因：先进行了字符串的拼接，再进行的 SQL 编译
+>
+> - java.sql.Statement
+>
+>   先进行字符串的拼接，再进行 SQL 编译
+>
+>   - 优点：可以进行 SQL 语句的拼接
+>   - 缺点：SQL 注入问题
+>
+> - java.sql.PreparedStatement
+>
+>   先进行 SQL 编译，再进行 SQL 传值
+>
+>   - 优点：避免 SQL 注入
+>   - 缺点：只能给 SQL 语句传值
+
+
+
+步骤
+
+- 将 Statement 更换为 PreparedStatement
+
+- 修改之前 JDBC 步骤的第3步（获取数据库对象）和第4步（执行 SQL），如下：
+
+  ```java
+  //1.注册驱动
+  Class.forName(driver);
+  //2.获取数据库连接
+  conn = DriverManager.getConnection(url, user, password);
+  
+  //3.获取预编译的数据库操作对象
+  //一个问号 ? 是一个占位符，每个占位符只能接收 1 个值或数据
+  String sql = "select * from t_user where login_name = ? and login_pwd = ?";
+  stmt = conn.prepareStatement(sql);
+  //给占位符传值（JDBC 中所有下标都从 1 开始）
+  stmt.setString(1, loginName); //1 代表第一个 ?
+  stmt.setString(2, loginPwd); // 2 代表第二个 ?
+  
+  //4.执行 SQL 语句
+  rs = stmt.executeQuery(); //去掉参数
+  ```
+
+  
