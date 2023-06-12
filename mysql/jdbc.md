@@ -119,15 +119,6 @@
 ## DML
 
 ```java
-package com.shameyang.jdbc;
-
-import java.sql.*;
-
-/**
- * @author ShameYang
- * @date 2023/6/11 20:49
- * @description 使用 IDEA 开发一个 JDBC 程序
- */
 public class JDBC01 {
     public static void main(String[] args) throws SQLException {
         //分别创建 Connection、Statement、ResultSet 对象
@@ -173,15 +164,6 @@ public class JDBC01 {
 ## DQL
 
 ```java
-package com.shameyang.jdbc;
-
-import java.sql.*;
-
-/**
- * @author ShameYang
- * @date 2023/6/11 20:49
- * @description 使用 IDEA 开发一个 JDBC 程序
- */
 public class JDBC01 {
     public static void main(String[] args) throws SQLException {
         //分别创建 Connection、Statement、ResultSet 对象
@@ -232,5 +214,86 @@ public class JDBC01 {
     }
 }
 
+```
+
+
+
+## 读取配置文件
+
+src 包下新建 resources 包，新建 db.properties 配置文件
+
+在原来的程序下创建资源绑定器对象，得到配置文件中的信息
+
+
+
+配置文件
+
+```properties
+# mysql connectivity configuration
+driver=com.mysql.cj.jdbc.Driver
+url=jdbc:mysql://localhost:3306/jdbc
+user=root
+password=123456
+```
+
+程序代码
+
+```java
+public class JDBC_Properties_Test {
+    public static void main(String[] args) throws SQLException {
+        //资源绑定器
+        ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+        //通过配置文件得到信息
+        String driver = bundle.getString("driver");
+        String url = bundle.getString("url");
+        String user = bundle.getString("user");
+        String password = bundle.getString("password");
+
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            //1.注册驱动
+            Class.forName(driver);
+            //2.获取连接
+            conn = DriverManager.getConnection(url, user, password);
+            //3.获取数据库操作对象
+            stmt = conn.createStatement();
+            //4.执行 SQL
+            String sql = "select name as '学生姓名' from student where id = 01";
+            rs = stmt.executeQuery(sql);
+            //5.处理查询结果集
+            while (rs.next()) {
+                String name = rs.getString("学生姓名");
+                System.out.println(name);
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            //6.释放资源
+            if (rs != null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
 ```
 
