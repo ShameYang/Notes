@@ -220,9 +220,11 @@ public class JDBC01 {
 
 ## 读取配置文件
 
-src 包下新建 resources 包，新建 db.properties 配置文件
-
-在原来的程序下创建资源绑定器对象，得到配置文件中的信息
+> src 包下新建 resources 包，新建 db.properties 配置文件
+>
+> 在原来的程序下创建资源绑定器对象，得到配置文件中的信息
+>
+> 使用其他数据库时，直接修改配置文件即可
 
 
 
