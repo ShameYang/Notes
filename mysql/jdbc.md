@@ -601,3 +601,117 @@ public class SimulateLogin {
 }
 ```
 
+
+
+
+
+
+
+# JDBC 事务
+
+> 实际开发中需要将自动提交机制关闭，改为手动提交
+
+
+
+1. 得到 Connection 连接后，关闭自动提交机制
+
+   ```java
+   conn = DriverManager.getConnection(url, user, password);
+   conn.setAutoCommit(false); // 关闭自动提交机制
+   ```
+
+2. 执行 SQL 以后，手动提交
+
+   ```java
+   conn.commit(); // 手动提交
+   ```
+
+3. 如果出现异常，手动回滚
+
+   ```java
+   try {
+       ...
+   } catch (Exception e) {
+       try {
+       	if (conn != null) {
+           	conn.rollback(); // 出现异常，手动回滚
+       	}
+       } catch (SQLException ex) {
+           ex.printStackTrace();
+       }
+   }
+   ```
+
+
+
+
+
+
+
+# JDBC 工具类封装
+
+> 为了方便开发，可以封装一个 JDBC 工具类
+
+```java
+public class DBUtil {
+    private DBUtil() {
+
+    }
+
+    //类加载时绑定属性资源文件
+    private static final ResourceBundle bundle = ResourceBundle.getBundle("resources/db");
+
+    //注册驱动
+    static {
+        try {
+            Class.forName(bundle.getString("driver"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取数据库连接对象
+     * @return 新的连接对象
+     * @throws SQLException
+     */
+    public static Connection getConnection() throws SQLException {
+        String url = bundle.getString("url");
+        String user = bundle.getString("user");
+        String password = bundle.getString("password");
+        Connection conn = DriverManager.getConnection(url, user, password);
+        return conn;
+    }
+
+    /**
+     * 释放资源
+     * @param conn 连接对象
+     * @param stmt 数据库操作对象
+     * @param rs 查询结果集
+     */
+    public static void close(Connection conn, Statement stmt, ResultSet rs) {
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (stmt != null) {
+            try {
+                stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        if (conn != null) {
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
