@@ -58,6 +58,24 @@ $ git remote show [url] - 仓库信息
 
   
 
-## commit 注释
+## commit 分别注释
 
 add \<file> 然后 commit 即可，不使用 add .
+
+
+
+## 修改文件名的大小写，add 不生效
+
+检查 git 配置，查看是否忽略大小写
+
+```
+$ git config core.ignorecase
+true 表示忽略大小写
+```
+
+解决方法
+
+```
+$ git config core.ignorecase false
+```
+
