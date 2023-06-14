@@ -4,7 +4,7 @@ My study notes
 
 
 - Java
-  - Javase
+  - JavaSE
   - Java8
 - JavaWeb
   - HTML
