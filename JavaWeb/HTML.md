@@ -383,30 +383,102 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
 >
 > 以上格式是 HTTP 协议规定的，必须以这种格式提交给服务器
 
-- 表单域`<form action="指定数据提交的地方"></form>`
+- 表单域`<form action="指定数据提交的地方" method="提交信息是否显示在地址栏(get / post)"></form>`
 
 - 表单元素（表单控件）
 
   - `<input type="属性值"/>`
 
-    | 属性值   | 说明                             |
-    | -------- | -------------------------------- |
-    | button   | 普通按钮，不能提交表单           |
-    | submit   | 提交按钮，把表单数据提交到服务器 |
-    | reset    | 重置按钮，清空表单数据           |
-    | password | 密码框                           |
-    | radio    | 单选框                           |
-    | checkbox | 复选框                           |
-    | text     | 单行的输入框                     |
+    | 属性值   | 说明                                                   |
+    | -------- | ------------------------------------------------------ |
+    | button   | 普通按钮，不能提交表单                                 |
+    | submit   | 提交按钮，把表单数据提交到服务器                       |
+    | reset    | 重置按钮，清空表单数据                                 |
+    | password | 密码框                                                 |
+    | radio    | 单选框，相同 name 可以实现多选一                       |
+    | checkbox | 复选框                                                 |
+    | text     | 单行的输入框                                           |
+    | file     | 文件上传专用                                           |
+    | hidden   | 隐藏域，浏览器上不显示，但是设置 name 后会提交到服务器 |
 
-  - input 其他属性
+    input 其他属性
 
     | 属性      | 属性值     | 说明                                   |
     | --------- | ---------- | -------------------------------------- |
     | name      | 用户自定义 | input 元素的名字，有 name 数据才能提交 |
     | value     | 用户自定义 | 按钮上显示的文本                       |
-    | checked   |            |                                        |
+    | checked   | checked    | 首次加载时就被选中                     |
     | maxlength |            |                                        |
 
-    
+  - 下拉选项：`<select></select>`
+
+    ```html
+    <select>
+        <!--selected 表示默认选项-->
+        <option>选项1</option>
+        <option selected>选项2</option>
+        ...
+    </select>
+    ```
+
+  - 文本域：`<textarea></textarea>`
+
+    文本域没有 value 属性
+
+
+
+例：用户注册表单
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>用户注册表单</title>
+	</head>
+	<body>
+		<!-- 
+			用户名
+			密码
+			确认密码
+			性别
+			兴趣爱好
+		 -->
+		<form action="http://localhost:8080/test" method="post">
+            <input type="hidden" name="userid" value="111" />
+			用户名
+			<input type="text" name="username"/>
+			<br />
+			密码
+			<input type="password" name="userpwd" />
+			<br />
+			确认密码
+			<input type="password" />
+			<br />
+			性别
+			<input type="radio" name="gender" />男
+			<input type="radio" name="gender" />女
+			<br />
+			兴趣爱好
+			<input type="checkbox" name="interest" value="sing" checked/>唱
+			<input type="checkbox" name="interest" value="jump" />跳
+			<input type="checkbox" name="interest" value="rap" />rap
+			<input type="checkbox" name="interest" value="basketball" />篮球
+			<br />
+			学历
+			<select name="grade">
+				<option value="zk">专科</option>
+				<option value="bk" selected>本科</option>
+				<option value="ss">硕士</option>
+			</select>
+			<br />
+			简介
+			<textarea name="introduce" id="" cols="20" rows="5"></textarea>
+			<br />
+			<input type="submit" value="注册" />
+			<input type="reset" value="清空" />
+		</form>
+	</body>
+</html>
+```
 
