@@ -102,7 +102,7 @@
 
 # 边框
 
-```css
+```
 选择器 {
 	border: 1px solid red;
 }
@@ -124,7 +124,7 @@
 
 # 隐藏
 
-```css
+```
 选择器 {
 	display: none;
 }
@@ -138,7 +138,7 @@
 
 # 字体
 
-```css
+```
 选择器 {
 	font-size: 12px;
 	color: red;
@@ -153,7 +153,7 @@
 
 # 文本装饰
 
-```css
+```
 选择器 {
 	text-decoration: none; /* 无装饰，例如可以取消超链接的下划线 */
 }
@@ -167,7 +167,7 @@
 
 # 鼠标悬停效果
 
-```css
+```
 选择器 {
 	cursor: pointer; /* pointer 是小手，hand 也是，但是 hand 存在浏览器兼容问题 */
 }
@@ -198,11 +198,11 @@
 ```
 选择器 {
 	position: absolute; /* 绝对定位 */
-    /* 距离上下左右都是 10px */
-    top: 10px;
-    left: 10px;
-    bottom: 10px;
-    right: 10px;
+	/* 距离上下左右都是 10px */
+	top: 10px;
+	left: 10px;
+	bottom: 10px;
+	right: 10px;
 }
 ```
 
