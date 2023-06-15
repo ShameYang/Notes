@@ -216,19 +216,19 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
   ```html
   <!--注意：rowspan 合并行时，要删掉下边的单元格-->
   <table border="1px" width="300px" height="20%">
-  			<tr>
-  				<td>1</td>
-  				<td>2</td>
-  			</tr>
-  			<tr>
-  				<td>a</td>
-  				<td rowspan="2">b</td>
-  			</tr>
-  			<tr>
-  				<td>x</td>
-  				<!--<td>y</td>-->
-  			</tr>
-  		</table>
+      <tr>
+          <td>1</td>
+          <td>2</td>
+      </tr>
+      <tr>
+          <td>a</td>
+          <td rowspan="2">b</td>
+      </tr>
+      <tr>
+          <td>x</td>
+          <!--<td>y</td>-->
+      </tr>
+  </table>
   ```
 
 - colspan：合并列
