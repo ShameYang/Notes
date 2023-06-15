@@ -168,11 +168,13 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
 
 # HTML 表格
 
-表格`<table></table>`
+- 表格`<table></table>`
 
-一行`<tr></tr>`
+- 一行`<tr></tr>`
 
-一个单元格`<td></td>`
+- 表头单元格`<th></th>`
+
+- 一个单元格`<td></td>`
 
 
 
@@ -188,7 +190,8 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
 <table align="center" border="1px" width="300px" height="20%">
     <!--align 对齐方式-->
     <tr align="center">
-        <td>1</td>
+        <!--th 比 td 多的是居中和加粗-->
+        <th>1</th>
         <td align="center">2</td>
     </tr>
     <tr>
@@ -250,4 +253,37 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
   </table>
   ```
 
-  
+
+
+
+## 表格结构标签
+
+> 在 table 中不是必须的，这样写方便后期 JS 代码
+
+- 头`<thead></thead>`
+- 体`<tbody></tbody>`
+- 脚`<tfoot></tfoot>`
+
+```html
+<table border="1px" width="300px" height="20%">
+    <thead>
+        <tr>
+        	<td>1</td>
+        	<td>2</td>
+    </tr>
+    </thead>
+    <tbody>
+    	<tr>
+        	<td>a</td>
+        	<td>b</td>
+    	</tr>
+    </tbody>
+    <tfoot>
+        <tr>
+        	<td>x</td>
+        	<td>y</td>
+    	</tr>
+    </tfoot>
+</table>
+```
+
