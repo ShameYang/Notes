@@ -408,7 +408,9 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
     | name      | 用户自定义 | input 元素的名字，有 name 数据才能提交 |
     | value     | 用户自定义 | 按钮上显示的文本                       |
     | checked   | checked    | 首次加载时就被选中                     |
-    | maxlength |            |                                        |
+    | readonly  | readonly   | 只读，但是可以上传到服务器             |
+    | disabled  | disabled   | 只读，不能上传到服务器                 |
+    | maxlength | 整数       | 设置文本框可输入的字符数量             |
 
   - 下拉选项：`<select></select>`
 
@@ -480,5 +482,47 @@ HTML 代码中需要用以上三种实体符号表示小于号、大于号和空
 		</form>
 	</body>
 </html>
+```
+
+
+
+
+
+
+
+# HTML 中的 id 属性
+
+1. 在 HTML 文档中，任何元素（节点）都有 id 属性，id 属性是节点的唯一标识，所以同一 HTML 文档中 id 值不能重复
+2. 表单提交数据时，只和 name 有关，和 id 无关
+3. id 作用：
+   - JS 可以对 HTML 文档中任何节点进行增删改操作
+   - id 让我们获取节点更方便
+4. DOM(Document) 树：HTML 文档是树状结构，每个节点都有唯一的 id
+
+
+
+
+
+
+
+# HTML 中 div 和 span
+
+1. div 和 span 是什么？有什么用？
+
+   div 和 span 都可以称为“图层”
+
+   作用是保证页面可以灵活布局
+
+   图层就是一个一个的盒子
+
+2. 最早的网页采用 table 布局，现在 div 布局使用最多，灵活布局
+
+3. div 独占一行，span 不会
+
+
+
+```html
+<div></div>
+<span></span>
 ```
 
