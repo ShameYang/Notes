@@ -47,3 +47,162 @@
    将样式写入 .css 文件中，在需要的网页引入 css 文件，方便维护
 
    语法格式：`<link type="text/css" rel="stylesheet" href="css 文件的路径" />`
+
+
+
+
+
+
+
+# CSS 选择器
+
+1. id 选择器
+
+   语法格式
+
+   ```
+   #id {
+   	样式名:样式值;
+   	样式名:样式值;
+   	...
+   }
+   ```
+
+2. 标签选择器
+
+   语法格式
+
+   ```
+   标签名 {
+   	样式名:样式值;
+   	样式名:样式值;
+   	...
+   }
+   ```
+
+3. 类选择器
+
+   语法格式：注意 . 不能丢
+
+   对应的标签设置 class 属性
+
+   ```
+   .类名 {
+   	样式名:样式值;
+   	样式名:样式值;
+   	...
+   }
+   ```
+
+
+
+
+
+
+
+# 边框
+
+```css
+选择器 {
+	border: 1px solid red;
+}
+
+等价于
+
+选择器 {
+	border-width: 1px;
+	border-style: solid;
+	border-color: red;
+}
+```
+
+
+
+
+
+
+
+# 隐藏
+
+```css
+选择器 {
+	display: none;
+}
+```
+
+
+
+
+
+
+
+# 字体
+
+```css
+选择器 {
+	font-size: 12px;
+	color: red;
+}
+```
+
+
+
+
+
+
+
+# 文本装饰
+
+```css
+选择器 {
+	text-decoration: none; /* 无装饰，例如可以取消超链接的下划线 */
+}
+```
+
+
+
+
+
+
+
+# 鼠标悬停效果
+
+```css
+选择器 {
+	cursor: pointer; /* pointer 是小手，hand 也是，但是 hand 存在浏览器兼容问题 */
+}
+```
+
+
+
+
+
+
+
+# 列表样式
+
+```css
+选择器 {
+	list-style-type: none; /* 去掉列表前的符号 */
+}
+```
+
+
+
+
+
+
+
+# 定位
+
+```css
+选择器 {
+	position: absolute; /* 绝对定位 */
+    /* 距离上下左右都是 10px */
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+}
+```
+
