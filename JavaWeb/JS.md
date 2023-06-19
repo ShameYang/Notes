@@ -207,3 +207,88 @@ function 函数名(形参列表) {
 - 运算结果："undefined"、"number"、"string"、"boolean"、"object"、"function"
 
 - 在 JS 中比较字符串使用 ==
+
+  == 判断值，=== 判断值和数据类型
+
+
+
+
+
+## Object
+
+类的定义与函数定义格式一样
+
+例如
+
+```js
+function Student(sname, gender) {
+    //属性
+    this.sname = sname;
+    this.gender = gender;
+}
+```
+
+- 调用属性：
+
+  `类.属性`(与 java 一致)；还可以`类["属性"]`
+
+
+
+- Object 类中有 prototype 属性，可以使用该属性动态扩展类
+
+
+
+
+
+
+
+# 事件
+
+常用事件
+
+- 焦点
+  - blur 失去焦点
+  - focus 获得焦点
+- 鼠标点击
+  - click 鼠标单击
+  - dbclick 鼠标双击
+- 键盘
+  - keydown 键盘按下
+  - keyup 键盘弹起
+- 鼠标
+  - mouseover 鼠标经过
+  - mousemove 鼠标移动
+  - mouseout 鼠标离开
+  - mouseup 鼠标弹起
+- 表单
+  - reset 重置
+  - submit 提交
+- change 下拉列表选项改变，或文本框内容改变
+- select 文本被选定
+- load 页面加载完毕
+
+
+
+每个事件都对应一个事件句柄，事件句柄 = 事件前添加 on（onXXX ）
+
+事件句柄以属性的形式存在
+
+
+
+注册事件的两种方式：
+
+```html
+<!-- 第一种方式，html 标签中 -->
+<标签 onclick="js代码中的函数"></标签>
+
+
+<!-- 第二种方式，纯 js -->
+<script type="text/javascript">
+	//1.获取对象
+	//document 为内置对象，代表整个 html 页面
+	var obj = document.getElementById("对应的 id");
+	//2.给对象的 onXXX 属性赋值
+	obj.onXXX = 函数;
+</script>
+```
+
