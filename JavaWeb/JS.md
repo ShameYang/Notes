@@ -279,7 +279,7 @@ function Student(sname, gender) {
 
 ```html
 <!-- 第一种方式，html 标签中 -->
-<标签 onclick="js代码中的函数"></标签>
+<标签 onXXX="js代码中的函数"></标签>
 
 
 <!-- 第二种方式，纯 js -->
