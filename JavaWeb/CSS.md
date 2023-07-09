@@ -46,7 +46,7 @@
 
    将样式写入 .css 文件中，在需要的网页引入 css 文件，方便维护
 
-   语法格式：`<link type="text/css" rel="stylesheet" href="css 文件的路径" />`
+   语法格式：`<link type="text/css" rel="stylesheet" href="css文件的路径" />`
 
 
 
