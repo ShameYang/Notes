@@ -279,7 +279,7 @@ function Student(sname, gender) {
 
 ```html
 <!-- 第一种方式，html 标签中 -->
-<标签 onXXX="js代码中的函数"></标签>
+<标签 onXXX="回调函数()"></标签>
 
 
 <!-- 第二种方式，纯 js -->
@@ -288,7 +288,52 @@ function Student(sname, gender) {
 	//document 为内置对象，代表整个 html 页面
 	var obj = document.getElementById("对应的 id");
 	//2.给对象的 onXXX 属性赋值
-	obj.onXXX = 函数;
+	obj.onXXX = 回调函数; //这里的函数不加小括号
 </script>
 ```
 
+
+
+
+
+
+
+# 捕捉回车键
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>JS 捕捉回车键</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			window.onload = function() {
+				var username = document.getElementById("mytext");
+				username.onkeydown = function(event) {
+					if (event.keyCode == 13) {
+						alert("正在验证...");
+					}
+				}
+			}
+		</script>
+
+		<input type="text" id="mytext">
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+# void 运算符
+
+语法：`void(表达式)`
+
+运算原理：执行表达式，但不返回任何结果
+
+`javascript:void(0)`，javascript: 作用是告诉浏览器后面是一段 JS 代码
