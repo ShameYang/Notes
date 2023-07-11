@@ -26,7 +26,21 @@
 
 
 
-# HTML 中嵌入 JS 代码
+# JavaScript 三部分
+
+1. ECMAScript：JS 的核心语法（ES 规范 / ECMA -262标准）
+2. DOM：Document Object Model（文档对象模型）
+3. BOM：Browser Object Model（浏览器对象模型）
+
+
+
+
+
+
+
+# ECMAScript
+
+## HTML 中嵌入 JS 代码
 
 > JS 是一门事件驱动型的编程语言，依靠事件驱动，然后执行对应的程序
 >
@@ -118,9 +132,9 @@ click 示例
 
 
 
-# 变量、函数
+## 变量、函数
 
-## 声明和赋值
+### 声明和赋值
 
 > JS 是一种弱类型语言，没有编译阶段，一个变量可以随意赋值
 
@@ -136,7 +150,7 @@ click 示例
 
 
 
-## 函数
+### 函数
 
 > 由于 JS 为弱类型语言，函数不能重载，后声明的函数会覆盖之前的同名函数
 
@@ -158,7 +172,7 @@ function 函数名(形参列表) {
 
 
 
-## 全局变量和局部变量
+### 全局变量和局部变量
 
 - 全局变量
 
@@ -185,7 +199,7 @@ function 函数名(形参列表) {
 
 
 
-# 数据类型
+## 数据类型
 
 > JS 中数据类型有原始类型和引用类型
 
@@ -242,7 +256,7 @@ function Student(sname, gender) {
 
 
 
-# 事件
+## 事件
 
 常用事件
 
@@ -298,7 +312,7 @@ function Student(sname, gender) {
 
 
 
-# 捕捉回车键
+## 捕捉回车键
 
 ```html
 <!DOCTYPE html>
@@ -330,10 +344,73 @@ function Student(sname, gender) {
 
 
 
-# void 运算符
+## void 运算符
 
 语法：`void(表达式)`
 
 运算原理：执行表达式，但不返回任何结果
 
 `javascript:void(0)`，javascript: 作用是告诉浏览器后面是一段 JS 代码
+
+
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>void 运算符</title>
+	</head>
+	<body>
+		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>		<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+		<a href="javascript:void(0)" onclick="window.alert('test code')">
+			既保留超链接样式，同时用户点击超链接时执行一段 JS 代码，页面不跳转
+		</a>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+
+
+## 控制语句
+
+JS 中控制语句大部分和 Java 中相同，多了 for...in 和 with（了解即可）
+
+```js
+//for...in
+//1.遍历数组
+var arr = [false, true, 1, 2, "abc", 3.14];
+for (var i in arr) {
+    alter(arr[i]);
+}
+//2.遍历对象属性
+User = function(username, password) {
+    this.username = username;
+    this.password = password;
+}
+var u = new User("tom", 123);
+for (var property in u) {
+    alert(u[property]);
+}
+```
+
+
+
+
+
+
+
+# DOM 和 BOM 的区别和联系
+
+BOM 包括 DOM
+
+BOM 的顶级对象：window
+
+DOM 的顶级对象：document
+
