@@ -29,8 +29,8 @@
 # JavaScript 三部分
 
 1. ECMAScript：JS 的核心语法（ES 规范 / ECMA -262标准）
-2. DOM：Document Object Model（文档对象模型）
-3. BOM：Browser Object Model（浏览器对象模型）
+2. DOM：Document Object Model（文档对象模型），HTML 文档被看作一颗 DOM 树
+3. BOM：Browser Object Model（浏览器对象模型），关闭浏览器窗口、打开一个新的浏览器窗口、后退、前进、地址栏等，都是 BOM 编程
 
 
 
@@ -413,4 +413,80 @@ BOM 包括 DOM
 BOM 的顶级对象：window
 
 DOM 的顶级对象：document
+
+
+
+
+
+
+
+# DOM
+
+## 获取文本框 value
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>DOM编程-获取文本框的value</title>
+		<script type="text/javascript">
+			window.onload = function() {
+				var btnElt = document.getElementById("btn");
+				btnElt.onclick = function() {
+					alert(document.getElementById("username").value);
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<input type="text" id="username">
+		<input type="button" value="获取文本框 value" id="btn">
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## innerHTML 和 innerText 操作div和span
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>DOM编程-innerHTML和innerText操作div和span</title>
+		<style type="text/css">
+			#div {
+				background-color: aquamarine;
+				width: 300px;
+				height: 300px;
+				border: 1px black solid;
+				position: absolute;
+				top: 100px;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="text/javascript">
+			window.onload = function() {
+				var btnElt = document.getElementById("btn");
+				btnElt.onclick = function() {
+					var divElt = document.getElementById("div");
+					// divElt.innerHTML = "<font color='red'>innerHTML</font>";
+					divElt.innerText = "<font color='red'>innerText</font>";
+				}
+			}
+		</script>
+
+		<input type="button" value="设置 div 中的内容" id="btn">
+
+		<div id="div"></div>
+	</body>
+</html>
+```
 
