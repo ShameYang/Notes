@@ -490,3 +490,142 @@ DOM 的顶级对象：document
 </html>
 ```
 
+
+
+
+
+
+
+## 正则表达式
+
+> Regular Expression，主要用在字符串格式匹配
+
+
+
+### 常见的正则表达式符号
+
+元字符
+
+| 符号 |          匹配的字符          |
+| :--: | :--------------------------: |
+|  .   |     除换行以外的任意字符     |
+|  \w  |   字母、数字、下划线或汉字   |
+|  \s  |          任意空白符          |
+|  \d  |             数字             |
+|  \b  |       单词的开始或结束       |
+|  ^   |         字符串的开始         |
+|  $   |         字符串的结束         |
+|  \W  | 不是字母、数字、下划线或汉字 |
+|  \S  |          不是空白符          |
+|  \D  |            非数字            |
+|  \B  |      不是单词开头或结束      |
+
+限定符
+
+| 符号  | 重复的次数 |
+| :---: | :--------: |
+|   *   |    >=0     |
+|   +   |    >=1     |
+|   ?   |    0或1    |
+|  {n}  |     n      |
+| {n,}  |    >=n     |
+| {n,m} | n<=次数<=m |
+
+字符类
+
+|     字符     |               含义                |
+| :----------: | :-------------------------------: |
+|    [1-9]     |  1到9的任意一个数字（次数是1次）  |
+| [A-Za-z0-9]  |   A-Z、a-z、0-9中的任意1个字符    |
+| [A-Za-z0-9-] | A-Z、a-z、0-9、- 中的任意1个字符  |
+|     [^x]     |        除 x 以外的任意字符        |
+|   [^aeiou]   | 除 aeiou 这几个字母以外的任意字符 |
+
+
+
+
+
+
+
+### 一些简单的正则表达式
+
+- QQ 号：`^[1-9][0-9]{4,}$`
+- Email：`^\w+([-+.]\w)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$`
+
+
+
+
+
+
+
+### 创建正则表达式对象
+
+```js
+//第一种创建方式
+var regExp = /正则表达式/flags;
+
+//第二种创建方式-内置支持类 RegExp
+var regExp = new RegExp("正则表达式","flags");
+
+/*
+flags
+  g:全局匹配
+  i:忽略大小写匹配
+  m:多行匹配（前边是正则表达式时，不能使用 m）
+*/
+```
+
+
+
+
+
+
+
+### 正则表达式对象的 test() 方法
+
+正则表达式对象.test(用户填写的字符串)
+
+返回 true 或 false，表示字符串格式匹配成功或失败
+
+
+
+
+
+
+
+### 正则检验邮箱
+
+```html
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>正则表达式匹配邮箱地址</title>
+		<script>
+			window.onload = function() {
+				//给按钮绑定 click
+				document.getElementById("btn").onclick = function() {
+					var email = document.getElementById("email").value;
+					var emailRegExp = /^\w+([-+.]\w)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+					var ok = emailRegExp.test(email);
+					if (!ok) {
+						document.getElementById("emailError").innerText = "邮箱地址不合法";
+					}
+				}
+				//给文本框绑定 focus
+				document.getElementById("email").onfocus = function() {
+					document.getElementById("emailError").innerText = "";
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<input type="text" id="email">
+		<span id="emailError" style="color: red; font-size: 12px;"></span>
+		<br>
+		<input type="button" value="检验邮箱格式" id="btn">
+	</body>
+</html>
+```
+
