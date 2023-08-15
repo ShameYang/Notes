@@ -602,7 +602,7 @@ flags
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>正则表达式匹配邮箱地址</title>
-		<script>
+		<script type="text/javascript">
 			window.onload = function() {
 				//给按钮绑定 click
 				document.getElementById("btn").onclick = function() {
@@ -625,6 +625,154 @@ flags
 		<span id="emailError" style="color: red; font-size: 12px;"></span>
 		<br>
 		<input type="button" value="检验邮箱格式" id="btn">
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 表单验证
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>表单验证</title>
+		<style type="text/css">
+			span {
+				color: gray;
+				font-size: 12px;
+			}
+		</style>
+		<script type="text/javascript">
+			/*
+			  (1)用户名不能为空
+			  (2)用户名必须为6-14位
+			  (3)用户名只能由数字和字母组成
+			  (4)密码和确认密码一致，邮箱地址合法
+			  (5)统一失去焦点验证
+			  (6)错误提示信息在span标签中提示，并且要求字体12号，红色
+			  (7)文本框再次获得焦点后，清空错误提示信息，文本框中数据不合法时，清空文本框
+			  (8)最终表单中所有项均合法方可提交
+			*/
+			window.onload = function() {
+				//用户名
+				var usernameElt = document.getElementById("username");
+				var usernameInfo = document.getElementById("usernameInfo");
+				//click
+				usernameElt.onclick = function() {
+					usernameInfo.innerText = "请输入6-14位（数字和字母）";
+				}
+				//blur
+				usernameElt.onblur = function() {
+					var username = usernameElt.value;
+					var usernameRegExp = /^[A-Za-z0-9]{6,14}$/;
+					var checkUsername = usernameRegExp.test(username);
+					if (checkUsername) {
+						usernameInfo.innerText = "";
+					} else {
+						usernameInfo.innerHTML = "<font color='red'>用户名不合法!</font>";
+					}
+				}
+				//focus
+				usernameElt.onfocus = function() {
+					if (usernameInfo.innerText != "") {
+						usernameElt.value = "";
+					}
+				}
+				//密码
+				var pwdElt = document.getElementById("password");
+				var pwdInfo = document.getElementById("pwdInfo");
+				//click
+				pwdElt.onclick = function() {
+					pwdInfo.innerText = "只能由字母、数字和下划线组成";
+				}
+				//blur
+				pwdElt.onblur = function() {
+					pwdInfo.innerText = "";
+					var pwd = pwdElt.value;
+					var pwdRegExp = /^[A-Za-z0-9_]+$/;
+					var checkPwd = pwdRegExp.test(pwd);
+					if (checkPwd) {
+						pwdInfo.innerText = "";
+					} else {
+						pwdInfo.innerHTML = "<font color='red'>密码不合法!</font>";
+					}
+				}
+				//focus
+				pwdElt.onfocus = function() {
+					if (pwdInfo.innerText != "") {
+						pwdElt.value = "";
+					}
+				}
+				//确认密码
+				var pwd2Elt = document.getElementById("password2");
+				var pwdInfo2 = document.getElementById("pwdInfo2");
+				//click
+				pwd2Elt.onclick = function() {
+					pwdInfo2.innerText = "输入与上方相同的密码";
+				}
+				//blur
+				pwd2Elt.onblur = function() {
+					var pwd = pwdElt.value;
+					var pwd2 = pwd2Elt.value;
+					if (pwd === pwd2) {
+						pwdInfo2.innerText = "";
+					} else {
+						pwdInfo2.innerHTML = "<font color='red'>密码不一致!</font>";
+					}
+				}
+				//focus
+				pwd2Elt.onfocus = function() {
+					if (pwdInfo2.innerText != "") {
+						pwd2Elt.value = "";
+					}
+				}
+				//邮箱
+				var emailElt = document.getElementById("email");
+				var emialInfo = document.getElementById("emailInfo");
+				//blur
+				emailElt.onblur = function() {
+					var email = emailElt.value;
+					var emailRegExp = /^\w+([-+.]\w)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+					var checkEmail = emailRegExp.test(email);
+					if (checkEmail) {
+						emialInfo.innerText = "";
+					} else {
+						emialInfo.innerHTML = "<font color='red'>请输入正确的邮箱!</font>"
+					}
+				}
+				//focus
+				emailElt.onfocus = function() {
+					if (emialInfo.innerText != "") {
+						emailElt.value = "";
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<form action="http://localhost:8080/a" method="get">
+			用户名<input type="text" name="username" id="username">
+			<span id="usernameInfo"></span>
+			<br>
+			密码<input type="password" name="password" id="password">
+			<span id="pwdInfo"></span>
+			<br>
+			确认密码<input type="password" id="password2">
+			<span id="pwdInfo2"></span>
+			<br>
+			邮箱<input type="text" name="email" id="email">
+			<span id="emailInfo"></span>
+			<br>
+			<input type="submit" value="注册">
+			<input type="reset" value="重置">
+		</form>
 	</body>
 </html>
 ```
