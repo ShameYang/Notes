@@ -753,11 +753,35 @@ flags
 						emailElt.value = "";
 					}
 				}
+
+				//提交按钮绑定 click
+				var submitElt = document.getElementById("submitBtn");
+				submitElt.onclick = function() {
+					//自动触发事件
+					usernameElt.focus();
+					usernameElt.blur();
+					pwdElt.focus();
+					pwdElt.blur();
+					pwd2Elt.focus();
+					emailElt.focus();
+					emailElt.blur();
+
+					//所有项均合法时提交表单
+					if (usernameInfo.innerText == "" && pwdInfo.innerText == "" && pwdInfo2.innerText == "" && emialInfo
+						.innerText == "") {
+						//获取表单对象
+						var userFormElt = document.getElementById("userForm");
+						//在这里设置 action
+						userFormElt.action = "http://localhost:8080/a";
+						//提交表单
+						userFormElt.submit();
+					}
+				}
 			}
 		</script>
 	</head>
 	<body>
-		<form action="http://localhost:8080/a" method="get">
+		<form id="userForm" method="get">
 			用户名<input type="text" name="username" id="username">
 			<span id="usernameInfo"></span>
 			<br>
@@ -770,9 +794,128 @@ flags
 			邮箱<input type="text" name="email" id="email">
 			<span id="emailInfo"></span>
 			<br>
-			<input type="submit" value="注册">
+			<input type="button" value="注册" id="submitBtn">
 			<input type="reset" value="重置">
 		</form>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 复选框全选与取消全选
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>复选框全选与取消全选</title>
+		<script type="text/javascript">
+			window.onload = function() {
+				var checksElt = document.getElementById("firstChk");
+				//根据name获取元素
+				var hobbies = document.getElementsByName("hobby");
+				var nums = hobbies.length;
+				checksElt.onclick = function() {
+					for (var i = 0; i < nums; i++) {
+						hobbies[i].checked = checksElt.checked;
+					}
+				}
+				//遍历hobbies
+				for (var i = 0; i < nums; i++) {
+					//为每个复选框绑定click
+					hobbies[i].onclick = function() {
+						var count = 0;
+						for (var i = 0; i < nums; i++) {
+							if (hobbies[i].checked) {
+								count++;
+							}
+						}
+						checksElt.checked = (count == nums);
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<input type="checkbox" id="firstChk"><br>
+		<input type="checkbox" name="hobby" id="sing">唱<br>
+		<input type="checkbox" name="hobby" id="jump">跳<br>
+		<input type="checkbox" name="hobby" id="rap">rap<br>
+		<input type="checkbox" name="hobby" id="basketball">篮球<br>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 获取下拉列表的value
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>获取下拉列表的value</title>
+	</head>
+	<body>
+		<select id="hobbies" onchange="alert(this.value)">
+			<option>---请选择你的爱好---</option>
+			<option value="sing">唱</option>
+			<option value="jump">跳</option>
+			<option value="rap">rap</option>
+			<option value="basketball">篮球</option>
+		</select>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 显示系统时间
+
+JS 中内置支持类：Date，可以用来获取时间和日期
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>显示系统时间</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			function displayTime() {
+				var time = new Date();
+				var strTime = time.toLocaleString();
+				document.getElementById("time").innerText = strTime;
+			}
+			
+			function start() {
+				s = window.setInterval("displayTime()", 1000);
+			}
+			
+			function stop() {
+				window.clearInterval(s);
+			}
+		</script>
+		<input type="button" value="显示系统时间" onclick="start()">
+		<input type="button" value="停止系统时间" onclick="stop()">
+		<br>
+		<div id="time"></div>
 	</body>
 </html>
 ```
