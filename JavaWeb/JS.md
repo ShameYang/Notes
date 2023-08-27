@@ -920,3 +920,192 @@ JS 中内置支持类：Date，可以用来获取时间和日期
 </html>
 ```
 
+
+
+
+
+
+
+# BOM
+
+BOM 编程中，window 是顶级对象，代表浏览器窗口
+
+window 常用方法：
+
+|               方法               |    说明    |
+| :------------------------------: | :--------: |
+|              open()              | 打开新页面 |
+|             close()              |  关闭页面  |
+|             alert()              |    弹窗    |
+|            confirm()             |    确认    |
+| history.back() 或 history.go(-1) |    后退    |
+|          history.go(1)           |    前进    |
+
+
+
+
+
+
+
+## 设置地址栏上的 url
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>设置地址栏上的url</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			function goBaidu() {
+				//href 可以省略
+				window.location.href = "https://www.baidu.com";
+			}
+		</script>
+		<input type="button" value="百度" onclick="goBaidu()">
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 非顶级窗口设置为顶级窗口
+
+js代码：
+
+```js
+if(window.top != window.self) {
+	window.top.location = window.self.location;
+}
+```
+
+完整代码：
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>非顶级窗口设置为顶级窗口</title>
+	</head>
+	<body>
+		<iframe src="03.html" height="500px" width="500px"></iframe>
+	</body>
+</html>
+```
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>我是子窗口</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			function setTop() {
+				if (window.top != window.self) {
+					window.top.location = window.self.location;
+				}
+			}
+		</script>
+		<input type="button" value="将非窗口设置为顶级窗口" onclick="setTop()">
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+# 方法：浏览器向服务器发送请求
+
+- 表单 form 的提交
+- 超链接
+- document.location
+- window.location
+- window.open("url")
+- 浏览器地址栏输入 url，回车
+
+
+
+
+
+
+
+# JSON 对象
+
+> - JavaScript Object Notation（JavaScript 对象标记），简称 JSON
+>
+> - JSON 主要作用：数据交换格式
+>
+> - JSON 是一种标准轻量级的数据交换格式，特点：体积小，易解析
+>
+> - 实际开发中使用最多的两种数据交换格式：
+>   - JSON
+>   - XML（体积大，难解析，但是语法严谨，适合银行等系统）
+
+
+
+
+
+
+
+## 语法格式
+
+```json
+var jsonObj = {
+    "属性名" : "属性值",
+    "属性名" : "属性值",
+    "属性名" : "属性值",
+    ......
+};
+```
+
+
+
+
+
+
+
+## 创建对象和访问属性
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>JSON 对象</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			//创建 JSON 对象
+			var student = {
+				"sno": "001",
+				"sname": "tom",
+				"ssex": "man"
+			};
+			//访问 JSON 对象属性
+			alert(student.sno + "," + student.sname + "," + student.ssex);
+
+
+			//之前没有使用 JSON 时
+			Student = function(sno, sname, ssex) {
+				this.sno = sno;
+				this.sname = sname;
+				this.ssex = ssex;
+			}
+			var student2 = new Student("002", "mike", "man");
+			alert(student2.sno + "," + student2.sname + "," + student2.ssex);
+		</script>
+	</body>
+</html>
+```
+
