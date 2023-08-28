@@ -86,7 +86,7 @@
   - CATALINA_HOME=Tomcat 服务器的根
   - PATH=%JAVA_HOME%\bin;%CATALINA_HOME%\bin
 - 启动 Tomcat：startup.bat
-- 关闭 Tomcat：shutdown.bat（注意一定要带.bat，否则会关机！！！）
+- 关闭 Tomcat：shutdown.bat（注意一定要带.bat，否则会关机！！！这里我们可以重命名为 stop，避免手误）
 - 测试 Tomcat 有没有成功启动
   - 打开浏览器，输入 URL
     - http://ip地址:端口号
@@ -106,3 +106,97 @@
 3. 在 test 目录下新建一个 index.html 文件（编写其中的内容）
 4. 启动 Tomcat 服务器
 5. 打开浏览器，地址栏输入 http://localhost:8080/test/index.html
+
+
+
+
+
+
+
+# B/S结构系统的角色和协议
+
+- 角色
+  - 浏览器软件开发团队（谷歌、火狐...）
+  - WebServer 的开发团队（Tomcat、Jetty、Weblogic...）
+  - DB Server 的开发团队（Oracle、MySQL...）
+  - Webapp 的开发团队（JavaWeb 程序员）
+- 规范、协议
+  - Webapp 的开发团队和 WebServer 的开发团队之间的规范：JavaEE 规范之一 Servlet
+    - Servlet 规范的作用：WebServer 和 Webapp 解耦合
+  - Browser 和 WebServer 之间的传输协议：HTTP协议（超文本传输协议）
+  - Webapp 开发团队和 DB Server 的开发团队之间的规范：JDBC 规范
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/BS%E7%BB%93%E6%9E%84%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%A7%92%E8%89%B2%E5%92%8C%E5%8D%8F%E8%AE%AE.png)
+
+
+
+
+
+
+
+# 模拟 Servlet 本质
+
+- 充当 Sun 公司的角色，制定 Servlet 规范
+
+  ```java
+  package javax.servlet;
+  
+  /* 
+  	我们现在充当的是 Sun 公司的角色，
+  	制定 Servlet 规范
+  */
+  public interface Servlet {
+      //一个专门提供服务的方法
+      void service();
+  }
+  ```
+
+  
+
+- 充当 Tomcat 服务器的开发者
+
+  ```java
+  package org.apache;
+  
+  import java.util.ResourceBundle;
+  import javax.servlet.Servlet;
+  
+  //充当 Tomcat 的开发者
+  public class Tomcat {
+      public static void main(String[] args) {
+          System.out.println("Tomcat 服务器启动成功");
+          //Tomcat 服务器应该通过用户的请求路径找对应的XXXServlet
+          //对于 Tomcat 服务器来说，需要解析配置文件
+          ResourceBundle bundle = ResourceBundle.getBundle("配置文件");
+          String key = bundle.getString("请求路径");
+          String value = bundle.getString("XXXServlet");
+          //通过反射机制创建对象
+          Class clazz = Class.forName(value);
+          Object obj = clazz.newInstance(); // obj 的类型对于Tomcat服务器开发人员来说不知道
+          
+          //但是Tomcat服务器的开发者知道一定实现了Servlet接口
+         	Servlet servlet = (Servlet)obj;
+          servlet.service();
+      }
+  }
+  ```
+
+  
+
+- 充当 Webapp 的开发者
+
+  ```java
+  package com.shameyang.servlet;
+  
+  import javax.servlet.Servlet;
+  
+  //充当的角色：Webapp 的开发者
+  
+  public class BankServlet implements Servlet {
+      public void service() {
+          System.out.println("BankServlet's service...");
+      }
+  }
+  ```
+
+  
