@@ -7,9 +7,9 @@ My study notes
   - JavaSE
   - Java8
 - JavaWeb
+  - MySQL
+  - JDBC
   - HTML
   - CSS
   - JS
-- MySQL
-  - MySQL
-  - JDBC
+  - Sevlet
