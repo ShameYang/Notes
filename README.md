@@ -12,4 +12,4 @@ My study notes
   - HTML
   - CSS
   - JS
-  - Sevlet
+  - Servlet
