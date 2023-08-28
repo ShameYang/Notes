@@ -1109,3 +1109,141 @@ var jsonObj = {
 </html>
 ```
 
+
+
+
+
+
+
+## 复杂一些的 JSON 对象
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>复杂一些的 JSON 对象</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var student = {
+				"name": "tom",
+				"address": {
+					"city": "北京",
+					"street": "朝阳区"
+				},
+				"hobby": ["sing", "jump", "rap", "basketball"]
+			};
+
+			alert(student.name + "居住在" + student.address.city);
+
+			/*
+				自行设计 JSON 格式，可以描述整个班级每个同学的信息，以及总人数
+			*/
+			var jsonData = {
+				"total": 2,
+				"students": {
+					"name": "tom",
+					"sex": man
+				},
+				{
+					"name": "jack",
+					"sex": man
+				}
+			};
+		</script>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## eval 函数
+
+> eval 函数作用：将字符串作为一段 JS 代码解释并执行
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>eval 函数</title>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var fromJava = "{\"name\": \"tom\", \"sex\": \"man\"}";
+			window.eval("var jsonObj = " + fromJava);
+			alert(jsonObj.name + "," + jsonObj.sex);
+			alert(jsonObj["name"] + "," + jsonObj["sex"]);
+		</script>
+	</body>
+</html>
+```
+
+
+
+
+
+
+
+## 设置 table 的 tbody
+
+```html
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>设置 table 的 tbody</title>
+		<script type="text/javascript">
+			var data = {
+				"total": 2,
+				"students": [
+                    {"sno": 001, "sname": "tom", "sex": "man"},
+					{"sno": 002, "sname": "jack", "sex": "man"}
+				]
+			};
+
+			window.onload = function() {
+				var displayElt = document.getElementById("displayBtn");
+				displayElt.onclick = function() {
+					var students = data.students;
+					var html = "";
+					for (var i = 0; i < students.length; i++) {
+						var student = students[i];
+						html += "<tr>";
+						html += "<td>" + student.sno + "</td>";
+						html += "<td>" + student.sname + "</td>";
+						html += "<td>" + student.sex + "</td>";
+						html += "</tr>";
+					}
+					document.getElementById("stubody").innerHTML = html;
+					document.getElementById("count").innerHTML = data.total;
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<input type="button" value="显示学生信息" id="displayBtn">
+		<br>
+		<br>
+		<table border="1px">
+			<tr>
+				<th colspan="3">学生信息表</th>
+			</tr>
+			<tr>
+				<td>学生编号</td>
+				<td>学生姓名</td>
+				<td>学生性别</td>
+			</tr>
+			<tbody id="stubody">
+			</tbody>
+		</table>
+		共<span id="count">0</span>条记录
+	</body>
+</html>
+```
+
