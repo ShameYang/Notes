@@ -99,6 +99,20 @@
 
 
 
+# 解决 Tomcat 服务器在 DOS 命令窗口的乱码问题（控制台乱码）
+
+将 CATALINA_HOME/conf/logging.properties 中的内容修改如下：
+
+
+
+java.util.logging.ConsoleHandler.encoding = GBK
+
+
+
+
+
+
+
 # 实现一个最基本的 web 应用
 
 1. 找到 CATALINA_HOME\webapps 目录
@@ -271,6 +285,85 @@
 
     - Servlet 接口不在 JDK 中（因为 Servlet 是 JavaEE 的）
     - Tomcat 服务器实现了 Servlet 规范，所以在 Tomcat 服务器中有该接口，CATALINA_HOME\lib 目录下有一个 servlet-api.jar，解压之后会有一个 Servlet.class 文件
+    
+  - 第七步：编译我们编写的 Java 程序
+  
+    - 重点：如何让程序编译通过
+  
+      配置环境变量 CLASSPATH
+  
+      CLASSPATH=.;servlet-api.jar的路径
+  
+  - 第八步：将编译后的 class 文件拷贝到 WEB-INF\classes 目录下
+  
+  - 第九步：在 web.xml 中编写配置信息，关联请求路径和 Servlet 类名
+  
+    - 专用术语：在 web.xml 文件中注册 Servlet 类
+  
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                          https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+      version="6.0"
+      metadata-complete="true">
+        
+    	<!--servlet描述信息-->
+        <!--任意一个servlet都对应一个servlet-mapping-->
+        <servlet>
+            <servlet-name>aaaa</servlet-name>
+            <!--必须是带有包名的全限定类名-->
+            <servlet-class>com.shameyang.servlet.HelloServlet</servlet-class>
+        </servlet>
+        
+        <!--servlet映射信息-->
+        <servlet-mapping>
+            <!--这个也是随便的，但是要和上面一样-->
+            <servlet-name>aaaa</servlet-name>
+            <!--这里需要一个路径，路径必须以 / 开始-->
+            <url-pattern>/...</url-pattern>
+        </servlet-mapping>
+        
+    </web-app>
+    ```
+  
+  - 第十步：启动 Tomcat 服务器
+  
+  - 第十一步：浏览器上输入 url
+  
+    - http://127.0.0.1:8080/crm/配置文件中的路径
+    - 非常重要：浏览器上的请求路径必须和 web.xml 中的 url-pattern 一致
+    - 注意：浏览器上的请求路径与 web.xml 中的 url-pattern 的唯一区别：浏览器上的请求路径带项目名：/crm
+  
+  - 浏览器上要编写的路径太复杂时，可以使用超链接（html 页面必须放到 WEB-INF 目录外）
+
+
+
+- 总结：
+
+  - 合法的 webapp 目录结构
+
+  ```
+  webapproot
+  	|------WEB_INF
+  		|------classes(存放字节码)
+  		|------lib(第三方jar包)
+  		|------web.xml(注册Servlet)
+  	|------html
+  	|------css
+  	|------javascript
+  	|------img
+  	...
+  ```
+
+  - 浏览器发送请求，到最终服务器调用 Servlet 中的方法，是怎样的过程？
+    - 用户输入 URL，或者点击超链接
+    - 然后 Tomcat 服务器收到请求，截取路径
+    - Tomcat 服务器根据截取的路径找到项目根目录
+    - Tomcat 服务器在 web.xml 文件中查找 url-pattern 路径对应的 Servlet 实现类
+    - Tomcat 服务器通过反射机制，创建实现类的对象
+    - Tomcat 服务器 调用该对象的 service 方法
 
 
 
@@ -284,3 +377,20 @@
 - JavaEE 被 Oracle 捐献给了 Apache，改名为 Jakarta EE
 - JavaEE8 时类名：javax.servlet.Servlet
 - JavaEE9 时类名：jakarta.servlet.Servlet
+
+
+
+
+
+
+
+# 向浏览器响应一段 HTML 代码
+
+```java
+public void service(ServletRequest request, ServletResponse response) {
+    reponse.setContentType("text/html");
+    PrintWriter out = response.getWriter();
+    out.print("<h1>Hello Servlet!</h1>");
+}
+```
+
