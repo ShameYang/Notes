@@ -64,7 +64,7 @@
 
 - WEB 服务器有哪些
   - Tomcat（WEB 服务器）
-  - jetty（WEB 服务器）
+  - Jetty（WEB 服务器）
   - JBOSS（应用服务器）
   - WebLogic（应用服务器）
   - WebSphere（应用服务器）
