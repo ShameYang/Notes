@@ -70,7 +70,7 @@
   - WebSphere（应用服务器）
 
 - WEB 服务器和应用服务器的关系
-  - WEB 服务器只实现了 JavaEE 中的 Sevlet + JSP 两个核心的规范
+  - WEB 服务器只实现了 JavaEE 中的 Servlet + JSP 两个核心的规范
   - 应用服务器实现了 JavaEE 的所有规范
 
 
@@ -167,7 +167,7 @@
           System.out.println("Tomcat 服务器启动成功");
           //Tomcat 服务器应该通过用户的请求路径找对应的XXXServlet
           //对于 Tomcat 服务器来说，需要解析配置文件
-          ResourceBundle bundle = ResourceBundle.getBundle("配置文件");
+          ResourceBundle bundle = ResourceBundle.getBundle("web.properties");
           String key = bundle.getString("请求路径");
           String value = bundle.getString("XXXServlet");
           //通过反射机制创建对象
@@ -199,4 +199,88 @@
   }
   ```
 
-  
+
+
+
+- 对于我们 JavaWeb 程序员来说，我们只需做两件事：
+  - 编写一个类实现 Servlet 接口
+  - 将编写的类配置到配置文件中，在配置文件中：指定请求路径和类名的关系
+- 注意：
+  - 配置文件名固定
+  - 配置文件的存放路径固定
+  - 文件名、文件路径都是 SUN 公司制定的 Servlet 规范中的明细
+
+- 关于 Servlet
+  - 遵循 Servlet 的 webapp，可以放在不同的 WEB 服务器中运行	
+  - Servlet 包括：
+    - 规范了哪些接口
+    - 规范了哪些类
+    - 规范了一个 web 应用中应该有哪些配置文件
+    - 规范了一个 web 应用中配置文件的名字
+    - 规范了一个 web 应用配置文件存放的路径
+    - 规范了一个 web 应用配置文件的内容
+    - 规范了一个合法有效的 web 应用的目录结构
+
+
+
+
+
+
+
+# 开发第一个 Servlet
+
+- 开发步骤
+
+  - 第一步：在 webapps 目录下新建一个目录，例如 crm
+
+    - crm 就是 webapp 的根
+
+  - 第二步：在 crm 目录下，新建一个目录：WEB-INF
+
+    - 该名字是 Servlet 规范中规定的，必须全部大写
+
+  - 第三步：WEB-INF 目录下，新建一个目录：classes
+
+    - 该名字也是规定的，必须全部小写
+    - 该目录下存放的一定是 class 文件
+
+  - 第四步：WEB-INF 目录下，新建一个目录：lib
+
+    - 该目录非必须，但是需要使用第三方 jar 包时，需要放到该目录下
+
+  - 第五步：WEB-INF 目录下，新建一个文件：web.xml
+
+    - 该目录必须有，这个配置文件中描述了请求路径和 Servlet 类之间的对照关系
+
+    - 这个文件最好直接从其他的 webapp 复制粘贴
+
+      ```xml
+      <?xml version="1.0" encoding="UTF-8"?>
+      <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                            https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+        version="6.0"
+        metadata-complete="true">
+      
+      
+      </web-app>
+      ```
+
+  - 第六步：编写一个 Java 程序，必须实现 Servlet 接口
+
+    - Servlet 接口不在 JDK 中（因为 Servlet 是 JavaEE 的）
+    - Tomcat 服务器实现了 Servlet 规范，所以在 Tomcat 服务器中有该接口，CATALINA_HOME\lib 目录下有一个 servlet-api.jar，解压之后会有一个 Servlet.class 文件
+
+
+
+
+
+
+
+# 关于 JavaEE 版本
+
+- 目前最高版本为 JavaEE8
+- JavaEE 被 Oracle 捐献给了 Apache，改名为 Jakarta EE
+- JavaEE8 时类名：javax.servlet.Servlet
+- JavaEE9 时类名：jakarta.servlet.Servlet
