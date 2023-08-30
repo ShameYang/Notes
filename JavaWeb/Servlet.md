@@ -218,12 +218,13 @@ java.util.logging.ConsoleHandler.encoding = GBK
 
 - 对于我们 JavaWeb 程序员来说，我们只需做两件事：
   - 编写一个类实现 Servlet 接口
-  - 将编写的类配置到配置文件中，在配置文件中：指定请求路径和类名的关系
-- 注意：
-  - 配置文件名固定
-  - 配置文件的存放路径固定
-  - 文件名、文件路径都是 SUN 公司制定的 Servlet 规范中的明细
-
+  - 将编写的类配置到配置文件中，在配置文件中指定请求路径和类名的关系
+  
+  - 注意：
+    - 配置文件名固定
+    - 配置文件的存放路径固定
+    - 文件名、文件路径都是 SUN 公司制定的 Servlet 规范中的明细
+  
 - 关于 Servlet
   - 遵循 Servlet 的 webapp，可以放在不同的 WEB 服务器中运行	
   - Servlet 包括：
@@ -284,11 +285,11 @@ java.util.logging.ConsoleHandler.encoding = GBK
   - 第六步：编写一个 Java 程序，必须实现 Servlet 接口
 
     - Servlet 接口不在 JDK 中（因为 Servlet 是 JavaEE 的）
-    - Tomcat 服务器实现了 Servlet 规范，所以在 Tomcat 服务器中有该接口，CATALINA_HOME\lib 目录下有一个 servlet-api.jar，解压之后会有一个 Servlet.class 文件
+    - Tomcat 服务器实现了 Servlet 规范，所以在 Tomcat 服务器中有该接口，CATALINA_HOME\lib 目录下有一个 servlet-api.jar，解压之后会看到 Servlet.class
     
   - 第七步：编译我们编写的 Java 程序
   
-    - 重点：如何让程序编译通过
+    - 重点：如何让程序编译通过？
   
       配置环境变量 CLASSPATH
   
@@ -388,9 +389,171 @@ java.util.logging.ConsoleHandler.encoding = GBK
 
 ```java
 public void service(ServletRequest request, ServletResponse response) {
-    reponse.setContentType("text/html");
+    response.setContentType("text/html");
     PrintWriter out = response.getWriter();
     out.print("<h1>Hello Servlet!</h1>");
 }
 ```
 
+
+
+
+
+
+
+# Servlet 中连接数据库
+
+- 因为 Servlet 是 Java 程序，所以 Servlet 中可以编写 JDBC 代码连接数据库
+- 在一个 webapp 中去连接数据库，需要将驱动 jar 包放到 WEB-INF/lib 目录下
+
+
+
+
+
+
+
+# 集成开发环境开发 Servlet
+
+- 使用 IDEA 开发 Servlet
+
+  - 第一步：New Project
+
+    - Empty Project 起名为：javaweb
+
+  - 第二步：新建模块
+
+    - File --> new --> Module
+
+    - 这里新建的是一个 JavaSE 的模块（先不新建 Java Enterprise 模块）
+    - 这个 Module 会被自动放在 javaweb 的 project 下边
+
+  - 第三步：让 Module 变成 JavaEE 的模块
+
+    - 在 Module 上右键：Add Framework Support
+
+    - 选择 Web Application
+
+    - 选择之后，IDEA 会自动生成一个符合 Servlet 规范的 webapp 目录结构
+
+      这个 web 目录就代表 webapp 的根
+
+  - 第四步（非必须）：删除生成的 index.jsp 文件
+
+  - 第五步：导入 jar 包，编写 XXXServlet
+
+    - 导入 jar 包：
+
+      File --> Project Structure --> Module --> Dependencies --> + 号添加 jsp-api.jar 和 servlet-api.jar
+
+    - 实现 Servlet 接口中的方法
+
+  - 第六步：WEB-INF 目录下新建子目录 lib，将连接数据库的 jar 包放到里边
+
+  - 第七步：在 web.xml 中完成 XXXServlet 类的注册
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+             version="4.0">
+        <servlet>
+            <servlet-name>xxxServlet</servlet-name>
+            <servlet-class>com.shameyang.javaweb.servlet.XXXServlet</servlet-class>
+        </servlet>
+        
+        <servlet-mapping>
+            <servlet-name>xxxServlet</servlet-name>
+            <url-pattern>/...</url-pattern>
+        </servlet-mapping>
+    </web-app>
+    ```
+
+  - 第八步：给一个 html 页面，在页面中编写一个超链接，用户点击这个超链接后，发送请求，Tomcat 执行后台的 XXXServlet
+
+    - 该 html 只能放在 WEB-INF 目录外
+
+    ```html
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>xxx page</title>
+    </head>
+    <body>
+        <!--这里的 pname 是项目名，无法动态获取，先写死-->
+        <a href="/pname/...">xxx list</a>
+    </body>
+    </html>
+    ```
+
+  - 第九步：IDEA 连接 Tomcat 服务器
+
+    - 关联的过程中，将 webapp 部署到 Tomcat 服务器中
+    - 右上角小锤子右边：Add Configuration
+    - 添加 Tomcat Server --> Local
+    - Deployment（用来部署 webapp），添加 Artifact，修改 Application context 修改为 项目名
+
+  - 第十步：启动 Tomcat 服务器
+
+  - 第十一步：打开浏览器，地址栏输入 http://127.0.0.1/pname/index.html
+
+
+
+
+
+
+
+# Servlet 对象的生命周期
+
+- Servlet 对象的生命周期由 Tomcat 服务器负责
+  - Tomcat 服务器又称为：WEB 容器（WEB Container）
+  - 又可以理解为 WEB 容器管理 Servlet 对象的死活
+  - 我们自己创建的 Servlet 对象不受 WEB 容器管理
+  - WEB 容器创建的 Servlet 对象都会被放到一个集合中（HashMap）
+
+- Servlet 对象创建：用户请求时
+
+  - Tomcat 服务器启动时，Servlet 对象不会实例化
+
+  - 在实现 Servlet 接口类中创建一个无参构造方法，启动时我们会发现该方法不执行
+
+  - 启动时做了什么？
+
+    Tomcat 服务器会把 web.xml 文件中的请求路径和类名放到 Map 集合中
+
+- 怎样在服务器启动时，创建 Servlet 对象
+
+  - 在 web.xml 文件 servlet 标签中添加 `<load-on-startup>整数</load-on-startup>` 数字越小，优先级越高
+
+- Servlet 对象是单例的
+  - 单实例，但是 Servlet 类不符合单例模式，所以称之为假单例（真单例模式，构造方法是私有化的）
+  - init 方法只在第一次用户发送请求时执行
+  - destroy 方法只在服务器关闭时调用一次
+
+
+
+
+
+
+
+# 关于 Servlet 接口中的方法
+
+- init
+
+  初始化方法，只执行一次
+
+  初始化的一些代码可以放在该方法中
+
+- service
+
+  处理用户请求的核心方法
+
+- destroy
+
+  销毁 Servlet 对象前会调用一次，只执行一次
+
+  释放资源的代码可以写在该方法中
