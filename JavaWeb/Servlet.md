@@ -567,6 +567,8 @@ public void service(ServletRequest request, ServletResponse response) {
 # 适配器模式改造 Servlet
 
 > 由于 Servlet 接口中许多方法不常用，所以我们可以通过适配器模式，只重写 service 方法
+>
+> jakarta.servlet 包下有一个 GenericServlet 类， 我们直接继承就可以
 
 - 编写一个 GenericServlet 类，这个类是抽象类，其中有一个抽象方法 service
 
@@ -579,3 +581,186 @@ public void service(ServletRequest request, ServletResponse response) {
       以手机为例，直接充到 220V 电源就废了，所以需要通过充电器，充电器就是一个适配器
 
   - 之后编写的 Servlet 类都继承 GenericServlet 类，重写 service 方法即可
+
+- 改造 GenericServlet 类
+
+  - 为了方便子类的service方法调用 ServletConfig 对象，将其设置为成员变量
+
+    以下代码是模仿源码写的，jakarta.servlet 包下有一个 GenericServlet 类
+
+    ```java
+    package com.shameyang.javaweb.servlet;
+    
+    import jakarta.servlet.*;
+    
+    import java.io.IOException;
+    
+    /**
+     * @author ShameYang
+     * @date 2023/8/31 11:38
+     * @description 适配器模式改造 Servlet
+     */
+    public abstract class GenericServlet implements Servlet {
+        // ServletConfig成员变量，方便子类的 service 方法中调用
+        private ServletConfig servletConfig;
+    
+        /**
+         * 将该init方法设置为final，防止子类重写，改变servletConfig
+         * 再调用一个可以继承的init方法，便于子类重写
+         */
+        @Override
+        public final void init(ServletConfig servletConfig) throws ServletException {
+            this.servletConfig = servletConfig;
+            this.init();
+        }
+    
+        /**
+         * 提供子类重写的init方法
+         */
+        public void init() {
+    
+        }
+    
+        @Override
+        public ServletConfig getServletConfig() {
+            return servletConfig;
+        }
+    
+        /**
+         * 将核心方法设置为抽象方法，方便子类调用
+         */
+        @Override
+        public abstract void service(ServletRequest servletRequest, ServletResponse servletResponse)
+                throws ServletException, IOException;
+    
+        @Override
+        public String getServletInfo() {
+            return null;
+        }
+    
+        @Override
+        public void destroy() {
+    
+        }
+    }
+    ```
+
+    ```java
+    package com.shameyang.javaweb.servlet;
+    
+    import jakarta.servlet.ServletConfig;
+    import jakarta.servlet.ServletException;
+    import jakarta.servlet.ServletRequest;
+    import jakarta.servlet.ServletResponse;
+    
+    import java.io.IOException;
+    
+    /**
+     * @author ShameYang
+     * @date 2023/8/31 11:54
+     * @description GenericServlet的子类
+     */
+    public class XXXServlet extends GenericServlet {
+        @Override
+        public void service(ServletRequest servletRequest, ServletResponse servletResponse)
+                throws ServletException, IOException {
+            // 在XXXServlet中使用ServletConfig对象
+            ServletConfig servletConfig = this.getServletConfig();
+            System.out.println("查看能否调用:" + servletConfig);
+        }
+    }
+    ```
+
+
+
+
+
+
+
+# ServletConfig
+
+> ServletConfig 接口中的方法都被 GenericServlet 重写了，我们也可以继承 GenericServlet 调用方法
+
+- 什么是 ServletConfig？
+
+  - Servlet 对象的配置信息对象
+  - ServletConfig 对象中封装了`<servlet></servlet>`中的配置信息（web.xml 中 servlet的配置信息）
+
+- 一个Servlet 对象对应一个 ServletConfig 对象，默认情况下，在用户发送第一次请求时创建
+
+- ServletConfig 对象由 Tomcat 服务器创建
+
+- Tomcat 服务器调用 Servlet 对象的 init 方法时需要传一个 ServletConfig 对象的参数
+
+- ServletConfig 接口的实现类是 Tomcat 服务器给实现的
+
+- ServletConfig 接口的常用方法
+
+  ```java
+  public String getInitParameter(String name); // 通过初始化参数的name获取value
+  
+  public Enumeration<String> getInitParameterNames(); // 获取所有的初始化参数的name
+  
+  public ServletContext getServletContext(); // 获取 ServletContext 对象
+  
+  public String getServletName(); // 获取Servlet的name
+  ```
+
+
+
+
+
+
+
+# ServletContext
+
+- ServletContext 是一个接口，Tomcat 实现了该接口
+
+- 对于一个 webapp 来说，所有 Servlet 对象 共享一个 ServletContext 对象
+
+- ServletContext 对象在服务器启动时创建，关闭时销毁。ServletContext 对象是应用级对象
+
+- ServletContext 对象被称为 Servlet 上下文对象
+
+- 一个 ServletContext 对象通常对应一个 web.xml 文件
+
+- ServletContext 接口的常用方法
+
+  - ```java
+    public String getInitParameter(String name);
+    
+    public Enumeration<String> getInitParameterNames();
+    ```
+
+    ```java
+    <!--以上两个方法是 ServletContext 对象的方法，获取如下的配置信息-->
+    	<context-param>
+        	<param-name>pageSize</param-name>
+            <param-value>10</param-value>
+        </context-param>
+        
+        <context-param>
+        	<param-name>startIndex</param-name>
+            <param-value>0</param-value>
+        </context-param>
+    <!--
+    	以上的配置信息属于应用级的配置信息，一般一个项目中共享的配置信息会放到以上标签中
+    	如果只是想给某一个servlet作为参考，配置到servlet标签中即可
+    -->
+    ```
+
+  - ```java
+    public String getContextPath(); // 获取应用的根路径
+    
+    public String getRealPath(String path); // 获取文件的绝对路径
+    
+    // 通过 ServletContext 对象可以记录日志
+    public void log(String message);
+    public void log(String message, Throwable t);
+  
+  
+
+
+
+  
+
