@@ -557,3 +557,25 @@ public void service(ServletRequest request, ServletResponse response) {
   销毁 Servlet 对象前会调用一次，只执行一次
 
   释放资源的代码可以写在该方法中
+
+
+
+
+
+
+
+# 适配器模式改造 Servlet
+
+> 由于 Servlet 接口中许多方法不常用，所以我们可以通过适配器模式，只重写 service 方法
+
+- 编写一个 GenericServlet 类，这个类是抽象类，其中有一个抽象方法 service
+
+  - GenericServlet 类实现 Servlet 接口
+
+  - 该类是一个适配器
+
+    - 什么是适配器？
+
+      以手机为例，直接充到 220V 电源就废了，所以需要通过充电器，充电器就是一个适配器
+
+  - 之后编写的 Servlet 类都继承 GenericServlet 类，重写 service 方法即可
