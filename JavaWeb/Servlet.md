@@ -540,7 +540,7 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
-# 关于 Servlet 接口中的方法
+# Servlet 接口中的方法
 
 - init
 
@@ -564,7 +564,7 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
-# 适配器模式改造 Servlet
+# GenericServlet
 
 > 由于 Servlet 接口中许多方法不常用，所以我们可以通过适配器模式，只重写 service 方法
 >
@@ -716,9 +716,21 @@ public void service(ServletRequest request, ServletResponse response) {
 
 - ServletContext 是一个接口，Tomcat 实现了该接口
 
-- 对于一个 webapp 来说，所有 Servlet 对象 共享一个 ServletContext 对象
+- 对于一个 webapp 来说，所有 Servlet 对象共享一个 ServletContext 对象
 
 - ServletContext 对象在服务器启动时创建，关闭时销毁。ServletContext 对象是应用级对象
+
+  - 什么时候向 ServletContext 这个应用域当中绑定数据？
+    - 第一：所有用户共享的数据
+    - 第二：共享的数据量很小
+    - 第三：共享的数据很少的修改操作
+    - 向应用域中绑定数据，就相当于把数据放到了缓存（Cache）中，用户访问时直接从缓存中取，减少 IO 的操作，大大提升系统的性能
+  - 见过的缓存技术：
+    - 字符串常量池
+    - 整数型常量池 [-128~127]
+    - 数据库连接池（提前创建好 N 个连接对象，并放到集合中，使用连接对象时，直接从缓存中取，省去了连接对象的创建过程）
+    - 线程池（提前创建好 N 个线程对象，存储到集合中，用户请求时，直接从线程池中获取线程对象）】
+    - 后期还会学习更多的缓存技术：redis、mongoDB...
 
 - ServletContext 对象被称为 Servlet 上下文对象
 
@@ -753,7 +765,507 @@ public void service(ServletRequest request, ServletResponse response) {
     public String getContextPath(); // 获取应用的根路径
     
     public String getRealPath(String path); // 获取文件的绝对路径
+    ```
     
+  - ```java
     // 通过 ServletContext 对象可以记录日志
     public void log(String message);
     public void log(String message, Throwable t);
+    
+    /*
+    	日志信息记录到哪里？
+    	localhost.date.log
+    	
+    	Tomcat服务器的logs目录下有哪些文件
+    	catalina.date.log 服务器端的java程序运行的控制台信息
+    	localhost.date.log ServletContext对象的log方法记录的日志信息
+    	localhost_access_log.date.txt 访问日志
+    */
+    ```
+    
+  - 操作域的方法
+    
+    ```java
+    //存（向ServletContext应用域中存数据）
+    public void setAttribute(String name, Object value); // map.put(k, v)
+    
+    //取（从ServletContext应用域取数据）
+    public Object getAttribute(String name); // Object v = map.get(k)
+    
+    //删（删除ServletContext应用域中的数据）
+    public void removeAttribute(String name); // map.remove(k);
+    ```
+
+
+
+
+
+
+
+# HTTP 协议
+
+- 什么是协议？
+
+  - 协议是某些人或某些组织提前制定好的一套规范，大家都按照这个规范来，做到沟通无障碍
+
+- 什么是 HTTP 协议？
+
+  - HTTP 协议：W3C 制定的一种超文本传输协议（通信协议）
+
+  - 这种协议游走在 B 和 S 之间，B --> S 或 S --> B 都需要遵循 HTTP 协议。这样 B 和 S 才能解耦合
+
+    - 什么是解耦合？
+
+      B 和 S 互相不依赖
+
+- HTTP 协议包括
+
+  - 请求协议
+  - 响应协议
+
+- 请求协议（B --> S）
+
+  - 请求行
+    - 请求方式（7种）
+      - get（常用）
+      - post（常用）
+      - delete
+      - put
+      - head
+      - options
+      - trace
+    - URI
+    - HTTP 协议版本号
+
+  - 请求头
+    - 请求的主机
+    - 主机的端口
+    - 浏览器信息
+    - 平台信息
+    - cookie等信息
+    - ...
+
+  - 空白行
+    - 用来区分“请求头”和“请求体”
+  - 请求体
+    - 向服务器发送的具体数据
+
+- 响应协议 (S --> B)
+
+  - 状态行
+    - 第一部分：协议版本号（HTTP/1.1）
+    - 第二部分：状态码
+      - 200 表示请求响应成功，正常结束
+      - 404 表示访问资源不存在
+      - 405 表示前端发送的请求方式和后端请求的处理方式不一致
+      - 500 表示服务器端的程序出现异常
+      - 以 4 开始一般是浏览器端的错误
+      - 以 5 开始一般是服务器端的错误
+    - 第三部分：状态的描述信息
+      - ok 正常成功结束
+      - not found 资源找不到
+  - 响应头
+    - 响应的内容类型
+    - 响应的内容长度
+    - 响应的时间
+    - ...
+  - 空白行
+    - 用来区分“响应头”和“响应体”
+  - 响应体
+    - 响应的正文，这些内容是一些字符串，这个字符串被浏览器渲染，解释并执行，最终展示出效果
+
+- GET 请求和 POST 请求的区别
+  - get 请求发送数据时，数据会在挂在 URI 后边，发送的数据会显示在浏览器地址栏（get 请求在请求行上发送数据）
+  - post 请求发送数据时，在请求体当中发送数据，不会显示在浏览器地址栏
+  - get 请求只能发送普通的字符串
+  - get 请求无法发送大数据量
+  - post 请求可以发送任何类型的数据
+  - post 请求可以发送大数据量
+  - get 请求在 W3C中是这样说的：get 请求比较适合从服务器端获取数据
+  - post 请求在 W3C中是这样说的：post 请求比较适合向服务器端传送数据
+  - get 请求是安全的，因为 get 请求只是为了从服务器端获取数据
+  - post 请求是危险的，因为 post 请求向服务器端提交数据，如果这些数据通过后门的方式进入到服务器，是很危险的。所以一般在拦截请求时，拦截 post 请求
+  - get 请求支持缓存
+    - 任何一个 get 请求的响应结果都会被浏览器缓存
+    - 发送 get 请求后，会先从本地缓存查找，找不到再从服务器获取，这种方法提高了用户体验
+  - post 请求不支持缓存
+  
+- 发送的数据格式相同：
+  - name=value&name=value&name=value...
+
+
+
+
+
+
+
+# HttpServlet
+
+- HttpServlet 类是专门为 HTTP 协议准备的，比 GenericServlet 更适合 HTTP 协议下的开发
+- HttpServlet 在哪个包
+  - jakarta.servlet.http
+- http 包下的接口和类
+  - jarkarta.servlet.http.HttpServlet（HTTP 协议专用的 Servlet 类，抽象类）
+  - jarkarta.servlet.http.HttpServletRequest（HTTP 协议专用的请求对象）
+  - jarkarta.servlet.http.HttpServletResponse（HTTP 协议专用的响应对象）
+
+- 避免 405 错误
+  - 前后端的请求方式要一致
+    - 前端发送 get 请求时，就重写 doGet 方法
+    - 前端发送 post 请求时，就重写 doPost 方法
+    - ...
+
+- 继承 HttpServlet 重写 service
+  - 可以重写，但是由于覆盖了 service，享受不到 405 错误
+
+
+
+
+
+
+
+# 最终的 Servlet 类开发
+
+- 第一步：编写一个 Servlet 类，直接继承 HttpServlet
+- 第二步：重写 doGet 或 doPost 方法
+- 第三步：将 Servlet 类配置到 web.xml 中
+- 第四步：准备前端的页面（form 表单），form 表单中指定请求路径
+
+
+
+
+
+
+
+# 关于一个 web 站点的欢迎页面
+
+- 在访问一个 webapp 时，如果没有指定资源路径，默认会访问欢迎页面
+
+- 怎样设置欢迎页面？
+
+  - 第一步：在 webapp 根目录下创建一个 html 文件
+
+  - 第二步：配置 web.xml 文件
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+             version="4.0">
+    
+        <welcome-file-list>
+            <welcome-file>xxx.html</welcome-file>
+        </welcome-file-list>
+    
+    </web-app>
+    ```
+
+  - 第三步：启动服务器，访问 http://localhost:8080/项目名
+
+- 一个 webapp 可以有多个欢迎页面，越靠上优先级越高
+
+- 当文件名为 index.html 时，不需要在 web.xml 中配置欢迎页面
+
+  - Tomcat 已经提前配置好了
+  - 配置欢迎页面的两个地方：
+    - webapp 内部的 web.xml 文件中（局部配置）
+    - CATALINA_HOME/cof/web.xml 文件中（全局配置）
+    - 注意：局部优先（就近原则）
+
+
+
+
+
+
+
+# HttpServletRequest 接口
+
+- HttpServletRequest 对象由 Tomcat 服务器负责创建，封装了 HTTP 的请求协议
+
+- 面向 HttpServletRequest 接口编程，调用方法就可以获取请求的信息
+
+- 常用的方法
+
+  - 获取前端浏览器用户提交的数据
+
+    - ```java
+      String getParameter(String name); // 获取value数组中的第一个元素。最常用
+      Map<String, String[]> getParameterMap(); // 获取Map
+      Enumeration<String> getParameterNames(); // 获取Map中的所有key
+      String[] getParameterValues(String name); // 根据key获取value
+      ```
+
+    - 前端 form 提交数据后，采用什么数据结构存储这些数据？
+
+      - name=value&name=value&name=value...
+
+      - Map 集合来存储
+
+        ```java
+        Map<String, String>
+            这种想法是错误的
+            如果采用以上的数据结构存储，会发现key重复时value覆盖
+            
+        Map<String, String[]>
+            key存储String
+            value存储String[]
+            这样就可以避免value被覆盖
+        ```
+
+- request 对象又称为“请求域”对象
+
+  - 请求域对象比应用域对象的范围小很多。生命周期很短
+
+  - 请求域只在一次请求内有效
+
+  - 请求域也有三个方法
+
+    ```java
+    void setAttribute(String name, Object obj); // 向域中绑定数据
+    Object getAttribute(String name); // 从域中根据name获取数据
+    void removeAttribute(String name); // 将域中绑定的数据移除
+    ```
+
+  - 跳转（一个 Servlet 中访问另一个 Servlet 的 request 对象）
+
+    - 转发（一次请求）
+
+      ```java
+      // 第一步：获取请求转发器对象
+      RequestDispatcher dispatcher = request.getRequestDispatcher("/另一个Servlet的路径");
+      // 第二步：调用转发器的forward方法完成跳转/转发
+      dispatcher.forward(request, response);
+      
+      // 第一步和第二步结合
+      request.getRequestDispatcher("/另一个Servlet的路径").forward(request, response);
+      ```
+
+  - 两个 Servlet 怎样共享数据？
+
+    - 将数据放到 ServletContext 应用域中，但是占用资源太多，不建议使用
+    - 放到 request 域当中，然后 AServlet 转发给 BServlet
+      - 注意：转发的路径不加项目名
+
+  - request 对象中容易混淆的两种方法
+
+    ```java
+    // uri?username=xxx&userpwd=123
+    String username = request.getParameter("username");
+    
+    //之前一定执行过：reqeust.setAttribute("name", new Object())
+    Object obj = request.getAttribute("name");
+    
+    /*
+    	以上两方法的区别
+    	第一个方法：获取的是用户在浏览器上提交的数据
+    	第二个方法：获取的是请求域中绑定的数据
+    */
+    ```
+
+- HttpServletRequest 常用的其他方法
+
+  ```java
+  // 获取客户端的IP地址
+  String remoteAddr = request.getRemoteAddr();
+  
+  // 设置请求体的字符集，解决Tomcat 9之前POST的乱码问题
+  // Tomcat 10之后，request请求体当中的字符集默认就是UTF-8，
+  request.setCharacterEncoding("UTF-8");
+  
+  // GET乱码怎么解决？
+  // 修改CATALINI_HOME/conf/server.xml
+  <Connector URIEncoding="UTF-8" />
+  // Tomcat 8以后,URIEncoding默认为UTF-8
+      
+  // 获取应用根路径
+  String contextPath = request.getContextPath();
+  
+  // 获取请求方式
+  String method = request.getMethod();
+  
+  // 获取请求的URI
+  String requestURI = request.getRequestURI(); // 带项目名
+  
+  // 获取Servlet Path
+  String servletPath = request.getServletPath(); // 不带项目名
+  ```
+
+
+
+
+
+
+
+# 使用纯 Servlet 做一个单表的 CRUD 操作
+
+- 使用纯粹的 Servlet 完成单表【对部门的】增删改查操作（B/S 结构）
+
+- 实现步骤
+
+  - 第一步：准备一张数据库表（sql 脚本）
+
+    ```sql
+    # 部门表
+    set character_set_client = 'utf8';
+    drop table if exists dept;
+    create table dept (
+    	deptno int primary key,
+    	dname varchar(255),
+    	loc varchar(255)
+    );
+    insert into dept(deptno, dname, loc) values(10, '销售部', '北京');
+    insert into dept(deptno, dname, loc) values(20, '研发部', '上海');
+    insert into dept(deptno, dname, loc) values(30, '技术部', '广州');
+    insert into dept(deptno, dname, loc) values(40, '媒体部', '深圳');
+    commit;
+    select * from dept;
+    ```
+
+  - 第二步：准备一套 HTML 页面（项目原型）
+
+    - 新增页面：add.html
+    - 修改页面：edit.html
+    - 详情页面：detail.html
+    - 欢迎页面：index.html
+    - 列表页面：list.html
+
+  - 第三步：分析系统功能
+
+    - 什么叫做一个功能？
+      - 只要这个操作连接了数据库，就表示一个独立的功能
+    - 包括哪些功能
+      - 查看部门列表
+      - 新增部门
+      - 删除部门
+      - 查看部门详细信息
+      - 跳转到修改页面
+      - 修改部门
+
+  - 第四步：在 IDEA 当中搭建开发环境
+
+    - 创建一个 webapp
+
+    - 向 webapp 中添加连接数据库的 jar 包（mysql 驱动）
+
+      - 在 WEB-INF 目录下新建一个 lib，将 mysql 的 jar 包拷贝进来
+
+    - JDBC 的工具类
+
+      ```java
+      package com.shameyang.oa.utils;
+      
+      import java.sql.*;
+      import java.util.ResourceBundle;
+      
+      /**
+       * @author ShameYang
+       * @date 2023/9/1 21:44
+       * @description JDBC 工具类
+       */
+      public class DBUtil {
+          private static ResourceBundle bundle = ResourceBundle.getBundle("resources.jdbc");
+          private static String driver = bundle.getString("driver");
+          private static String url = bundle.getString("url");
+          private static String user = bundle.getString("user");
+          private static String password = bundle.getString("password");
+      
+          static {
+              try {
+                  Class.forName(driver);
+              } catch (ClassNotFoundException e) {
+                  e.printStackTrace();
+              }
+          }
+      
+          /**
+           * 获取数据库连接对象
+           * @return conn 连接对象
+           * @throws SQLException
+           */
+          public static Connection getConnection() throws SQLException {
+              // 获取连接
+              Connection conn = DriverManager.getConnection(url, user, password);
+              return conn;
+          }
+      
+          /**
+           * 释放资源
+           * @param conn 连接对象
+           * @param ps 数据库操作对象
+           * @param rs 结果集对象
+           */
+          public static void close(Connection conn, Statement ps, ResultSet rs) {
+              if (conn != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if (ps != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+              if (rs != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      e.printStackTrace();
+                  }
+              }
+          }
+      }
+      ```
+
+  - 第五步：实现第一个功能——查看部门列表
+
+    - 一：先修改前端页面的超链接
+
+      ```html
+      <a href="/oa/dept/list">查看部门列表</a>
+      ```
+
+    - 二：编写 web.xml 文件
+
+      ```xml
+      	<servlet>
+              <servlet-name>list</servlet-name>
+              <servlet-class>com.shameyang.oa.web.action.DeptListServlet</servlet-class>
+          </servlet>
+          <servlet-mapping>
+              <servlet-name>list</servlet-name>
+              <url-pattern>/dept/list</url-pattern>
+          </servlet-mapping>
+      ```
+
+    - 三：编写 DeptListServlet 类继承 HttpServlet，然后重写 doGet 方法
+
+      ```java
+      package com.shameyang.oa.web.action;
+      
+      import jakarta.servlet.ServletException;
+      import jakarta.servlet.http.HttpServlet;
+      import jakarta.servlet.http.HttpServletRequest;
+      import jakarta.servlet.http.HttpServletResponse;
+      
+      import java.io.IOException;
+      
+      /**
+       * @author ShameYang
+       * @date 2023/9/1 22:14
+       * @description 部门列表
+       */
+      public class DeptListServlet extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+                  throws ServletException, IOException {
+              
+          }
+      }
+      ```
+
+    - 四：在 DeptListServlet 类的 doGet 方法中连接数据库，查询所有的部门，动态展示部门列表页面
