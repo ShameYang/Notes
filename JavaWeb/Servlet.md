@@ -1124,11 +1124,11 @@ public void service(ServletRequest request, ServletResponse response) {
 
   - 第二步：准备一套 HTML 页面（项目原型）
 
+    - 欢迎页面：index.html
+    - 列表页面：list.html
     - 新增页面：add.html
     - 修改页面：edit.html
     - 详情页面：detail.html
-    - 欢迎页面：index.html
-    - 列表页面：list.html
 
   - 第三步：分析系统功能
 
@@ -1136,9 +1136,9 @@ public void service(ServletRequest request, ServletResponse response) {
       - 只要这个操作连接了数据库，就表示一个独立的功能
     - 包括哪些功能
       - 查看部门列表
-      - 新增部门
-      - 删除部门
       - 查看部门详细信息
+      - 删除部门
+      - 新增部门
       - 跳转到修改页面
       - 修改部门
 
@@ -1153,16 +1153,6 @@ public void service(ServletRequest request, ServletResponse response) {
     - JDBC 的工具类
 
       ```java
-      package com.shameyang.oa.utils;
-      
-      import java.sql.*;
-      import java.util.ResourceBundle;
-      
-      /**
-       * @author ShameYang
-       * @date 2023/9/1 21:44
-       * @description JDBC 工具类
-       */
       public class DBUtil {
           private static ResourceBundle bundle = ResourceBundle.getBundle("resources.jdbc");
           private static String driver = bundle.getString("driver");
@@ -1220,45 +1210,31 @@ public void service(ServletRequest request, ServletResponse response) {
           }
       }
       ```
-
+    
   - 第五步：实现第一个功能——查看部门列表
-
+  
     - 一：先修改前端页面的超链接
-
+  
       ```html
       <a href="/oa/dept/list">查看部门列表</a>
       ```
-
+  
     - 二：编写 web.xml 文件
 
       ```xml
-      	<servlet>
-              <servlet-name>list</servlet-name>
-              <servlet-class>com.shameyang.oa.web.action.DeptListServlet</servlet-class>
-          </servlet>
-          <servlet-mapping>
-              <servlet-name>list</servlet-name>
-              <url-pattern>/dept/list</url-pattern>
-          </servlet-mapping>
+      <servlet>
+          <servlet-name>list</servlet-name>
+          <servlet-class>com.shameyang.oa.web.action.DeptListServlet</servlet-class>
+      </servlet>
+      <servlet-mapping>
+          <servlet-name>list</servlet-name>
+          <url-pattern>/dept/list</url-pattern>
+      </servlet-mapping>
       ```
-
+  
     - 三：编写 DeptListServlet 类继承 HttpServlet，然后重写 doGet 方法
-
+  
       ```java
-      package com.shameyang.oa.web.action;
-      
-      import jakarta.servlet.ServletException;
-      import jakarta.servlet.http.HttpServlet;
-      import jakarta.servlet.http.HttpServletRequest;
-      import jakarta.servlet.http.HttpServletResponse;
-      
-      import java.io.IOException;
-      
-      /**
-       * @author ShameYang
-       * @date 2023/9/1 22:14
-       * @description 部门列表
-       */
       public class DeptListServlet extends HttpServlet {
           @Override
           protected void doGet(HttpServletRequest req, HttpServletResponse resp)
@@ -1267,5 +1243,211 @@ public void service(ServletRequest request, ServletResponse response) {
           }
       }
       ```
-
+      
     - 四：在 DeptListServlet 类的 doGet 方法中连接数据库，查询所有的部门，动态展示部门列表页面
+    
+      ```java
+      int i = 0;
+      while (rs.next()) {
+      	String no = rs.getString("no");
+      	String name = rs.getString("name");
+      	String loc = rs.getString("loc");
+      
+      	out.print("  <tr>");
+      	out.print("    <td>" + (++i) + "</td>");
+      	out.print("    <td>" + no + "</td>");
+      	out.print("    <td>" + name + "</td>");
+      	out.print("    <td>" + loc + "</td>");
+      	out.print("    <td>");
+      	out.print("      <a href=\"\">删除</a>");
+      	out.print("      <a href=\"\">修改</a>");
+      	out.print("      <a href=\"\">详情</a>");
+      	out.print("    </td>");
+      	out.print("  </tr>");
+      }
+      ```
+    
+  - 第六步：实现功能——查看部门详情
+  
+    - 从前端往后端一步步实现，先找到用户点击的详情在哪里
+  
+      - 在后端 java 程序中找到
+  
+        ```java
+        out.print("<a href='写一个路径'>详情</a>");
+        ```
+  
+      - 该超链接的路径应该带项目名，我们也可以实现动态获取
+  
+        ```java
+        out.print("<a href='" + contextPath + "/dept/detail?deptno=" + no + "'>详情</a>");
+        ```
+  
+      - 上边为什么要用 ?deptno=
+  
+        根据 HTTP 协议规定，向服务器提交数据的格式：URI?name=value&name=value
+  
+    - 解决 404 问题，写 web.xml 文件
+  
+      ```xml
+      <servlet>
+          <servlet-name>detail</servlet-name>
+          <servlet-class>com.shameyang.oa.web.action.DeptDetailServlet</servlet-class>
+      </servlet>
+      <servlet-mapping>
+          <servlet-name>detail</servlet-name>
+          <url-pattern>/dept/detail</url-pattern>
+      </servlet-mapping>
+      ```
+  
+    - 编写 DeptDetailServlet 类继承 HttpServlet，然后重写 doGet 方法
+  
+      ```java
+      public class DeptDetailServlet extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+                  throws ServletException, IOException {
+              
+          }
+      }
+      ```
+  
+    - doGet 方法中连接数据库，根据部门编号查询部门信息，动态展示部门详情页面
+  
+      ```java
+      conn = DBUtil.getConnection();
+      String sql = "select dname, loc from dept where deptno = ?";
+      ps = conn.prepareStatement(sql);
+      ps.setString(1, deptno);
+      rs = ps.executeQuery();
+      if (rs.next()) {
+          String dname = rs.getString("dname");
+          String loc = rs.getString("loc");
+      
+          out.print("  部门编号：" + deptno + "<br>");
+          out.print("  部门名称：" + dname + "<br>");
+          out.print("  部门位置：" + loc + "<br>");
+      }
+      ```
+  
+  - 第七步：删除部门功能
+  
+    - 从前端页面开始，用户点击删除按钮时，提示用户是否删除，防止误删
+  
+      ```html
+      <a href="javascript:void(0)" onclick="del(10)">删除</a>
+      <script type="text/javascript">
+      	function del(dno) {
+      		if (window.confirm("确定删除吗？")) {
+      			document.location.href = "/oa/dept/delete?deptno=" + dno;
+              }
+          }
+      </script>
+      ```
+  
+    - 以上的前端代码要写到后端的 java 代码中
+  
+      - DeptListServlet 类的 doGet 方法中，使用 out.print() 方法，将以上代码输出到浏览器上
+  
+    - 编写 web.xml 文件
+  
+      ```xml
+      <!--删除部门-->
+      <servlet>
+          <servlet-name>delete</servlet-name>
+          <servlet-class>com.shameyang.oa.web.action.DeptDeleteServlet</servlet-class>
+      </servlet>
+      <servlet-mapping>
+          <servlet-name>delete</servlet-name>
+          <url-pattern>/dept/delete</url-pattern>
+      </servlet-mapping>
+      ```
+  
+    - 编写 DeptDeleteServlet 类继承 HttpServlet，然后重写 doGet 方法
+  
+      ```java
+      public class DeptDeleteServlet extends HttpServlet {
+          @Override
+          protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+                  throws ServletException, IOException {
+              // 根据部门编号，删除部门
+          }
+      }
+      ```
+  
+    - 删除成功或失败的处理（这里我们采用转发，没有使用重定向）
+  
+      ```java
+      // 判断删除成功还是失败
+      if (count == 1) {
+          // 删除成功则跳转到部门列表页面
+          // 执行另一个Servlet，需要转发
+          req.getRequestDispatcher("/dept/list").forward(req, resp);
+      } else {
+          // 删除失败
+          req.getRequestDispatcher("error.html").forward(req, resp);
+      }
+      ```
+  
+  - 第八步：新增部门功能
+  
+    - 获取 add 页面
+  
+      ```html
+      out.print("<a href='" + contextPath + "/add.html'>新增部门</a>");
+      ```
+  
+    - add.html
+  
+      ```html
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <title>新增部门</title>
+      </head>
+      <body>
+          <h1>新增部门</h1>
+          <hr>
+          <form action="/oa/dept/save" method="post">
+              部门编号：<input type="text" name="deptno"/><br>
+              部门名称：<input type="text" name="dname"/><br>
+              部门位置：<input type="text" name="loc"/><br>
+              <input type="submit" value="保存"/>
+          </form>
+      </body>
+      </html>
+      ```
+  
+    - 编写 web.xml
+  
+      ```xml
+      <!--新增部门-->
+      <servlet>
+          <servlet-name>add</servlet-name>
+          <servlet-class>com.shameyang.oa.web.action.DeptDeleteServlet</servlet-class>
+      </servlet>
+      <servlet-mapping>
+          <servlet-name>add</servlet-name>
+          <url-pattern>/dept/save</url-pattern>
+      </servlet-mapping>
+      ```
+  
+    - 编写 DeptSaveServlet 类继承 HttpServlet，然后重写 doPost 方法
+  
+      ```java
+      public class DeptSaveServlet extends HttpServlet {
+          @Override
+          protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+                  throws ServletException, IOException {
+              // 获取部门信息
+          }
+      }
+      ```
+  
+    - 解决 405 问题
+  
+      - 由于 DeptSaveServlet 中重写的是 doPost 方法，转发到 /dept/list 后，DeptListServlet 类中我们重写的是 doGet 方法，所以会导致 405 问题
+      - 我们可以在 DeptListServlet 类中重写 doPost 方法，然后调用 doGet 方法来解决
+  
+  - 第九步：修改部门信息功能（与部门详情功能的实现方法相同）
