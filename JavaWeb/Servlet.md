@@ -589,17 +589,6 @@ public void service(ServletRequest request, ServletResponse response) {
     以下代码是模仿源码写的，jakarta.servlet 包下有一个 GenericServlet 类
 
     ```java
-    package com.shameyang.javaweb.servlet;
-    
-    import jakarta.servlet.*;
-    
-    import java.io.IOException;
-    
-    /**
-     * @author ShameYang
-     * @date 2023/8/31 11:38
-     * @description 适配器模式改造 Servlet
-     */
     public abstract class GenericServlet implements Servlet {
         // ServletConfig成员变量，方便子类的 service 方法中调用
         private ServletConfig servletConfig;
@@ -644,22 +633,8 @@ public void service(ServletRequest request, ServletResponse response) {
         }
     }
     ```
-
+    
     ```java
-    package com.shameyang.javaweb.servlet;
-    
-    import jakarta.servlet.ServletConfig;
-    import jakarta.servlet.ServletException;
-    import jakarta.servlet.ServletRequest;
-    import jakarta.servlet.ServletResponse;
-    
-    import java.io.IOException;
-    
-    /**
-     * @author ShameYang
-     * @date 2023/8/31 11:54
-     * @description GenericServlet的子类
-     */
     public class XXXServlet extends GenericServlet {
         @Override
         public void service(ServletRequest servletRequest, ServletResponse servletResponse)
@@ -669,7 +644,7 @@ public void service(ServletRequest request, ServletResponse response) {
             System.out.println("查看能否调用:" + servletConfig);
         }
     }
-    ```
+```
 
 
 
@@ -1385,7 +1360,7 @@ public void service(ServletRequest request, ServletResponse response) {
           req.getRequestDispatcher("/dept/list").forward(req, resp);
       } else {
           // 删除失败
-          req.getRequestDispatcher("error.html").forward(req, resp);
+          req.getRequestDispatcher("/error.html").forward(req, resp);
       }
       ```
   
@@ -1450,4 +1425,96 @@ public void service(ServletRequest request, ServletResponse response) {
       - 由于 DeptSaveServlet 中重写的是 doPost 方法，转发到 /dept/list 后，DeptListServlet 类中我们重写的是 doGet 方法，所以会导致 405 问题
       - 我们可以在 DeptListServlet 类中重写 doPost 方法，然后调用 doGet 方法来解决
   
-  - 第九步：修改部门信息功能（与部门详情功能的实现方法相同）
+  - 第九步：修改部门信息功能
+  
+    - 跳转到修改信息页面
+    - 点击修改按钮完成修改，返回部门列表页面
+
+
+
+
+
+
+
+# web 应用中资源的跳转
+
+- 一个 web 应用中，可以用过两种方式完成资源的跳转：
+
+  - 转发
+  - 重定向
+
+- 转发和重定向的区别？
+
+  - 代码上的区别
+
+    - 转发
+
+      ```java
+      request.getRequestDispatcher("/xxx").forward(request, response);
+      ```
+
+    - 重定向
+
+      ```java
+      response.sendRedirect(request.getContextPath() + "/xxx");
+      ```
+
+  - 形式上的区别
+
+    - 转发是一次请求，请求结束后地址栏上的地址不变
+    - 重定向是两次请求，最终显示在地址栏上的地址为重定向的地址
+
+  - 转发和重定向本质上的区别
+
+    - 转发：是由 WEB 服务器控制的。A 资源跳转到 B 资源，由服务器内部完成
+    - 重定向：是浏览器完成的。具体跳转到哪个资源，由浏览器决定
+
+  - 转发
+
+    <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E8%BD%AC%E5%8F%91.png"  />
+
+  - 重定向
+
+    ![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E9%87%8D%E5%AE%9A%E5%90%91.png)
+
+- 转发与重定向的选择
+  - 如果在一个 Servlet 当中向 request 域绑定了数据，希望从另一个 Servlet 中把里边的数据取出来时，使用转发机制
+  - 剩下所有的请求均使用重定向
+
+
+
+
+
+
+
+# Servlet 注解式开发
+
+- 我们之前的 web.xml 文件中进行信息配置，效率较低，因此可以将配置信息直接写到 Java 类中
+
+- Servlet 3.0之后，推出了各种 Servlet 基于注解式开发
+
+- 并不是说有了注解之后，web.xml 文件就不需要了：
+
+  - 一些需要变化的信息，要写到 web.xml 文件中。一般都是 注解+配置文件 的开发模式
+  - 一些不会经常变化修改的配置建议使用注解
+
+- 我们的第一个注解：
+
+  - ```
+    jakarta.servlet.annotation.WebServlet
+    ```
+
+  - 在类上使用 @WebServlet
+
+  - @WebServlet 中常用的属性
+
+    - name 属性：用来指定 Servlet 的名字。等同于：`<servlet-name>`
+    - urlPatterns 属性：用来指定 Servlet 的映射路径。可以指定多个字符串，等同于：`<url-pattern>`
+    - value 属性：与 urlPatterns 一样，都是用来指定 Servlet 映射路径的。
+      - 当注解的属性名为 value 时，属性名可以省略
+    - loadOnStartup 属性：用来指定在服务器启动阶段是否加载该 Servlet。等同于：`<load-on-startup>`
+    - initParams 属性：用来指定初始化参数。等同于：`<init-param>`
+    - 注意：属性是一个数组，如果数组中只有一个元素，大括号可以省略
+
+- 注解对象的使用格式：
+  - @注解名称(属性名=属性值, 属性名=属性值...)
