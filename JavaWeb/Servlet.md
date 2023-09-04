@@ -679,7 +679,7 @@ public void service(ServletRequest request, ServletResponse response) {
   public ServletContext getServletContext(); // 获取 ServletContext 对象
   
   public String getServletName(); // 获取Servlet的name
-  ```
+```
 
 
 
@@ -1518,3 +1518,29 @@ public void service(ServletRequest request, ServletResponse response) {
 
 - 注解对象的使用格式：
   - @注解名称(属性名=属性值, 属性名=属性值...)
+
+
+
+
+
+
+
+# 模板方法设计模式优化 oa 项目
+
+- 由于我们之前的 oa 项目，每个功能对应一个 Servlet，这种开发模式会导致类爆炸问题（类太多）
+- 可以使用模板方法设计模式进行优化，每个功能对应一个方法
+
+
+
+
+
+
+
+# 纯 Servlet 开发的缺陷
+
+- 我们的 java 程序中，前端代码与后端代码写在一起，存在许多缺陷：
+  - 编写难度大
+  - 可读性差
+  - 程序的耦合度非常高
+  - 维护成本高
+    - 修改一点前端代码，就会重新编译 java 代码，生成新的 class 文件，打包成新的 war 包，重新发布
