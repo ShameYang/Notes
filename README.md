@@ -13,3 +13,4 @@ My study notes
   - CSS
   - JS
   - Servlet
+  - JSP
