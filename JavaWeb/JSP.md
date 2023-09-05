@@ -220,7 +220,21 @@
     %>
     ```
 
+- 合并修改与详情超链接，减少代码复用
 
+  - ```jsp
+    <a href='<%=request.getContextPath()%>/dept/detail?f=edit&deptno=<%=dept.getDeptno()%>'>修改</a>
+    <a href='<%=request.getContextPath()%>/dept/detail?f=detail&deptno=<%=dept.getDeptno()%>'>详情</a>
+    ```
+
+  - 修改 doDetail 方法中转发的代码，实现修改与详细页面共用同一段代码
+
+    ```java
+    String forward = "/" + request.getParameter("f") + ".jsp";
+    request.getRequestDispatcher(forward).forward(request, response);
+    ```
+
+    
 
 
 
