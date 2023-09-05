@@ -135,7 +135,7 @@ java.util.logging.ConsoleHandler.encoding = GBK
   - DB Server 的开发团队（Oracle、MySQL...）
   - Webapp 的开发团队（JavaWeb 程序员）
 - 规范、协议
-  - Webapp 的开发团队和 WebServer 的开发团队之间的规范：JavaEE 规范之一 Servlet
+  - Webapp 的开发团队和 WebServer 的开发团队之间的规范：JavaEE 规范之一 Servlet 规范
     - Servlet 规范的作用：WebServer 和 Webapp 解耦合
   - Browser 和 WebServer 之间的传输协议：HTTP协议（超文本传输协议）
   - Webapp 开发团队和 DB Server 的开发团队之间的规范：JDBC 规范

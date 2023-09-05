@@ -262,7 +262,7 @@
 
 
 
-# JavaBean
+# 关于 JavaBean
 
 - 我们可以创建 bean 包存储 JavaBean
 - 什么是 JavaBean？
@@ -275,3 +275,117 @@
     - 重写 hashCode + equals
     - ...
   - JavaBean 其实就是 Java 中的实体类，负责数据的封装
+
+
+
+
+
+
+
+# 实现用户登录功能
+
+> 当前 oa 项目存在的问题：任何人都可以进行 CRUD 这些危险的操作。所以需要加一个登录功能
+
+- 实现登录功能
+
+  - 步骤1：数据库中创建一个用户表：t_user
+
+    - 存储用户的登录信息：用户名和密码
+
+    - 密码一般在数据库中存储的是密文（这里先使用明文方式）
+
+    - 用户表中插入数据
+
+      ```sql
+      drop table if exists t_user;
+      
+      CREATE TABLE t_user (
+      	id INT PRIMARY KEY auto_increment,
+          username varchar(255),
+          password varchar(255)
+      );
+      
+      INSERT INTO t_user(username, password) VALUES ('admin', '123456');
+      INSERT INTO t_user(username, password) VALUES ('tom', '123321');
+      ```
+
+  - 步骤2：实现一个登录页面
+
+    - 提供一个登陆的表单。有用户名和密码输入的框
+
+    - 用户点击登录按钮，post 方式提交表单
+
+      ```jsp
+      <%@ page contentType="text/html;charset=UTF-8" %>
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
+          <title>欢迎使用OA系统</title>
+      </head>
+      <body>
+      <h1>用户登录</h1>
+      <hr>
+      <form action="<%=request.getContextPath()%>/user/login" method="post">
+          用户名：<input type="text" name="username"/><br>
+          密码：<input type="password" name="password"/><br>
+          <input type="submit" value="登录">
+      </form>
+      </body>
+      </html>
+      ```
+
+  - 步骤3：后台提供一个 Servlet 类处理登录的请求
+
+    - 登陆成功：跳转到部门列表页面
+
+    - 登录失败：跳转到失败页面
+
+      ```java
+      @WebServlet("/user/login")
+      public class UserServlet extends HttpServlet {
+          @Override
+          protected void doPost(HttpServletRequest request, HttpServletResponse response)
+                  throws ServletException, IOException {
+              // 获取用户名和密码
+              String username = request.getParameter("username");
+              String password = request.getParameter("password");
+      
+              // 连接数据库，验证用户名和密码
+              Boolean flag = false;
+              Connection conn = null;
+              PreparedStatement ps = null;
+              ResultSet rs = null;
+              try {
+                  conn = DBUtil.getConnection();
+                  String sql = "select * from t_user where username=? and password=?";
+                  ps = conn.prepareStatement(sql);
+                  ps.setString(1, username);
+                  ps.setString(2, password);
+                  rs = ps.executeQuery();
+                  if (rs.next()) {
+                      flag = true;
+                  }
+              } catch (SQLException e) {
+                  e.printStackTrace();
+              } finally {
+                  DBUtil.close(conn, ps, rs);
+              }
+      
+              // 登录成功或失败
+              if (flag) {
+                  response.sendRedirect(request.getContextPath() + "/dept/list");
+              } else {
+                  response.sendRedirect(request.getContextPath() + "/error.jsp");
+              }
+          }
+      }
+      
+      ```
+
+  - 步骤4：再提供一个登陆失败的页面
+
+- 存在的问题：
+
+  - 目前的登录功能只是一个摆设，如果知道后端的请求路径，照样可以在不登陆的情况下访问
+  - 这个登录没有真正起到拦截的作用
