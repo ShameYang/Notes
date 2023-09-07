@@ -1544,3 +1544,118 @@ public void service(ServletRequest request, ServletResponse response) {
   - 程序的耦合度非常高
   - 维护成本高
     - 修改一点前端代码，就会重新编译 java 代码，生成新的 class 文件，打包成新的 war 包，重新发布
+
+
+
+
+
+
+
+# Session 会话机制
+
+- session 机制属于 B/S 结构的一部分
+- 什么是会话？
+  - 用户打开浏览器，进行一系列操作，最终关闭浏览器。整个过程叫做：一次会话
+  - 会话在服务器端也有一个对应的 Java 对象：session
+  - 一个会话中包含多次请求
+- 在 Java 的 Servlet 规范中，session 对应的类名：HttpSession（jarkata.servlet.http.HttpSession）
+- session 对象的最主要作用：保存会话状态
+  - 为什么需要 session 对象保存会话状态？
+    - 因为 HTTP 协议是无状态协议，无状态协议可以降低服务器的压力
+      - 无状态：请求的时候，B 和 S 是连接的，但是请求结束后，连接就断开了
+    - 只要 B 和 S 断开了，服务器不知道浏览器关闭的动作
+- 为什么不使用 request 对象或 ServletContext 对象保存会话状态？
+  - request 是请求域，ServletContext 是应用域
+  - request 对象是一次请求一个对象，域太小
+  - ServletContext 对象只有一个，域太大
+- request 请求域（HttpServletRequest）、session 会话域（HttpSession）、application 域（ServletContext）
+  - request < session < application
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/session.png)
+
+- session 对象的实现原理
+
+  - JSESSIONID=xxx 以 Cookie 的形式保存在浏览器内存中，浏览器关闭，这个 cookie 就没有了
+  - session 列表是一个 Map，key 是 sessionid，value 是 session 对象
+  - 用户第一次请求：服务器生成 session 对象，同时生成 id，将 id 发送给浏览器
+  - 用户第二次请求：自动将浏览器内存中的 id 发送给服务器，服务器根据 id 查找 session 对象
+  - 关闭浏览器，内存消失，cookie 消失，sessionid 消失，会话等同于结束
+
+- session 对象超时销毁
+
+  - web.xml 文件中可以进行配置（默认 30 min）
+
+  - ```xml
+    <session-config>
+    	<session-timeout>超时多少分钟后销毁</session-timeout>
+    </session-config>
+    ```
+
+- 手动销毁 session 对象
+
+  ```java
+  if (session != null) {
+      session.invalidate();   
+  }
+  ```
+
+- Cookie 禁用，session 对象还能找到吗？
+
+  - cookie 禁用：服务器正常发送 cookie 给浏览器，但是浏览器拒收了
+  - 所以，session 对象找不到了。每次请求都会创建新的 session 对象
+
+- Cookie 禁用，session 机制怎么实现？
+
+  - 使用 URL 重写机制
+  - `url;jsessionid=xxx`
+  - URL 重写机制会提高开发者的成本。开发人员在编写时，后边都要加 jsessionid，由于 id 是动态的，给开发带来了很大的难度和成本。所以大部分网站这样设计：你要是禁用 cookie，你就别用了
+
+- 关闭 session
+
+  ```jsp
+  <% @page session="false" %>
+  ```
+
+
+
+
+
+
+
+# Session 机制改造 oa 项目
+
+- 用户登录界面中
+
+  ```java
+  // 登录成功或失败
+  if (flag) {
+      HttpSession session = request.getSession();
+      session.setAttribute("username", username);
+      response.sendRedirect(request.getContextPath() + "/dept/list");
+  }
+  ```
+
+- 部门列表 service 方法中
+
+  ```java
+  // 如果用户登录了，就可以执行对应的操作
+  HttpSession session = request.getSession();
+  if (session != null && session.getAttribute("username") != null) {
+      switch (servletPath) {
+          case "/dept/list" -> doList(request, response);
+          case "/dept/detail" -> doDetail(request, response);
+          case "/dept/add" -> doAdd(request, response);
+          case "/dept/delete" -> doDel(request, response);
+          case "/dept/modify" -> doModify(request, response);
+      }
+  } else {
+      response.sendRedirect(request.getContextPath());
+  }
+  ```
+
+
+
+
+
+
+
