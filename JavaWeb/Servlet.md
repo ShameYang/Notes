@@ -1558,7 +1558,7 @@ public void service(ServletRequest request, ServletResponse response) {
   - 用户打开浏览器，进行一系列操作，最终关闭浏览器。整个过程叫做：一次会话
   - 会话在服务器端也有一个对应的 Java 对象：session
   - 一个会话中包含多次请求
-- 在 Java 的 Servlet 规范中，session 对应的类名：HttpSession（jarkata.servlet.http.HttpSession）
+- 在 Java 的 Servlet 规范中，session 对应的类名：HttpSession（jakarta.servlet.http.HttpSession）
 - session 对象的最主要作用：保存会话状态
   - 为什么需要 session 对象保存会话状态？
     - 因为 HTTP 协议是无状态协议，无状态协议可以降低服务器的压力
@@ -1622,7 +1622,7 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
-# Session 机制改造 oa 项目
+# Session 改造 oa 项目
 
 - 用户登录界面中
 
@@ -1658,4 +1658,94 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
+
+# Cookie
+
+- session 的实现原理中，每个 session 对象都会关联一个 sessionid，例如：
+
+  - JSESSIONID = xxx
+  - 以上键值对数据其实就是 cookie 对象
+
+- 关于 cookie
+
+  - cookie 最终保存在浏览器客户端上
+    - 可以保存在运行内存中（浏览器关闭 cookie 就消失了）
+    - 也可以保存在硬盘文件中（永久保存）
+  - cookie 的作用
+    - cookie 和 session 机制都是为了保存会话的状态
+    - cookie 将会话状态保存在浏览器客户端
+    - session 将会话状态保存在服务器端
+
+- session 和 cookie 机制都是 HTTP 协议的一部分
+
+- java 的 servlet 中，对 cookie 提供了哪些支持？
+
+  - 提供一个 Cookie 类专门表示 cookie 数据（jakarta.servlet.http.Cookie）
+
+  - java 程序把 cookie 数据发送给服务器
+
+    - ```java
+      response.addCookie(cookie);
+      ```
+
+- HTTP 协议中这样规定
+
+  - 任何一个 cookie 都是由 name 和 value 组成的
+  - 当浏览器发送请求时，会自动携带该 path 下的 cookie 数据给服务器
+
+- 关于 cookie 的有效时间
+
+  - java 程序设置 cookie 有效时间
+
+    ```java
+    cookie.setMaxAge(60 * 60); // 设置 cookie 在一小时后失效
+    ```
+
+  - 没有设置 cookie 有效时间
+
+    - 默认保存在浏览器的运行内存中，浏览器关闭则 cookie 消失
+
+  - cookie 有效时间 = 0
+
+    - cookie 被删除，同名 cookie 被删除
+
+  - cookie 有效时间 < 0
+
+    - 表示不会存储到硬盘文件上，和不设置有效时间效果相同
+
+- 手动设置 cookie 的 path（关联路径）
+
+  ```java
+  cookie.setPath("/xxx");
+  ```
+
+- 接收浏览器的 cookie
+
+  ```java
+  request.getCookies();
+  ```
+
+
+
+
+
+
+
+# Cookie 实现十天内免登录
+
+- 先实现登录功能
+  - 登录成功
+    - 跳转到部门列表页面
+  - 登录失败
+    - 跳转到错误页面
+- 修改前端页面
+  - 登录页面设置一个复选框，十天内免登录
+  - 用户选择复选框，表示支持免登录功能
+  - 用户没有选择，则表示不支持免登录功能
+- 修改 Servlet 中的 login 方法
+  - 如果用户登录成功，并且选择了十天内免登录功能，这时应该在 Servlet 中的 login 方法中创建 cookie，存储用户名和密码，并设置路径、有效期，将 cookie 响应给浏览器（浏览器将自动保存在硬盘文件中10天）
+- 用户再次访问该网站首页时，有两个走向：
+  - 部门列表页面
+  - 登录页面
+  - 上边两个页面，要用 java 程序控制
 
