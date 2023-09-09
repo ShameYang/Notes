@@ -389,3 +389,230 @@
 
   - 目前的登录功能只是一个摆设，如果知道后端的请求路径，照样可以在不登陆的情况下访问
   - 这个登录没有真正起到拦截的作用
+  
+  需要 session 机制和 cookie 机制解决
+
+
+
+
+
+
+
+# JSP 指令
+
+- 指令的作用：指导 JSP 的翻译引擎如何工作
+
+- 指令包括哪些？
+
+  - include：包含指令，在 JSP 中完成静态包含，很少用了
+  - taglib：引入标签库的指令。在 JSTL 部分学习
+  - page：目前重点学习的指令
+
+- 指令的使用语法
+
+  - <%@指令名 属性名=属性值 属性名=属性值...%>
+
+- page 指令当中的常用属性
+
+  - ```jsp
+    <% @page session="true|false" %>
+    表示是否启动 session 对象
+    默认值为 true
+    ```
+
+  - ```jsp
+    <% @page contentType="text/html" %>
+    设置响应的内容类型
+    也可以同时设置字符集
+    <% @page contentType="text/html;charset=UTF-8" %>
+    ```
+
+  - ```jsp
+    <% @page pageEncoding="UTF-8" %>
+    设置响应时采用的字符集
+    ```
+
+  - ```jsp
+    <% @page import="java.util.*" %>
+    import 语句，导包
+    ```
+
+  - ```jsp
+    <% @page errorPage="/error.jsp" %>
+    指定出错后的跳转路径
+    ```
+
+  - ```jsp
+    <% @page isErrorPage="true" %>
+    启用JSP内置对象：exception
+    默认值为 false
+    ```
+
+
+
+
+
+
+
+# JSP 九大内置对象
+
+- pageContext（jakarta.servlet.jsp.PageContext）   页面作用域
+- request（jakarta.servlet.http.HttpServletRequest）   请求作用域
+- session（jakarta.servlet.http.HttpSession）   会话作用域
+- application（jakarta.servlet.ServletContext）   应用作用域
+  - pageContext < request < session < application
+  - 以上四个作用域都有：setAttribute、getAttribute、removeAttribute 方法
+  - 使用原则：尽可能使用小的域
+
+
+
+- exception（java.lang.Throwable）
+
+
+
+- config（jakarta.servlet.ServletConfig）
+
+
+
+- page（java.lang.Object）   其实是 this，当前的 servlet 对象
+
+
+
+- out（jakarta.servlet.jsp.JspWriter）   负责输出
+- response（jakarta.servlet.http.HttpServletResponse）   负责响应
+
+
+
+
+
+
+
+# EL 表达式
+
+- EL 表达式是什么
+  - Expression Language（表达式语言）
+  - EL 表达式可以代替 JSP 中的 java 代码，让 JSP 文件中的程序看起来更加整洁、美观
+  - EL 表达式可以算是 JSP 语法的一部分，EL 表达式归属于 JSP
+
+- EL 表达式出现在 JSP 中主要是：
+  - 从某个作用域中取数据
+  - 将取出的数据转换成字符串
+  - 将字符串输出到浏览器上
+  
+- 语法格式
+
+  - ${表达式}
+
+- 例如：
+
+  - 没有使用 EL 表达式
+
+    ```jsp
+    <%
+    	request.setAttribute("username", "admin");
+    %>
+    
+    <%= request.getAttribute("username") %>
+    ```
+
+  - 使用 EL 表达式
+
+    ```jsp
+    <%
+    	request.setAttribute("username", "admin");
+    %>
+    
+    ${username}
+    ```
+
+- EL 表达式的使用：
+
+  ```jsp
+  <%
+  	// 创建 User 对象
+  	User user = new User();
+  	user.setUsername("tom");
+  	user.setPassword("1234");
+  
+  	// 将 User 对象存储到 request 域中
+  	request.setAttribute("userObj", user);
+  %>
+  
+  <%--
+      使用 EL 表达式获取 User 对象
+      这里写的必须是存储到域对象中的 name
+      底层：从域中取数据，取出 User 对象，然后调用 toSting 方法，转换成字符串，输出到浏览器
+  --%>
+  ${userObj}
+  
+  <%--输出对象属性值，前提是属性有对应的 get 方法--%>
+  ${userObj.username}
+  ${userObj.password}
+  
+  ${userObj["username"]}
+  ${userObj["password"]}
+  ```
+
+  - ${xxx} 与 ${"xxx"} 的区别
+    - ${xxx} 表示从某个域中取出数据，数据的 name 是 xxx，之前一定有这样的代码：域.setAttribute("xxx", 对象)
+    - ${"xxx"} 表示直接将 xxx 作为普通字符串输出到浏览器
+  - EL 表达式优先从小范围中取数据
+    - pageContext < request < session < application
+  - EL 表达式中有四个隐含的隐式的请求范围：
+    - pageScope
+    - requestScope
+    - sessionScope
+    - applicationScope
+  - EL 表达式对 null 进行了预处理，如果是 null，则向浏览器输出一个空字符串
+  - EL 表达式从 Map 集合中取数据
+    - ${map.key}
+  - EL 表达式从数组中取数据
+    - ${array[index]}
+  - EL 表达式获取应用的根路径
+    - ${pageContext.request.contextPath}
+
+- page 指令中，有一个属性，可以忽略 EL 表达式
+
+  - ```jsp
+    <% @page isElIgnored="true|false" %>
+    ```
+
+  - 以上是忽略整个页面的 EL 表达式
+
+  - 如果想要忽略某个 EL 表达式，可以在表达式前加一个反斜杠 \
+
+- EL 表达式的内置对象
+
+  - pageContext
+    - 与 JSP 中的 pageContext 是同一个对象
+  - param
+  - paramValues
+  - initParam
+  - 其他（非重点）
+
+- EL 表达式中的运算符
+
+  ```
+  1.算术运算符
+  	+ - * / %
+  	在 EL 表达式中，+ 运算符只能做求和运算，不会进行字符串拼接
+  2.关系运算符
+  	== != > >= < <= eq
+  	EL 表达式中，== 和 != 调用了 equals 方法
+  3.逻辑运算符
+  	! && || not and or
+  4.条件运算符
+  	? :
+  5.取值运算符
+  	[] .
+  6.empty 运算符
+  	判断是否为空，为空则 true
+  ```
+
+
+
+
+
+
+
+# JSTL 标签库
