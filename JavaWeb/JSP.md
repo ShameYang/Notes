@@ -27,7 +27,7 @@
 - 解决响应时中文乱码问题：
 
   ```jsp
-  <% @page contentType="text/html;charset=UTF-8" %>
+  <%@page contentType="text/html;charset=UTF-8" %>
   ```
 
 - JSP 代码中编写 Java 代码：
@@ -84,7 +84,7 @@
   - 翻译到 service 方法外
 - <%= %>
   - 翻译到 service 方法内，翻译为：out.print();
-- <% @page contentType="text/html;charset=UTF-8" %>
+- <%@page contentType="text/html;charset=UTF-8" %>
   - page 指令，通过 contentType 属性设置响应的类型
 
 
@@ -102,7 +102,7 @@
   - 例如 list.jsp
 
     ```jsp
-    <% @ page contentType="text/html;charset=UTF-8" %>
+    <%@ page contentType="text/html;charset=UTF-8" %>
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -124,7 +124,7 @@
   - 例如，修改 index.jsp
 
     ```jsp
-    <% @ page contentType="text/html;charset=UTF-8" %>
+    <%@ page contentType="text/html;charset=UTF-8" %>
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -415,35 +415,35 @@
 - page 指令当中的常用属性
 
   - ```jsp
-    <% @page session="true|false" %>
+    <%@page session="true|false" %>
     表示是否启动 session 对象
     默认值为 true
     ```
 
   - ```jsp
-    <% @page contentType="text/html" %>
+    <%@page contentType="text/html" %>
     设置响应的内容类型
     也可以同时设置字符集
-    <% @page contentType="text/html;charset=UTF-8" %>
+    <%@page contentType="text/html;charset=UTF-8" %>
     ```
 
   - ```jsp
-    <% @page pageEncoding="UTF-8" %>
+    <%@page pageEncoding="UTF-8" %>
     设置响应时采用的字符集
     ```
 
   - ```jsp
-    <% @page import="java.util.*" %>
+    <%@page import="java.util.*" %>
     import 语句，导包
     ```
 
   - ```jsp
-    <% @page errorPage="/error.jsp" %>
+    <%@page errorPage="/error.jsp" %>
     指定出错后的跳转路径
     ```
 
   - ```jsp
-    <% @page isErrorPage="true" %>
+    <%@page isErrorPage="true" %>
     启用JSP内置对象：exception
     默认值为 false
     ```
@@ -574,7 +574,7 @@
 - page 指令中，有一个属性，可以忽略 EL 表达式
 
   - ```jsp
-    <% @page isElIgnored="true|false" %>
+    <%@page isElIgnored="true|false" %>
     ```
 
   - 以上是忽略整个页面的 EL 表达式
@@ -616,3 +616,115 @@
 
 
 # JSTL 标签库
+
+- 什么是 JSTL 表达式？
+
+  - Java Standard Tag Lib（Java 标准的标签库）
+  - JSTL 标签库通常结合 EL 表达式一起使用，目的是让 Java 代码消失
+  - 标签是写在 JSP 当中的，但实际上还是要执行对应的 Java 程序（Java 程序在 jar 包中）
+
+- 使用 JTSL 标签库步骤：
+
+  - 第一步：引入 JSTL 标签库对应的 jar 包
+
+    - tomcat 10之后引入的 jar 包是：
+      - jakarta.servlet.jsp.jstl-2.0.0.jar
+      - jakarta.servlet.jsp.jstl-api-2.0.0.jar
+    - 在 IDEA 中怎么引入？
+      - 在 WEB-INF 下新建 lib 目录，然后将 jar 包拷贝到 lib 当中，然后 “Add Lib...”
+      - 与 mysql 的数据库驱动一样，都是放到 WEB-INF/lib 目录下
+    - 什么时候要把 jar 包放到 WEB-INF/lib 目录下？该 jar 是 tomcat 服务器没有的
+
+  - 第二步：在 JSP 中引入要使用的标签库
+
+    - 使用 taglib 指令引入标签库
+
+      <%@taglib prefix="" uri="" %>
+
+      ```
+      <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+      这个是核心标签库
+      prefix="这里随便起名字，核心标签库，大家默认叫 c"
+      ```
+
+  - 第三步：在需要使用标签的位置使用即可
+
+- JSTL 标签的原理
+
+  - ```
+    <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    以上 uri 后边的路径实际指向了 xxx.tld 文件
+    tld 文件是一个 xml 配置文件
+    在 tld 文件中描述了“标签”和“java 类”之间的关系
+    c.tld 文件在 jakarta.servlet.jsp.jstl-2.0.0.jar 里边的 META-INF 目录下
+    ```
+
+  - 源码解析：配置文件 tld
+
+    ```
+    <tag>
+        <description>
+            对该标签的描述
+        </description>
+        <name>catch</name> 标签的名字
+        <tag-class>org.apache.taglibs.standard.tag.common.core.CatchTag</tag-class> 标签对应的 java 类
+        <body-content>JSP</body-content> 标签体当中可以出现的内容
+        <attribute>
+            <description>
+    			对属性的描述
+            </description>
+            <name>var</name> 属性名
+            <required>false</required> 属性是否为必须的
+            <rtexprvalue>false</rtexprvalue> 属性值是否支持 EL 表达式
+        </attribute>
+    </tag>
+    ```
+
+- 核心标签库 core 中的常用标签
+
+  - c:if
+
+    - ```jsp
+      <c:if test="boolean 类型，支持 EL 表达式"></c:if>
+      ```
+
+  - c:forEach
+
+    - ```jsp
+      <c:forEach items="集合，支持 EL 表达式" var="集合中的元素" varStatus="元素状态对象">
+      	${元素状态对象.count}
+      </c:forEach>
+      ```
+
+    - ```
+      <c:forEach var="i" begin="1" end="10" step="2">
+      	${i}
+      </c:forEach>
+      ```
+
+  - c:choose c:when c:otherwise
+
+    - ```jsp
+      <c:choose>
+      	<c:when test="${param.age < 18}">
+          	青少年
+          </c:when>
+      	<c:when test="${param.age < 35}">
+          	青年
+          </c:when>
+          <c:when test="${param.age < 55}">
+          	中年
+          </c:when>
+      	<c:otherwise>
+          	老年
+          </c:otherwise>
+      </c:choose>
+      ```
+
+
+
+
+
+
+
+# EL + JSTL 改造 oa 项目
