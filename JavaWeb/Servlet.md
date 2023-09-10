@@ -644,7 +644,6 @@ public void service(ServletRequest request, ServletResponse response) {
             System.out.println("查看能否调用:" + servletConfig);
         }
     }
-```
 
 
 
@@ -679,7 +678,6 @@ public void service(ServletRequest request, ServletResponse response) {
   public ServletContext getServletContext(); // 获取 ServletContext 对象
   
   public String getServletName(); // 获取Servlet的name
-```
 
 
 
