@@ -728,3 +728,94 @@
 
 
 # EL + JSTL 改造 oa 项目
+
+- 引入 jar 包
+
+- EL 表达式 + JSTL 改造代码：部分代码举例
+
+  - 部门详情
+
+    ```jsp
+    <%-- old --%>
+    
+    <%@ page import="com.shameyang.oa.bean.Dept" %>
+    <%@ page contentType="text/html;charset=UTF-8" %>
+    
+    <%
+        // 从 request 域中取出数据
+        Dept deptInfo = (Dept)request.getAttribute("deptInfo");
+    %>
+    
+    部门编号：<%=deptInfo.getDeptno()%><br>
+    部门名称：<%=deptInfo.getDname()%><br>
+    部门位置：<%=deptInfo.getLoc()%><br>
+    ```
+
+    ```jsp
+    <%-- new --%>
+    
+    <%@ page contentType="text/html;charset=UTF-8" %>
+    
+    部门编号：${deptInfo.deptno}<br>
+    部门名称：${deptInfo.dname}<br>
+    部门位置：${deptInfo.loc}<br>
+    ```
+
+  - 部门列表
+
+    ```jsp
+    <%-- old --%>
+        
+    <%@ page import="java.util.List" %>
+    <%@ page import="com.shameyang.oa.bean.Dept" %>
+    <%@page contentType="text/html;charset=UTF-8" %>
+    
+    <%
+    	// 从 request 域中取出集合
+    	List<Dept> deptList = (List<Dept>) request.getAttribute("deptList");
+    	// 循环遍历
+    	int i = 0;
+    	for (Dept dept : deptList) {
+    %>
+        
+    	<%=++i%>
+    	<%=dept.getDeptno()%>
+    	<%=dept.getDname()%>
+    	<a href='javascript:void(0)' onclick="del(<%=dept.getDeptno()%>)">删除</a>
+    	<a href='<%=request.getContextPath()%>/dept/detail?f=edit&deptno=<%=dept.getDeptno()%>'>修改</a>
+    	<a href='<%=request.getContextPath()%>/dept/detail?f=detail&deptno=<%=dept.getDeptno()%>'>详情</a>
+        
+    <%
+    	}
+    %>
+    ```
+
+    ```jsp
+    <%-- new --%>
+    
+    <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@page contentType="text/html;charset=UTF-8" %>
+    
+    <c:forEach items="${deptList}" varStatus="deptStatus" var="dept">
+    	${deptStatus.count}
+    	${dept.deptno}
+    	${dept.dname}
+    	<a href='javascript:void(0)' onclick="del(${dept.deptno})">删除</a>
+    	<a href='<%=request.getContextPath()%>/dept/detail?f=edit&deptno=${dept.deptno}'>修改</a>
+    	<a href='<%=request.getContextPath()%>/dept/detail?f=detail&deptno=${dept.deptno}'>详情</a>
+    </c:forEach>
+    ```
+
+- base 标签改造
+
+  - HTML 中的 `<base>` 标签可以设置网页的基础路径，这样我们在超链接中的路径就可以变得简洁了
+  - base 标签通常出现在 head 标签中
+  - `<base href="http://localhost:8080/oa/">`
+  - 在页面中，没有以 / 开始的路径，都会自动在路径前加上 base 中的路径
+  - 注意：JS 代码中最好不要依赖 base 标签，使用全路径
+  
+  ```jsp
+  <base href="${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/">
+  ```
+  
+  
