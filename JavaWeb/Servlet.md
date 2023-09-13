@@ -1526,7 +1526,26 @@ public void service(ServletRequest request, ServletResponse response) {
 # 模板方法设计模式优化 oa 项目
 
 - 由于我们之前的 oa 项目，每个功能对应一个 Servlet，这种开发模式会导致类爆炸问题（类太多）
+
 - 可以使用模板方法设计模式进行优化，每个功能对应一个方法
+
+  ```java
+  @Override
+  protected void service(HttpServletRequest req, HttpServletResponse resp)
+          throws ServletException, IOException {
+      String servletPath = req.getServletPath();
+      switch (servletPath) {
+          case "/dept/list" -> doList(req, resp);
+          case "/dept/detail" -> doDetail(req, resp);
+          case "/dept/delete" -> doDel(req, resp);
+          case "/dept/modify" -> doModify(req, resp);
+          case "/dept/save" -> doSave(req, resp);
+          case "/dept/edit" -> doEdit(req, resp);
+      }
+  }
+  ```
+
+  
 
 
 
@@ -1747,3 +1766,115 @@ public void service(ServletRequest request, ServletResponse response) {
   - 登录页面
   - 上边两个页面，要用 java 程序控制
 
+
+
+
+
+
+
+# Filter 过滤器
+
+- 关于 Filter 过滤器
+
+  - Filter 是 Servlet 规范中的过滤器，可以解决 Servlet 类中代码复用问题
+  - Filter 可以在 Servlet 目标程序执行前或执行后，添加过滤规则
+  - 一般情况下，公共代码写在过滤器中
+
+- 怎样写过滤器？（与 Servlet 相似）
+
+  - 第一步：编写一个 Java 类，实现 jakarta.servlet.Filter 接口，并实现这个接口中的方法（init 和 destroy 可以不重写）
+
+    - init 方法
+    - doFilter 方法：在该方法中编写过滤规则
+    - destroy 方法
+
+  - 注意：默认情况下，Servlet 对象在服务器启动时不会被创建，但是 Filter 对象在服务器启动时会被创建
+
+  - 第二步：
+
+    - 使用 @WebFilter 注解
+
+    - 或在 web.xml 文件中配置 Filter 过滤器
+
+      - 关联路径的 Servlet 类，要走该过滤器
+
+      ```xml
+      <filter>
+          <filter-name>loginFilter</filter-name>
+          <filter-class>com.shameyang.oa.web.filter.LoginCheckFilter</filter-class>
+      </filter>
+      <filter-mapping>
+          <filter-name>loginFilter</filter-name>
+          <url-pattern>/dept/*</url-pattern>
+      </filter-mapping>
+      ```
+
+  - 第三步：在 Filter 类的 doFilter 方法中执行 `chain.doFilter(request, response);`
+
+    - 当所有过滤器的 doFilter 方法执行完之后，就会执行 Servlet 中的方法
+
+
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/Filter%E8%BF%87%E6%BB%A4%E5%99%A8.png)
+
+- 关于配置 Filter 路径
+  - 精确匹配：/xxx.xxx、/xxx/xxx
+  - 匹配所有路径：/*
+  - 后缀匹配：*.xxx
+    - 不要以 / 开头
+  - 前缀匹配：/xxx/*
+
+- 在 web.xml 文件中，filter-mapping 标签配置的位置越考上，对应的 Filter 过滤器的优先级越高
+- 过滤器的调用顺序，相当于栈的数据结构
+
+- 过滤器中有一个设计模式
+  - 责任链设计模式
+  - 过滤器最大的优点：
+    - 在程序编译阶段不会确定调用顺序，调用顺序由 web.xml 文件中的顺序决定（符合 OCP 开闭原则）
+  - 责任链设计模式的核心思想
+    - 在程序运行阶段，动态组合程序的调用顺序
+
+
+
+
+
+
+
+# Listener 监听器
+
+- 关于 Listener
+  - Listener 也是 Servlet 规范中的一员
+  - 在 Servlet 中，所有监听器接口都是由 Listener 结尾
+  - 在某个特殊时刻想要执行某段代码时，需要使用对应的监听器
+- Servlet 规范中提供的监听器
+  - jakarta.servlet.
+    - ServletContextListener
+    - ServletContextAttributeListener
+    - ServletRequestListener
+    - ServletRequestAttributeListener
+  - jakarta.servlet.http.
+    - HttpSessionListener
+    - HttpSessionAttributeListener
+    - HttpSessionBindingListener
+    - HttpSessionIdListener
+    - HttpSessionActivationListener
+
+- 怎样实现监听器？
+
+  - 第一步：编写一个类，实现监听器接口，重写方法
+
+  - 第二步：
+
+    - 配置 web.xml 文件
+
+      ```xml
+      <listener>
+      	<listener-class>实现监听器接口的类</listener-class>
+      </listener>
+      ```
+
+    - 也可以使用注解 @WebListener
+
+  - 第三步：在重写的方法中编写代码
+
+    - 不需要手动调用，服务器会在监听器对应的时刻自动调用
