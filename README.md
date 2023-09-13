@@ -6,9 +6,10 @@ My study notes
 - Java
   - JavaSE
   - Java8
-- JavaWeb
+- MySQL
   - MySQL
   - JDBC
+- JavaWeb
   - HTML
   - CSS
   - JS
