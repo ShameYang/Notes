@@ -15,3 +15,4 @@ My study notes
   - JS
   - Servlet
   - JSP
+  - AJAX

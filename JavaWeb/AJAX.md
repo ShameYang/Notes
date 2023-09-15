@@ -77,43 +77,45 @@
 
 # AJAX GET 请求
 
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>AJAX get请求</title>
-    <script type="text/javascript">
-        window.onload = function () {
-            document.getElementById("myBtn").onclick = function () {
-                // 第一步：创建 AJAX 核心对象
-                const xhr = new XMLHttpRequest();
-                // 第二步：注册回调函数
-                xhr.onreadystatechange = function () {
-                    if (this.readyState === 4) {
-                        if (this.status === 200) {
-                            document.getElementById("myDiv").innerHTML = this.responseText;
-                        } else {
-                            alert(this.status)
-                        }
-                    }
-                }
-                // 第三步：开启通道
-                xhr.open("GET", "/ajax/ajaxrequest01", true);
-                // 第四步：发送请求
-                xhr.send();
-            }
-        }
-    </script>
-</head>
-<body>
-    <!-- 用户点击按钮时，发送 ajax 请求 -->
-    <button id="myBtn">发送 ajax 请求</button>
-    <!--  ajax 接收响应的数据后，对 div 进行渲染  -->
-    <div id="myDiv"></div>
-</body>
-</html>
-```
+示例代码：
+
+- ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>AJAX get请求</title>
+      <script type="text/javascript">
+          window.onload = function () {
+              document.getElementById("myBtn").onclick = function () {
+                  // 第一步：创建 AJAX 核心对象
+                  const xhr = new XMLHttpRequest();
+                  // 第二步：注册回调函数
+                  xhr.onreadystatechange = function () {
+                      if (this.readyState === 4) {
+                          if (this.status === 200) {
+                              document.getElementById("myDiv").innerHTML = this.responseText;
+                          } else {
+                              alert(this.status)
+                          }
+                      }
+                  }
+                  // 第三步：开启通道
+                  xhr.open("GET", "/ajax/ajaxrequest01", true);
+                  // 第四步：发送请求
+                  xhr.send();
+              }
+          }
+      </script>
+  </head>
+  <body>
+      <!-- 用户点击按钮时，发送 ajax 请求 -->
+      <button id="myBtn">发送 ajax 请求</button>
+      <!--  ajax 接收响应的数据后，对 div 进行渲染  -->
+      <div id="myDiv"></div>
+  </body>
+  </html>
+  ```
 
 
 
@@ -146,3 +148,94 @@
 
 
 # AJAX POST 请求
+
+- 与 GET 请求的区别：
+
+  - 只有前端代码有区别
+
+  - post 请求提交的数据在 send 方法中，而 get 请求提交的数据在 open 中
+  - post 请求需要设置请求头的内容类型，get 请求不需要
+
+- 示例代码
+
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>ajax post</title>
+      <script type="text/javascript">
+          window.onload = function () {
+              document.getElementById("myBtn").onclick = function () {
+                  // 第一步：创建 AJAX 核心对象
+                  const xhr = new XMLHttpRequest();
+                  // 第二步：注册回调函数
+                  xhr.onreadystatechange = function () {
+                      if (this.readyState === 4) {
+                          if (this.status === 200) {
+                              document.getElementById("mySpan").innerHTML = this.responseText;
+                          } else {
+                              alert(this.status);
+                          }
+                      }
+                  }
+                  // 第三步：开启通道
+                  xhr.open("POST", "/ajax/ajaxrequest02", true);
+                  // 设置请求头的内容类型
+                  xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                  // 第四步：发送请求
+                  const username = document.getElementById("username").value;
+                  const password = document.getElementById("password").value;
+                  xhr.send("username=" + username +"&password="+ password);
+              }
+          }
+      </script>
+  </head>
+  <body>
+      用户名：<input type="text" id="username" name="username"><br>
+      密码：<input type="password" id="password" name="password"><br>
+      <button id="myBtn">发送 AJAX 请求</button><br>
+      <span id="mySpan"></span>
+  </body>
+  </html>
+  ```
+
+- 案例：使用 AJAX POST 请求实现验证用户名
+  - 步骤：
+    - 前端：用户输入用户名后，失去焦点事件 blur 发生，然后发送 AJAX POST 请求，提交用户名
+    - 后端：接收用户名后，连接数据库，查询是否可用 
+
+
+
+
+
+
+
+# 基于 JSON 的数据交换
+
+- 在 WEB 前端中，如何将一个 json 格式的字符串转换为 json 对象
+
+  - eval 函数
+
+  - 内置对象 JSON 的 parse 方法
+
+    ```js
+    var jsonStr = "{\"username\" : \"xxx\"}";
+    var jsonObj = JSON.parse(jsonStr);
+    ```
+
+
+
+
+
+
+
+## fastjson
+
+- 使用阿里巴巴的 fastjson 组件可以非常便利地将 java 对象转换成 json 格式的字符串
+
+  ```java
+  String jsonStr = JSON.toJSONString();
+  ```
+
+- 注意：需要导入 fastjson 的 jar 包
