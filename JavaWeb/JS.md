@@ -250,6 +250,14 @@ function Student(sname, gender) {
 
 - Object 类中有 prototype 属性，可以使用该属性动态扩展类
 
+  ```js
+  Object.prototype.getUsername = function() {
+      return this.username;
+  }
+  ```
+
+  
+
 
 
 

@@ -239,3 +239,197 @@
   ```
 
 - 注意：需要导入 fastjson 的 jar 包
+
+
+
+
+
+
+
+# 基于 XML 的数据交换
+
+- 注意：如果服务器端响应 XML 的话，需要修改响应的内容类型
+
+  ```java
+  response.setContentType("text/xml;charset=UTF-8");
+  ```
+
+
+
+
+
+
+
+# AJAX 乱码问题
+
+- Tomcat 9以及之前版本，需要设置字符集，否则会出现中文乱码问题
+
+- 解决方案：
+
+  - 响应时乱码
+
+    ```java
+    response.setContentType("text/html;charset=UTF-8");
+    ```
+
+  - 发送 AJAX post 请求时，服务器接收乱码
+
+    ```java
+    request.setCharacterEncoding("UTF-8");
+    ```
+
+
+
+
+
+
+
+# AJAX 异步和同步
+
+- 什么是异步？什么是同步？
+  - 异步：ajax 请求1和 ajax 请求2，同时并发，谁也不用等谁
+  - 同步：ajax 请求1在发送时，需要等待 ajax 请求2结束之后才能发送
+
+- 什么时候用同步？
+  - 根据具体业务，例如用户注册
+    - 只有验证用户名等请求完成后，才能发送注册请求，这种情况下就要使用同步
+
+
+
+
+
+
+
+# AJAX 代码封装到 jQuery 库
+
+- 手动封装一个工具类，这个工具类看作是一个 JS 的库，这个 JS 库就是 jQuery
+
+  - 与后端没有关系，封装的 jQuery 只是为了方便前端代码的编写
+
+  - 设计思路来源于 CSS 的语法
+
+  - 手动开发 jQuery 源码：
+
+    ```js
+    function jQuery(selector) {
+        if (typeof selector == "string"){
+            if (selector.charAt(0) === "#") {
+                // 全局变量
+                domObj = document.getElementById(selector.substring(1));
+                return new jQuery();
+            }
+        }
+        // window.onload
+        if (typeof selector == "function") {
+            window.onload = selector;
+        }
+        // 定义 html() 函数，代替 domObj.innerHTML = ""
+        this.html = function(htmlStr) {
+            domObj.innerHTML = htmlStr;
+        }
+        // 定义 click() 函数，代替 domObj.onclick = function(){}
+        this.click = function(fun) {
+            domObj.onclick = fun;
+        }
+        // 定义 val() 函数，代替 domObj.value
+        this.val = function(v) {
+            if (v == undefined) {
+                return domObj.value;
+            } else {
+                domObj.value = v;
+            }
+        }
+    
+        /**
+         静态方法，发送 ajax 请求
+            type 请求方式
+            url 请求的 URL
+            data 请求时提交的数据
+            async 请求是否为异步请求
+         */
+        jQuery.ajax = function(jsonArgs) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+                if (this.readyState === 4) {
+                    if (this.states === 200) {
+                        // 假设服务器返回的都是 json 格式的字符串
+                        var jsonObj = JSON.parse(this.responseText);
+                        // 调用函数
+                        jsonArgs.success(jsonObj);
+                    }
+                }
+            }
+    
+            if (jsonArgs.type.toUpperCase() === "POST") {
+                xhr.open("POST", jsonArgs.url, jsonArgs.async);
+                xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                xhr.send(jsonArgs.data);
+            }
+    
+            if (jsonArgs.type.toUpperCase() === "GET") {
+                xhr.open("GET", jsonArgs.url + "?" + jsonArgs.data, jsonArgs.async);
+                xhr.send();
+            }
+        }
+    }
+    $ = jQuery
+    
+    // 让静态方法 ajax 生效
+    new jQuery()
+    ```
+
+- 使用以上 jQuery 库
+
+  ```html
+  <script type="text/javascript" src="jQuery 的路径"></script>
+  
+  <script type="text/javascript">
+      // window.onload
+  	$(function(){
+          $("#btn1").click(function(){
+              $.ajax({
+                  type : "",
+                  url : "",
+                  data : "username=" + $("#username").val(),
+                  async : true | false,
+                  success : function(json){
+                      $("#div1").html(json.username);
+                  }
+              })
+          })
+      })
+  </script>
+  ```
+
+
+
+
+
+
+
+# AJAX 实现省市联动
+
+- 什么是省市联动？
+  - 在网页上，选择对应的省份之后，动态的关联出该省份对应的市。选择对应的市后，动态的关联出对应的区
+
+- 数据库表设计
+
+  ```
+  t_area（区域表）
+  id(PK-自增)	code	name	pcode
+  -------------------------------------
+  1			 001	 北京市	null
+  2			 002	 上海市	null
+  3			 003	 朝阳区	001
+  4			 004	 海淀区	001
+  5			 005	 闵行区	002
+  6			 006	 徐汇区	002
+  ```
+
+
+
+
+
+
+
+# AJAX 跨域问题
