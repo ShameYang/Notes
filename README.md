@@ -13,7 +13,7 @@ My study notes
   - HTML
   - CSS
   - JS
+    - AJAX
   - Servlet
   - JSP
   - MVC
-  - AJAX
