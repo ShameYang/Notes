@@ -426,10 +426,246 @@
   6			 006	 徐汇区	002
   ```
 
+- 前端代码
 
+  ```html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <title>省市联动</title>
+  </head>
+  <body>
+  <!--  引入自己写的 jQuery 库  -->
+  <script type="text/javascript" src="/ajax04/js/jQuery-1.0.0.js"></script>
+  <script>
+      $(function () {
+          $.ajax({
+              type: "get",
+              url: "/ajax04/listArea",
+              data: "",
+              async: true,
+              success: function (jsonArr) {
+                  var html = "<option value=''>--请选择省份--</option>";
+                  for (var i = 0; i < jsonArr.length; i++) {
+                      var area = jsonArr[i];
+                      html += "<option value='" + area.code + "'>" + area.name + "</option>";
+                  }
+                  $("#province").html(html);
+              }
+          })
+  
+          $("#province").change(function () {
+              $.ajax({
+                  type: "get",
+                  url: "/ajax04/listArea",
+                  data: "pcode=" + this.value,
+                  async: true,
+                  success: function (jsonArr) {
+                      var html = "<option value=''>--请选择市--</option>";
+                      for (var i = 0; i < jsonArr.length; i++) {
+                          var area = jsonArr[i];
+                          html += "<option value='" + area.code + "'>" + area.name + "</option>";
+                      }
+                      $("#city").html(html);
+                  }
+              })
+          })
+      })
+  </script>
+  
+  <select id="province"></select>
+  
+  <select id="city"></select>
+  </body>
+  </html>
+  ```
+
+- 后端代码
+
+  ```java
+  @WebServlet("/listArea")
+  public class ListAreaServlet extends HttpServlet {
+      @Override
+      protected void doGet(HttpServletRequest request, HttpServletResponse response)
+              throws ServletException, IOException {
+          String pcode = request.getParameter("pcode");
+          List<Area> areas = new ArrayList<>();
+          Connection conn = null;
+          PreparedStatement ps = null;
+          ResultSet rs = null;
+          try {
+              Class.forName("com.mysql.cj.jdbc.Driver");
+              String url = "jdbc:mysql://localhost:3306/forajax";
+              String user = "root";
+              String password = "123456";
+              conn = DriverManager.getConnection(url, user, password);
+              String sql = "";
+              if (pcode == null) {
+                  sql = "select code, name from t_area where pcode is null";
+                  ps = conn.prepareStatement(sql);
+              } else {
+                  sql = "select code, name from t_area where pcode = ?";
+                  ps = conn.prepareStatement(sql);
+                  ps.setString(1, pcode);
+              }
+              rs = ps.executeQuery();
+              while (rs.next()) {
+                  String code = rs.getString("code");
+                  String name = rs.getString("name");
+                  Area a = new Area(code, name);
+                  areas.add(a);
+              }
+          } catch (Exception e) {
+              throw new RuntimeException(e);
+          } finally {
+              if (conn != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if (ps != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+              if (rs != null) {
+                  try {
+                      conn.close();
+                  } catch (SQLException e) {
+                      throw new RuntimeException(e);
+                  }
+              }
+          }
+          response.setContentType("text/html;charset=UTF-8");
+          String json = JSON.toJSONString(areas);
+          response.getWriter().print(json);
+      }
+  }
+  ```
+
+  
 
 
 
 
 
 # AJAX 跨域问题
+
+## 跨域
+
+- 跨域指从一个域名的网页请求另一个域名的资源
+- 传统的请求，能直接修改地址的，都能实现跨域访问。但是 AJAX 请求由于同源策略的存在，无法跨域访问
+
+
+
+## 同源策略
+
+- 同源策略是指一段脚本只能读取来自同一来源的窗口和文档的属性
+- 同源策略是为了保护网站信息的安全策略
+- 同源三要素
+  - 协议
+  - 域名
+  - 端口号
+
+
+
+## 实现 AJAX 跨域
+
+### 方案1：设置响应头
+
+```java
+response.setHeader("Access-Control-Allow-Origin", "允许跨域的 URL"); // 如果设置为 * 号，则允许所有的 URL 跨域访问
+```
+
+### 方案2：jsonp
+
+- jsonp：json with padding（带填充的 json）
+
+- jsonp 不是 ajax 请求，但是可以完成局部刷新的效果，并且可以解决跨域问题
+
+- 注意：jsonp 解决跨域问题时，只支持 GET 请求
+
+- 本质上，是用 script 标签进行跨域访问
+
+  - 打开页面时，跨域访问
+
+    ```html
+    <script type="text/javascript" src="xxx://xxx:xxx/..."></script>
+    ```
+
+  - 点击按钮，跨域访问
+
+    ```html
+    <script type="text/javascript">
+        // ES 6 的新写法
+        window.onload = () => {
+            document.getElementById("btn").onclick = () => {
+                // 创建 script 元素对象
+                const htmlScriptElement = document.createElement("script");
+                // 设置 type
+                htmlScriptElement.type = "text/javascript";
+                // 设置 src
+                htmlScriptElement.src = "xxx://xxx:xxx/...";
+                // 添加到 body 标签中
+                document.getElementsByTagName("body")[0].appendChild(htmlScriptElement);
+            }
+        }
+    </script>
+    
+    <button id="btn">我是按钮，点击实现跨域访问</button>
+    ```
+
+### 方案3：jQuery 封装的 jsonp
+
+- 引入 jQuery 库的 js 文件，直接使用封装好的 jsonp
+
+- 这个 jsonp 就是方案2的高度封装，底层原理完全相同（只是一个工具，会用就行）
+
+- 核心代码
+
+  ```js
+  // 类似于 ajax 请求，不是真正的 ajax 请求
+  $.ajax({
+      type: "GET",
+      url: "跨域访问的 url",
+      dataType: "jsonp",
+      jsonp: "xxx", // 指定参数名（不设置时，默认是 callback）
+      jsonpCallback: "xxx" // 指定回调函数的名字
+      					// 不设置时，jQuery 会自动生成随机的回调函数，
+      					// 而且这个回调函数会自动调用下面的 success 的回调函数
+      success: function (data) {...}
+  })
+  ```
+
+### 方案4：代理机制（httpclient）
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/ajax%E4%BB%A3%E7%90%86%E6%9C%BA%E5%88%B6%E8%B7%A8%E5%9F%9F.png)
+
+- 怎么使用 Java 程序发送 get/post 请求？
+  - JDK 内置的 API（java.net.URL...）
+  - 第三方的开源组件，例如：apache 的 httpclient 组件
+
+### 方案5：nginx 反向代理
+
+- nginx 反向代理中也是使用了上边的这种代理机制来完成 AJAX 的跨域，实现起来只需要修改一个 nginx 的配置即可。以后会学的~
+
+
+
+
+
+
+
+# AJAX 实现搜索联想 自动补全
+
+- 搜索联想和自动补全功能，是页面局部刷新效果，需要使用 AJAX 请求来完成
+
+- 核心原理
+  - 当键盘事件发生之后，发送 AJAX 请求，请求中提交用户输入的内容
+  - 后端接收到 AJAX 请求，执行 select 语句进行模糊查询，返回查询结果
+  - 将查询结果封装成 json 格式的字符串，然后将 json 格式的字符串响应到前端
+  - 前端接收到 json 格式的字符串后，解析该字符串，动态展示到页面上
