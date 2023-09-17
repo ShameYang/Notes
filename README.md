@@ -15,4 +15,5 @@ My study notes
   - JS
   - Servlet
   - JSP
+  - MVC
   - AJAX
