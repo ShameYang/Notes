@@ -35,7 +35,7 @@
 
 
 
-## Maven 核心概念
+## Maven 核心概念简介
 
 - POM
   - 一个文件，pom.xml，pom 翻译为项目对象模型（Project Object Model）
@@ -193,3 +193,151 @@ Root
 
 
 
+## Maven 常用命令
+
+| 命令             | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| mvn clean        | 清理（删除原来编译和测试的目录，即 target 目录，但是已经 install 到仓库里的包不会删除） |
+| mvn compile      | 编译主程序（会在当前目录生成一个 target 目录，存放主程序中编译生成的字节码文件，拷贝 resources 中的文件到 target） |
+| mvn test-compile | 编译测试程序（会在当前目录生成一个 target 目录，存放测试程序中编译生成的字节码文件） |
+| mvn test         | 测试（生成一个 surefire-reports，保存测试结果）              |
+| mvn package      | 打包主程序（按照 pom.xml 配置把主程序打包成 jar 包或 war 包） |
+| mvn install      | 安装主程序（把本工程打包，按照坐标保存到本地仓库）           |
+| mvn deploy       | 部署主程序（把本工程打包，按照坐标保存到本地仓库，并且会保存到私服仓库中，还会自动把项目部署到 web 容器中） |
+
+- 自上而下是构建的过程，执行下边的命令时，上边的命令都会执行一次
+
+
+
+
+
+
+
+# Maven 在 IDEA 中的应用
+
+## 配置 Maven
+
+- 以 2023.2.1 版本的 IDEA 为例，不同版本自行查阅即可
+
+- 当前工程设置
+
+  - Settings --> Build, Execute... --> Build Tool --> Maven
+  - <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/Maven%E9%85%8D%E7%BD%AE1.png" style="zoom:67%;" /> 
+
+  - 点击上图中的 Runner，输入 -DarchetypeCatalog=internal
+  - <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/Maven%E9%85%8D%E7%BD%AE2.png" style="zoom: 67%; float:left" />
+
+
+
+- 新工程设置
+  - File --> New Projects Setup --> Settings for New Projects...
+  - 打开后，设置同上
+
+
+
+## 创建 JavaSE 项目
+
+- <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/IDEA%E5%88%9B%E5%BB%BAMaven2.png" style="zoom:67%; float:left" />
+
+
+
+## 创建 WEB 项目
+
+- <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/IDEA%E5%88%9B%E5%BB%BAweb%E9%A1%B9%E7%9B%AE.png" style="zoom:67%; float:left" />
+
+
+
+- 创建后，如果爆红就刷新一下：右键 pom.xml --> Maven --> Reload...
+
+  <img src="A:\picture\Maven\IDEA创建web项目2.png" style="zoom:67%;float:left" />
+
+
+
+
+
+
+
+# 依赖管理
+
+## 依赖的范围
+
+以 junit 为例
+
+- ```xml
+  <dependency>
+  	<groupId>junit</groupId>
+  	<artifactId>junit</artifactId>
+  	<version>3.8.1</version>
+  	<scope>test</scope> <!-- 这个就是依赖的范围 -->
+  </dependency>
+  ```
+
+- 他的依赖范围是 test，说明就在测试中起作用
+
+| scope 取值 | 描述                       |
+| ---------- | -------------------------- |
+| compile    | 默认值，在所有阶段都会使用 |
+| test       | 只在测试阶段起作用         |
+| provided   | 不参与打包与部署           |
+
+
+
+
+
+
+
+# Maven 常用设置
+
+## 属性设置
+
+```xml
+<properties>
+    <!-- maven 构建项目使用编码，避免中文乱码 -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- 编译代码使用的 jdk 版本 -->
+    <maven.compiler.source>JDK 版本</maven.compiler.source>
+    <!-- 运行代码使用的 jdk 版本 -->
+    <maven.compiler.target>JDK 版本</maven.compiler.target>
+    
+    <!-- 自定义变量,这里以 spring.version 为例 -->
+    <spring.version>5.2.0</spring.version>
+</properties>
+
+<dependencies>
+	<dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-core</artifactId>
+        <!-- 这里使用 ${变量名} 就可以使用自定义的变量 -->
+		<version>${spring.version}</version>
+	</dependency>
+    <dependency>
+		<groupId>org.springframework</groupId>
+		<artifactId>spring-aop</artifactId>
+		<version>${spring.version}</version>
+	</dependency>
+</dependencies>
+```
+
+
+
+## 指定资源位置
+
+```xml
+<build>
+    <resources>
+        <resource>
+            <directory>src/main/java</directory> <!-- 所在的目录 -->
+            <includes> <!-- 目录下的 .properties .xml 文件都会扫描到 -->
+                <include>**/*.properties</include>
+                <include>**/*.xml</include>
+            </includes>
+            <!-- 不启用过滤器，*.property 已经起到了过滤作用  -->
+            <filtering>false</filtering>
+        </resource>
+    </resources>
+</build>
+```
+
+- 作用（mybatis 中会用到）
+  - 默认没有使用 resources 时，maven 执行 compile 后，会把 src/main/resources 中的文件拷贝到 target/classes 中，src/main/java 中的非 java 文件不处理
+  - 使用 resources 后，在 compile 后就可以把指定的资源，一同拷贝到 target/classes 中
