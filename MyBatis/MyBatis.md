@@ -462,3 +462,70 @@ public class SqlSessionUtil {
   sqlSession.insert("命名空间.insertStu");
   ```
 
+
+
+
+
+
+
+# 四、MyBatis 核心配置文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <!-- resource 从类的根路径下查找，即 src/main/resources -->
+    <properties resource="jdbc.properties"/>
+    
+    <!-- 环境配置，default 表示默认的环境 -->
+    <environments default="development">
+        <!-- 
+			其中的一个环境，连接的数据库是 formybatis
+        	一般一个数据库对应一个 environment环境，一个环境对应一个 SqlSessionFactory 对象
+		-->
+        <environment id="development">
+            <!-- 
+				指定事务管理的方式
+ 					JDBC：使用原生代码管理事务
+					MANAGED：mybatis 不负责管理事务，交给其它的 JEE（JavaEE） 容器来负责，例如 spring
+			-->
+            <transactionManager type="JDBC|MANAGED"/>
+            <!-- 
+				1.数据源，为程序提供 Connection 对象
+				2，实际上是一套规范，这套接口由 JDK 规定
+				3.实现 javax.sql.DataSource 接口即可就能编写自己的数据源组件，例如数据库连接池
+				4.常见的数据源组件：
+					阿里的德鲁伊连接池 druid
+					c3p0
+					dbcp ...
+				5.type 属性
+					UNPOOLED：不使用数据库连接池技术。每个请求都创建一个 Connection 对象
+					POOLED：使用 mybatis 自己实现的数据库连接池
+					JNDI：集成第三方的数据库连接池
+			-->
+            <dataSource type="UNPOOLED|POOLED|JNDI">
+                <property name="driver" value="{jdbc.driver}"/>
+                <property name="url" value="${jdbc.url}"/>
+                <property name="username" value="${jdbc.user}"/>
+                <property name="password" value="${jdbc.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    
+    <mappers>
+        <mapper resource="StudentMapper.xml"/>
+    </mappers>
+    
+</configuration>
+```
+
+
+
+
+
+
+
+# 五、WEB 应用中使用 MyBatis（MVC 架构模式）
