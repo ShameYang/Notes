@@ -529,3 +529,42 @@ public class SqlSessionUtil {
 
 
 # 五、WEB 应用中使用 MyBatis（MVC 架构模式）
+
+## 5.1 需求分析
+
+银行转账业务，需要转出账户、转入账户、转账金额
+
+## 5.2 数据库表的设计和数据准备
+
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/WEB-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E7%9A%84%E8%AE%BE%E8%AE%A1.png" style="zoom: 67%;float:left" />
+
+
+
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/WEB-%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%A8%E6%95%B0%E6%8D%AE.png" style="zoom: 80%;float:left" />
+
+
+
+## 5.3 实现步骤
+
+### 第一步：环境搭建
+
+- IDEA 中创建 Maven WEB 应用
+
+- IDEA 配置 Tomcat，然后应用部署到 tomcat
+
+- 手动添加 java 目录
+
+- web.xml 文件的版本比较低，可以从 tomcat 10的样例文件中复制，然后修改
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                        https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+           version="6.0"
+           metadata-complete="true">
+  </web-app>
+  ```
+
+- 删除 index.jsp 文件，我们这个项目只使用 html
