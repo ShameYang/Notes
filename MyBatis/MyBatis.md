@@ -563,8 +563,716 @@ public class SqlSessionUtil {
            xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
                         https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
            version="6.0"
-           metadata-complete="true">
+           metadata-complete="false">
   </web-app>
   ```
 
 - 删除 index.jsp 文件，我们这个项目只使用 html
+
+- 配置 pom.xml 文件
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+      <modelVersion>4.0.0</modelVersion>
+  
+      <groupId>com.shameyanng</groupId>
+      <artifactId>mybatis-003-web</artifactId>
+      <packaging>war</packaging>
+      <version>1.0-SNAPSHOT</version>
+  
+      <name>mybatis-003-web</name>
+      <url>http://localhost:8080/bank</url>
+  
+      <dependencies>
+          <!-- mybatis -->
+          <dependency>
+              <groupId>org.mybatis</groupId>
+              <artifactId>mybatis</artifactId>
+              <version>3.5.13</version>
+          </dependency>
+          <!-- mysql -->
+          <dependency>
+              <groupId>com.mysql</groupId>
+              <artifactId>mysql-connector-j</artifactId>
+              <version>8.0.33</version>
+          </dependency>
+          <!-- logback -->
+          <dependency>
+              <groupId>ch.qos.logback</groupId>
+              <artifactId>logback-classic</artifactId>
+              <version>1.4.11</version>
+          </dependency>
+          <!-- servlet -->
+          <dependency>
+              <groupId>jakarta.servlet</groupId>
+              <artifactId>jakarta.servlet-api</artifactId>
+              <version>6.0.0</version>
+              <scope>provided</scope>
+          </dependency>
+      </dependencies>
+  
+      <build>
+          <finalName>mybatis-003-web</finalName>
+      </build>
+  </project>
+  ```
+
+- 引入相关配置文件，放到 resources 目录下（类的根路径）
+
+  - mybatis-config.xml
+
+    ````xml
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE configuration
+            PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-config.dtd">
+    <configuration>
+        <properties resource="jdbc.properties"/>
+        
+        <settings>
+            <setting name="logImpl" value="SLF4J"/>
+        </settings>
+        
+        <environments default="development">
+            <environment id="development">
+                <transactionManager type="JDBC"/>
+                <dataSource type="POOLED">
+                    <property name="driver" value="${jdbc.driver}"/>
+                    <property name="url" value="${jdbc.url}"/>
+                    <property name="username" value="${jdbc.username}"/>
+                    <property name="password" value="${jdbc.password}"/>
+                </dataSource>
+            </environment>
+        </environments>
+        
+        <mappers>
+            <!-- 一定要注意这里的路径！！！ -->
+            <mapper resource="AccountMapper.xml"/>
+        </mappers>
+    </configuration>
+    ````
+
+  - AccountMapper.xml
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE mapper
+            PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+            "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    <mapper namespace="account">
+    
+    </mapper>
+    ```
+
+  - logback.xml
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration scan="false">
+        <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                <pattern>[%thread] %-5level %logger{36} - %msg%n</pattern>
+            </encoder>
+        </appender>
+    
+        <logger name="com.apache.ibatis" level="TRACE"/>
+        <logger name="java.sql.Connection" level="DEBUG"/>
+        <logger name="java.sql.Statement" level="DEBUG"/>
+        <logger name="java.sql.PreparedStatement" level="DEBUG"/>
+    
+        <root level="DEBUG">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="FILE"/>
+        </root>
+    </configuration>
+    ```
+
+  - jdbc.properties
+
+    ```properties
+    jdbc.driver=com.mysql.cj.jdbc.Driver
+    jdbc.url=jdbc:mysql://localhost:3306/formybatis
+    jdbc.username=root
+    jdbc.password=123456
+    ```
+
+
+
+### 第二步：前端页面 index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>银行账户转账</title>
+</head>
+<body>
+<!-- /bank是应用的根，部署web应用到tomcat的时候一定要注意这个名字 -->
+<form action="/bank/transfer" method="post">
+    转出账户：<input type="text" name="fromActno"/><br>
+    转入账户：<input type="text" name="toActno"/><br>
+    转账金额：<input type="text" name="money"/><br>
+    <input type="submit" value="转账"/>
+</form>
+</body>
+</html>
+```
+
+
+
+### 第三步：MVC 架构模式分层
+
+在 src/main/java 包下创建 bean 包、service 包、dao 包、web 包、utils 包
+
+```
+...
+ |---java
+ 	  |---com.shameyang.bank
+ 			|---bean
+ 			|---dao
+				 |---impl
+ 			|---service
+ 				 |---impl
+ 			|---utils
+ 			|---web
+ 			|---exception
+```
+
+
+
+### 第四步：拷贝之前封装的工具类
+
+```java
+public class SqlSessionUtil {
+    private static SqlSessionFactory sqlSessionFactory;
+
+    static {
+        try {
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsStream("mybatis-config.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SqlSessionUtil() {
+    }
+
+    /**
+     * 获取会话对象
+     * @return 会话对象
+     */
+    public static SqlSession openSession() {
+        return sqlSessionFactory.openSession();
+    }
+}
+```
+
+
+
+### 第五步：定义 bean 类：Account
+
+```java
+package com.shameyang.bank.bean;
+
+
+public class Account {
+    private Long id;
+    private String actno;
+    private Double balance;
+
+    public Account(Long id, String actno, Double balance) {
+        this.id = id;
+        this.actno = actno;
+        this.balance = balance;
+    }
+
+    public Account() {
+    }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "id=" + id +
+                ", actno='" + actno + '\'' +
+                ", balance=" + balance +
+                '}';
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getActno() {
+        return actno;
+    }
+
+    public void setActno(String actno) {
+        this.actno = actno;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
+    }
+}
+```
+
+
+
+### 第六步：编写 AccountDao 接口，以及实现类
+
+dao 中需要提供的方法：
+
+- 转帐前查询余额是否充足：selectByActno
+- 转账时需要更新账户：update
+
+
+
+AccountDao
+
+```java
+package com.shameyang.bank.dao;
+
+import com.shameyang.bank.bean.Account;
+
+public interface AccountDao {
+    /**
+     * 根据账号获取账户信息
+     * @param actno 账号
+     * @return 账户信息
+     */
+    Account selectByActno(String actno);
+
+    /**
+     * 更新账户信息
+     * @param act 账户信息
+     * @return 1 表示成功，其他值则失败
+     */
+    int update(Account act);
+}
+```
+
+
+
+AccountDaoImpl
+
+```java
+package com.shameyang.bank.dao.impl;
+
+import com.shameyang.bank.bean.Account;
+import com.shameyang.bank.dao.AccountDao;
+import com.shameyang.bank.utils.SqlSessionUtil;
+import org.apache.ibatis.session.SqlSession;
+
+public class AccountDaoImpl implements AccountDao {
+    @Override
+    public Account selectByActno(String actno) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        Account act = (Account) sqlSession.selectOne("selectByActno", actno);
+        sqlSession.close();
+        return act;
+    }
+
+    @Override
+    public int update(Account act) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        int count = sqlSession.update("update", act);
+        sqlSession.commit();
+        sqlSession.close();
+        return count;
+    }
+}
+
+```
+
+
+
+### 第七步：将Dao实现类编写的 mybatis 代码映射到 AccountMapper
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="account">
+    <select id="selectByActno" resultType="com.shameyang.bank.bean.Account">
+        select * from t_act where actno= #{actno};
+    </select>
+    <update id="update">
+        update t_act set balance = #{balance} where actno = #{actno};
+    </update>
+</mapper>
+```
+
+
+
+### 第八步：编写 AccountService 接口以及实现类
+
+异常类
+
+- 余额不足
+
+  ```java
+  package com.shameyang.bank.exception;
+  
+  public class MoneyNotEnoughException extends Exception {
+      public MoneyNotEnoughException() {
+      }
+  
+      public MoneyNotEnoughException(String message) {
+          super(message);
+      }
+  }
+  ```
+
+- 应用异常
+
+  ```java
+  package com.shameyang.bank.exception;
+  
+  public class AppException extends Exception {
+      public AppException() {
+          super();
+      }
+  
+      public AppException(String message) {
+          super(message);
+      }
+  }
+  ```
+
+  
+
+AccountService
+
+```java
+package com.shameyang.bank.service.impl;
+
+import com.shameyang.bank.exception.AppException;
+import com.shameyang.bank.exception.MoneyNotEnoughException;
+
+public interface AccountService {
+    /**
+     * 银行账户转账
+     * @param fromActno 转出账户
+     * @param toActno 转入账户
+     * @param money 转账金额
+     * @throws MoneyNotEnoughException 余额不足异常
+     * @throws AppException App 发生异常
+     */
+    void transger(String fromActno, String toActno, double money)
+            throws MoneyNotEnoughException, AppException;
+}
+```
+
+
+
+AccountServiceImpl
+
+```java
+package com.shameyang.bank.service.impl;
+
+import com.shameyang.bank.bean.Account;
+import com.shameyang.bank.dao.AccountDao;
+import com.shameyang.bank.dao.impl.AccountDaoImpl;
+import com.shameyang.bank.exception.AppException;
+import com.shameyang.bank.exception.MoneyNotEnoughException;
+import com.shameyang.bank.service.AccountService;
+
+public class AccountServiceImpl implements AccountService {
+    AccountDao accountDao = new AccountDaoImpl();
+
+    @Override
+    public void transfer(String fromActno, String toActno, double money)
+            throws MoneyNotEnoughException, AppException {
+        Account fromAct = accountDao.selectByActno(fromActno);
+        if (fromAct.getBalance() < money) {
+            throw new MoneyNotEnoughException("对不起，您的余额不足");
+        }
+        try {
+            Account toAct = accountDao.selectByActno(toActno);
+            fromAct.setBalance(fromAct.getBalance() - money);
+            toAct.setBalance(fromAct.getBalance() + money);
+            // 更新数据库
+            accountDao.update(fromAct);
+            accountDao.update(toAct);
+        } catch (Exception e) {
+            throw new AppException("转账失败，未知原因！请联系管理员！");
+        }
+    }
+}
+```
+
+
+
+### 第九步：编写 AccountController
+
+```java
+package com.shameyang.bank.web.controller;
+
+import com.shameyang.bank.exception.AppException;
+import com.shameyang.bank.exception.MoneyNotEnoughException;
+import com.shameyang.bank.service.AccountService;
+import com.shameyang.bank.service.impl.AccountServiceImpl;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+/**
+ * @author ShameYang
+ * @date 2023/9/24 11:42
+ * @description 账户控制器
+ */
+@WebServlet("/transfer")
+public class AccountController extends HttpServlet {
+    AccountService accountService = new AccountServiceImpl();
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        // 获取响应流
+        response.setContentType("text/html");
+        PrintWriter out = response.getWriter();
+        // 获取账户信息
+        String fromActno = request.getParameter("fromActno");
+        String toActno = request.getParameter("toActno");
+        double money = Double.parseDouble(request.getParameter("money"));
+        // 调用业务方法完成转账
+        try {
+            accountService.transfer(fromActno, toActno, money);
+            out.print("<h1>转账成功！</h1>");
+        } catch (MoneyNotEnoughException | AppException e) {
+            out.print(e);
+        }
+    }
+}
+```
+
+
+
+### 最后一步：测试
+
+启动服务器，打开浏览器，输入 pom.xml 文件中设置的地址：http://localhost:8080/bank
+
+
+
+404 问题：检查 web.xml 文件中 metadata-complete="true"，如果为 true，表示只支持配置文件，无法注解式开发，改成 false 即可，同时支持配置文件和注解
+
+
+
+
+
+## 5.4 事务问题
+
+在之前的转账业务中，更新了两个账户，我们需要保证同时成功或失败，这时需要事务机制，在 transfer 方法开始执行时开启事务，直到两个更新都成功，再提交事务
+
+
+
+做出如下修改：
+
+```java
+public class AccountServiceImpl implements AccountService {
+    AccountDao accountDao = new AccountDaoImpl();
+
+    @Override
+    public void transfer(String fromActno, String toActno, double money)
+            throws MoneyNotEnoughException, AppException {
+        Account fromAct = accountDao.selectByActno(fromActno);
+        if (fromAct.getBalance() < money) {
+            throw new MoneyNotEnoughException("对不起，您的余额不足");
+        }
+        try {
+            Account toAct = accountDao.selectByActno(toActno);
+            fromAct.setBalance(fromAct.getBalance() - money);
+            toAct.setBalance(toAct.getBalance() + money);
+            // 更新数据库（添加事务）
+            SqlSession sqlSession = SqlSessionUtil.openSession();
+            accountDao.update(fromAct);
+            // 模拟异常
+            String s = null;
+            s.toString();
+            accountDao.update(toAct);
+            sqlSession.commit();
+            sqlSession.close();
+        } catch (Exception e) {
+            throw new AppException("转账失败，未知原因！请联系管理员！");
+        }
+    }
+}
+```
+
+
+
+我们再次执行程序后，会发现转账失败，但是转账金额消失了！
+
+- 原因： service 和 dao 中使用的 SqlSession 对象不是同一个
+- 解决方法：我们可以将 SqlSession 对象存放到 ThreadLocal 当中，保证 service 和 dao 的 SqlSession 对象是同一个
+
+
+
+修改 SqlSessionUtil
+
+```java
+public class SqlSessionUtil {
+    private static SqlSessionFactory sqlSessionFactory;
+
+    static {
+        try {
+            sqlSessionFactory = new SqlSessionFactoryBuilder().build(Resources.getResourceAsStream("mybatis-config.xml"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private SqlSessionUtil() {
+    }
+
+    private static ThreadLocal<SqlSession> local = new ThreadLocal<>();
+
+    /**
+     * 每调用一次 openSession() 可获取一个新的会话，该会话支持自动提交
+     * @return 新的会话对象
+     */
+    public static SqlSession openSession() {
+        SqlSession sqlSession = local.get();
+        if (sqlSession == null) {
+            sqlSession = sqlSessionFactory.openSession();
+            local.set(sqlSession);
+        }
+        return sqlSession;
+    }
+
+    /**
+     * 关闭 SqlSession 对象
+     * @param sqlSession
+     */
+    public static void close(SqlSession sqlSession) {
+        if (sqlSession != null) {
+            sqlSession.close();
+        }
+        local.remove();
+    }
+}
+```
+
+
+
+修改 dao 中的方法：AccountDaoImpl 所有方法中的 commit 和 close 全部删除
+
+```java
+public class AccountDaoImpl implements AccountDao {
+    @Override
+    public Account selectByActno(String actno) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        Account act = (Account) sqlSession.selectOne("selectByActno", actno);
+        return act;
+    }
+
+    @Override
+    public int update(Account act) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        int count = sqlSession.update("update", act);
+        return count;
+    }
+}
+```
+
+
+
+修改 service 中的方法
+
+```java
+public class AccountServiceImpl implements AccountService {
+    AccountDao accountDao = new AccountDaoImpl();
+
+    @Override
+    public void transfer(String fromActno, String toActno, double money)
+            throws MoneyNotEnoughException, AppException {
+        Account fromAct = accountDao.selectByActno(fromActno);
+        if (fromAct.getBalance() < money) {
+            throw new MoneyNotEnoughException("对不起，您的余额不足");
+        }
+        try {
+            Account toAct = accountDao.selectByActno(toActno);
+            fromAct.setBalance(fromAct.getBalance() - money);
+            toAct.setBalance(toAct.getBalance() + money);
+            // 更新数据库（添加事务）
+            SqlSession sqlSession = SqlSessionUtil.openSession();
+            accountDao.update(fromAct);
+            // 模拟异常
+            String s = null;
+            s.toString();
+            accountDao.update(toAct);
+            sqlSession.commit();
+            SqlSessionUtil.close(sqlSession); // 只修改了这一行代码
+        } catch (Exception e) {
+            throw new AppException("转账失败，未知原因！请联系管理员！");
+        }
+    }
+}
+```
+
+
+
+
+
+## 5.5 MyBatis 核心对象作用域
+
+### SqlSessionFactoryBuilder
+
+这个类可以被实例化、使用和丢弃，一旦创建了 SqlSessionFactory，就不再需要它了。 因此 SqlSessionFactoryBuilder 实例的最佳作用域是方法作用域（也就是局部方法变量）。 你可以重用 SqlSessionFactoryBuilder 来创建多个 SqlSessionFactory 实例，但最好还是不要一直保留着它，以保证所有的 XML 解析资源可以被释放给更重要的事情。
+
+### SqlSessionFactory
+
+SqlSessionFactory 一旦被创建就应该在应用的运行期间一直存在，没有任何理由丢弃它或重新创建另一个实例。 使用 SqlSessionFactory 的最佳实践是在应用运行期间不要重复创建多次，多次重建 SqlSessionFactory 被视为一种代码“坏习惯”。因此 SqlSessionFactory 的最佳作用域是应用作用域。 有很多方法可以做到，最简单的就是使用单例模式或者静态单例模式。
+
+### SqlSession
+
+每个线程都应该有它自己的 SqlSession 实例。SqlSession 的实例不是线程安全的，因此是不能被共享的，所以它的最佳的作用域是请求或方法作用域。 绝对不能将 SqlSession 实例的引用放在一个类的静态域，甚至一个类的实例变量也不行。 也绝不能将 SqlSession 实例的引用放在任何类型的托管作用域中，比如 Servlet 框架中的 HttpSession。 如果你现在正在使用一种 Web 框架，考虑将 SqlSession 放在一个和 HTTP 请求相似的作用域中。 换句话说，每次收到 HTTP 请求，就可以打开一个 SqlSession，返回一个响应后，就关闭它。 这个关闭操作很重要，为了确保每次都能执行关闭操作，你应该把这个关闭操作放到 finally 块中。下面的示例就是一个确保 SqlSession 关闭的标准模式：
+
+```java
+try (SqlSession session = sqlSessionFactory.openSession()) {
+  // 你的应用逻辑代码
+}
+```
+
+
+
+## 5.6 分析当前程序存在的问题
+
+分析 AccountDaoImpl 代码
+
+```java
+public class AccountDaoImpl implements AccountDao {
+    @Override
+    public Account selectByActno(String actno) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        Account act = (Account) sqlSession.selectOne("selectByActno", actno);
+        return act;
+    }
+
+    @Override
+    public int update(Account act) {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        int count = sqlSession.update("update", act);
+        return count;
+    }
+}
+```
+
+我们不难发现，这个 dao 实现类中的方法代码很固定，基本上就是一行代码，通过SqlSession对象调用 insert、delete、update、select 等方法，这个类中的方法没有任何业务逻辑，既然是这样，**这个类我们能不能动态的生成**，以后可以不写这个类吗？答案：可以。
