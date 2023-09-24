@@ -1253,7 +1253,7 @@ try (SqlSession session = sqlSessionFactory.openSession()) {
 
 
 
-## 5.6 分析当前程序存在的问题
+##  5.6 分析当前程序存在的问题
 
 分析 AccountDaoImpl 代码
 
@@ -1275,4 +1275,4 @@ public class AccountDaoImpl implements AccountDao {
 }
 ```
 
-我们不难发现，这个 dao 实现类中的方法代码很固定，基本上就是一行代码，通过SqlSession对象调用 insert、delete、update、select 等方法，这个类中的方法没有任何业务逻辑，既然是这样，**这个类我们能不能动态的生成**，以后可以不写这个类吗？答案：可以。
+我们不难发现，这个 dao 实现类中的方法代码很固定，基本上就是一行代码，通过 SqlSession 对象调用 insert、delete、update、select 等方法，这个类中的方法没有任何业务逻辑。后边我们会学习动态生成该类，就不用再写这个类了
