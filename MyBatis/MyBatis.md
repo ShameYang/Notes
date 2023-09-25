@@ -1276,3 +1276,141 @@ public class AccountDaoImpl implements AccountDao {
 ```
 
 我们不难发现，这个 dao 实现类中的方法代码很固定，基本上就是一行代码，通过 SqlSession 对象调用 insert、delete、update、select 等方法，这个类中的方法没有任何业务逻辑。后边我们会学习动态生成该类，就不用再写这个类了
+
+
+
+
+
+
+
+# 六、使用 Javassist 生成类
+
+引入依赖
+
+```xml
+<dependency>
+    <groupId>org.javassist</groupId>
+    <artifactId>javassist</artifactId>
+    <version>3.29.2-GA</version>
+</dependency>
+```
+
+
+
+测试代码
+
+```java
+public class JavassistTest {
+    public static void main(String[] args) throws Exception {
+        // 获取类池
+        ClassPool pool = ClassPool.getDefault();
+        // 创建类
+        CtClass ctClass = pool.makeClass("com.shameyang.javassist.Test");
+        // 创建方法
+        // 1.返回值类型 2.方法名 3.形式参数列表 4.所属类
+        CtMethod ctMethod = new CtMethod(CtClass.voidType, "execute", new CtClass[]{}, ctClass);
+        // 设置方法的修饰符列表
+        ctMethod.setModifiers(Modifier.PUBLIC);
+        // 设置方法体
+        ctMethod.setBody("{System.out.println(\"hello world\");}");
+        // 给类添加方法
+        ctClass.addMethod(ctMethod);
+        
+        // 调用方法
+        Class<?> aClass = ctClass.toClass();
+        Object o = aClass.newInstance();
+        Method method = aClass.getDeclaredMethod("execute");
+        method.invoke(o);
+    }
+}
+```
+
+运行注意：需要加两个参数，否则会有异常
+
+- --add-opens java.base/java.lang=ALL-UNNAMED
+
+- --add-opens java.base/sun.net.util=ALL-UNNAMED
+
+  <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/javassist%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE.png" style="zoom:67%;" />
+
+
+
+
+
+
+
+# 七、MyBatis 接口代理机制及使用
+
+> MyBatis 提供了接口代理机制，可以动态为我们生成 dao 接口的实现类（代理类：dao 接口的代理）
+>
+> 代理模式：在内存中生成 dao 接口的代理类，然后创建代理类的实例
+>
+> 前提：SqlMapper.xml 文件中
+>
+> - namespace 必须是 dao 接口的全限定名称
+> - id 必须是 dao 接口中的方法名
+
+
+
+使用 mybatis 获取 dao 接口代理类对象：
+
+```java
+AccountDao accountDao = (AccountDao) SqlSessionUtil.openSession().getMapper(AccountDao.class);
+```
+
+
+
+示例代码：
+
+- 删除 AccountDaoImpl
+
+- AccountServiceImpl 获取 dao 接口代理类对象
+
+  ```java
+  public class AccountServiceImpl implements AccountService {
+      // 只有这一行进行了修改，获取 dao 接口代理类对象
+      private AccountDao accountDao = (AccountDao) SqlSessionUtil.openSession().getMapper(AccountDao.class);
+  
+      @Override
+      public void transfer(String fromActno, String toActno, double money)
+              throws MoneyNotEnoughException, AppException {
+          Account fromAct = accountDao.selectByActno(fromActno);
+          if (fromAct.getBalance() < money) {
+              throw new MoneyNotEnoughException("对不起，您的余额不足");
+          }
+          try {
+              Account toAct = accountDao.selectByActno(toActno);
+              fromAct.setBalance(fromAct.getBalance() - money);
+              toAct.setBalance(toAct.getBalance() + money);
+              // 更新数据库（添加事务）
+              SqlSession sqlSession = SqlSessionUtil.openSession();
+              accountDao.update(fromAct);
+              accountDao.update(toAct);
+              sqlSession.commit();
+              SqlSessionUtil.close(sqlSession);
+          } catch (Exception e) {
+              throw new AppException("转账失败，未知原因！请联系管理员！");
+          }
+      }
+  }
+  ```
+
+- AccountMapper 修改 namespace
+
+  ```xml
+  <?xml version="1.0" encoding="UTF-8" ?>
+  <!DOCTYPE mapper
+          PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+          "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <!-- 修改了 namespace -->
+  <mapper namespace="com.shameyang.bank.dao.AccountDao">
+      <select id="selectByActno" resultType="com.shameyang.bank.bean.Account">
+          select * from t_act where actno= #{actno};
+      </select>
+      <update id="update">
+          update t_act set balance = #{balance} where actno = #{actno};
+      </update>
+  </mapper>
+  ```
+
+  
