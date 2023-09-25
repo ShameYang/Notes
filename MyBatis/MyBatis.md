@@ -1413,4 +1413,363 @@ AccountDao accountDao = (AccountDao) SqlSessionUtil.openSession().getMapper(Acco
   </mapper>
   ```
 
+
+
+
+
+
+
+
+# 八、MyBatis 小技巧
+
+## 8.1 #{}和${}
+
+\#{}：先编译sql语句，再给占位符传值，底层是PreparedStatement实现。可以防止sql注入，比较常用。
+
+${}：先进行sql语句拼接，然后再编译sql语句，底层是Statement实现。存在sql注入现象。只有在需要进行sql语句关键字拼接的情况下才会用到。
+
+
+
+## 8.2 别名机制
+
+在 Mapper.xml 文件中，resultType 属性用来指定查询结果集的封装类型，这个名字太长，我们可以起别名
+
+在 mybatis-config.xml 文件中使用 \<typeAliases> 起别名（不区分大小写）
+
+- 第一种方式：typeAlias
+
+  ```xml
+  <typeAliases>
+    <typeAlias type="com.powernode.mybatis.pojo.Car" alias="Car"/>
+  </typeAliases>
+  ```
+
   
+
+- 第二种方式：package
+
+  如果一个包下的类太多，每个类都要起别名，会导致 typeAlias 标签配置较多，所以 mybatis 用提供 package 的配置方式，只需要指定包名，该包下的所有类都自动起别名，别名就是简类名。并且别名不区分大小写。
+
+  ```xml
+  <typeAliases>
+    <package name="com.powernode.mybatis.pojo"/>
+  </typeAliases>
+  ```
+
+
+
+## 8.3 mappers
+
+SQL 映射文件的配置方式包括四种：
+
+- resource：从类路径中加载
+- url：从指定的全限定资源路径中加载
+- class：使用映射器接口实现类的全限定类名、
+- package：将包内的映射器接口实现全部注册为映射器
+
+
+
+### resource
+
+这种方式是从类路径中加载配置文件，所以这种方式要求 SQL 映射文件必须放在 resources 目录下或其子目录下
+
+```xml
+<mappers>
+  <mapper resource="org/mybatis/builder/AuthorMapper.xml"/>
+  <mapper resource="org/mybatis/builder/BlogMapper.xml"/>
+  <mapper resource="org/mybatis/builder/PostMapper.xml"/>
+</mappers>
+```
+
+### url
+
+这种方式使用了绝对路径的方式，这种配置对 SQL 映射文件存放的位置没有要求
+
+```xml
+<mappers>
+  <mapper url="file:///var/mappers/AuthorMapper.xml"/>
+  <mapper url="file:///var/mappers/BlogMapper.xml"/>
+  <mapper url="file:///var/mappers/PostMapper.xml"/>
+</mappers>
+```
+
+### class
+
+如果使用这种方式必须满足以下条件：
+
+- SQL 映射文件和 mapper 接口放在同一个目录下
+
+  ```
+  src
+   |---java
+   	  |---com.shameyang.mybatis.mapper
+   	  		|---mapper 接口
+   |---resources
+   	  |---com/shameyang/mybatis/mapper
+   	  		|---SQL 映射文件
+  ```
+
+- SQL 映射文件的名字也必须和 mapper 接口名一致
+
+
+
+mybatis-config.xml 文件如下
+
+```xml
+<!-- 使用映射器接口实现类的完全限定类名 -->
+<mappers>
+  <mapper class="com.shameyang.mybatis.mapper.AuthorMapper"/>
+  <mapper class="com.shameyang.mybatis.mapper.BlogMapper"/>
+  <mapper class="com.shameyang.mybatis.mapper.PostMapper"/>
+</mappers>
+```
+
+### package
+
+如果class较多，可以使用这种package的方式，但前提条件和上一种方式一样
+
+```xml
+<!-- 将包内的映射器接口实现全部注册为映射器 -->
+<mappers>
+  <package name="com.powernode.mybatis.mapper"/>
+</mappers>
+```
+
+
+
+## 8.4 IDEA 配置文件模板
+
+<img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%A8%A1%E6%9D%BF.png" style="zoom:67%;float:left" />
+
+
+
+## 8.5 插入数据时获取自动生成的主键
+
+XxxMapper 接口中
+
+```java
+void insertUseGeneratedKeys(Xxx xxx);
+```
+
+XxxMapper.xml
+
+``` xml
+<!--
+	useGenerateKeys：是否使用自动生成的主键
+	keyProperty：指定主键值赋给对象的哪个属性
+-->
+<insert id="insertUseGeneratedKeys" useGeneratedKeys="true" keyProperty="id">
+  ...
+</insert>
+```
+
+
+
+
+
+
+
+# 九、MyBatis 参数处理
+
+## 9.1 单个简单类型参数
+
+简单类型包括：
+
+- byte short int long float double char
+- Byte Short Integer Long Float Double Character
+- String
+- java.util.Date
+- java.sql.Date
+
+
+
+简单类型对于 mybatis 来说都是可以自动识别类型的
+
+SQL映射文件中的配置比较完整的写法是：
+
+```xml
+<select id="selectByName" resultType="student" parameterType="java.lang.String">
+  select * from t_student where name = #{name, javaType=String, jdbcType=VARCHAR}
+</select>
+```
+
+其中 sql 语句中的 javaType，jdbcType，以及 select 标签中的 parameterType 属性，都是用来帮助 mybatis 进行类型确定的。不过这些配置多数是可以省略的，因为 mybatis 有强大的自动类型推断机制
+
+
+
+## 9.2 Map 参数
+
+StudentMapper 接口
+
+```java
+/**
+* 根据name和age查询
+* @param paramMap
+* @return
+*/
+List<Student> selectByParamMap(Map<String, Object> paramMap);
+```
+
+StudentMapper.xml
+
+```xml
+<select id="selectByParamMap" resultType="student">
+  select * from t_student where name = #{nameKey} and age = #{ageKey}
+</select>
+```
+
+StudentMapperTest
+
+```java
+@Test
+public void testSelectByParamMap(){
+    // 准备Map
+    Map<String, Object> paramMap = new HashMap<>();
+    paramMap.put("nameKey", "张三");
+    paramMap.put("ageKey", 20);
+
+    List<Student> students = mapper.selectByParamMap(paramMap);
+    students.forEach(student -> System.out.println(student));
+}
+```
+
+
+
+**这种方式是手动封装 Map 集合，将每个条件以 key 和 value 的形式存放到集合中。然后在使用的时候通过#{map 集合的 key}来取值**
+
+
+
+## 9.3 实体类参数
+
+StudentMapper 接口
+
+```xml
+/**
+ * 保存学生数据
+ * @param student
+ * @return
+ */
+int insert(Student student);
+```
+
+StudentMapper.xml
+
+```xml
+<insert id="insert">
+  insert into t_student values(null,#{name},#{age},#{height},#{birth},#{sex})
+</insert>
+```
+
+StudentMapperTest
+
+```java
+@Test
+public void testInsert(){
+    Student student = new Student();
+    student.setName("李四");
+    student.setAge(30);
+    student.setHeight(1.70);
+    student.setSex('男');
+    student.setBirth(new Date());
+    int count = mapper.insert(student);
+    SqlSessionUtil.openSession().commit();
+}
+```
+
+
+
+**这里需要注意的是：#{} 里面写的是属性名字。这个属性名其本质上是：set/get方法名去掉set/get之后的名字**
+
+
+
+## 9.4 多参数
+
+StudentMapper 接口
+
+```java
+/**
+ * 根据name和sex查询
+ * @param name
+ * @param sex
+ * @return
+ */
+List<Student> selectByNameAndSex(String name, Character sex);
+```
+
+StudentMapper.xml
+
+```xml
+<select id="selectByNameAndSex" resultType="student">
+  select * from t_student where name = #{name} and sex = #{sex}
+</select>
+```
+
+StudentMapperTest
+
+```java
+@Test
+public void testSelectByNameAndSex(){
+    List<Student> students = mapper.selectByNameAndSex("张三", '女');
+    students.forEach(student -> System.out.println(student));
+}
+```
+
+执行结果：
+
+![img](https://cdn.nlark.com/yuque/0/2022/png/21376908/1660641021618-ce3ac913-fe10-45f5-9760-3e51ef2dd864.png?x-oss-process=image%2Fwatermark%2Ctype_d3F5LW1pY3JvaGVp%2Csize_47%2Ctext_5Yqo5Yqb6IqC54K5%2Ccolor_FFFFFF%2Cshadow_50%2Ct_80%2Cg_se%2Cx_10%2Cy_10)
+
+
+
+异常信息描述了：name 参数找不到，可用的参数包括[arg1, arg0, param1, param2]
+
+
+
+修改 StudentMapper.xml 配置文件：尝试使用[arg1, arg0, param1, param2]去参数
+
+```xml
+<select id="selectByNameAndSex" resultType="student">
+  select * from t_student where name = #{arg0} and sex = #{arg1}
+</select>
+```
+
+运行结果：
+
+<img src="https://cdn.nlark.com/yuque/0/2022/png/21376908/1660641284279-64a7312a-d036-448f-aaef-a1bcde8abba2.png?x-oss-process=image%2Fwatermark%2Ctype_d3F5LW1pY3JvaGVp%2Csize_27%2Ctext_5Yqo5Yqb6IqC54K5%2Ccolor_FFFFFF%2Cshadow_50%2Ct_80%2Cg_se%2Cx_10%2Cy_10" alt="img" style="zoom: 80%;float:left" />
+
+
+
+再次尝试修改 StudentMapper.xml 文件
+
+```xml
+<select id="selectByNameAndSex" resultType="student">
+  select * from t_student where name = #{arg0} and sex = #{param2}
+</select>
+```
+
+通过测试可以看到：
+
+- arg0 是第一个参数
+- param1 是第一个参数
+- arg1 是第二个参数
+- param2 是第二个参数
+
+
+
+实现原理：**实际上在 mybatis 底层会创建一个 map 集合，以 arg0/param1为 key，以方法上的参数为 value**
+
+例如以下代码：mybatis 部分源码
+
+```java
+Map<String,Object> map = new HashMap<>();
+map.put("arg0", name);
+map.put("arg1", sex);
+map.put("param1", name);
+map.put("param2", sex);
+
+// 所以可以这样取值：#{arg0} #{arg1} #{param1} #{param2}
+// 其本质就是#{map集合的key}
+```
+
+
+
+注意：使用mybatis3.4.2之前的版本时：要用#{0}和#{1}这种形式
