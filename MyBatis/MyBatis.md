@@ -305,7 +305,9 @@ public class SqlSessionUtil {
 
 # 三、使用 MyBatis 完成 CRUD
 
-> JDBC 代码中占位符采用的是 ?，在 MyBatis 中是 #{ }
+> JDBC 代码中占位符采用的是 ?
+>
+> 在 MyBatis 中是 #{ }
 
 
 
@@ -1773,3 +1775,39 @@ map.put("param2", sex);
 
 
 注意：使用mybatis3.4.2之前的版本时：要用#{0}和#{1}这种形式
+
+
+
+## 9.5 @Param 注解（命名参数）
+
+使用 @Param 注解在多参数时，就不需要使用 arg 或 param 参数了，增强了可读性
+
+
+
+@Param 使用
+
+```java
+/**
+ * 根据name和age查询
+ * @param name
+ * @param age
+ * @return
+ */
+List<Student> selectByNameAndAge(@Param("name") String name, @Param("age") int age);
+```
+
+```java
+@Test
+public void testSelectByNameAndAge(){
+    List<Student> stus = mapper.selectByNameAndAge("张三", 20);
+    stus.forEach(student -> System.out.println(student));
+}
+```
+
+```xml
+<select id="selectByNameAndAge" resultType="student">
+  select * from t_student where name = #{name} and age = #{age}
+</select>
+```
+
+原理：@Param(key) 中的参数就是 map 集合的 key
