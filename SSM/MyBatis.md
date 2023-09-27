@@ -1458,7 +1458,7 @@ ${}：先进行sql语句拼接，然后再编译sql语句，底层是Statement�
   </typeAliases>
   ```
 
-
+更多别名参考 MyBatis 手册
 
 ## 8.3 mappers
 
@@ -1811,3 +1811,240 @@ public void testSelectByNameAndAge(){
 ```
 
 原理：@Param(key) 中的参数就是 map 集合的 key
+
+
+
+
+
+
+
+# 十、MyBatis 查询专题
+
+## 10.1 resultMap 结果映射
+
+查询结果的列名和 java 对象的属性名对应不上怎么办？
+
+- as 给列起别名
+- 使用 resultMap 进行结果映射
+- 是否开启驼峰命名自动映射（配置 settings）
+
+
+
+### 使用 resultMap 进行结果映射
+
+```xml
+<!--
+	id：这个结果映射的标识，作为 select 标签的 resultMap 属性的值。
+	type：结果集要映射的类。可以使用别名。
+-->
+<resultMap id="carResultMap" type="car">
+	<!-- 对象的唯一标识，官方解释是：为了提高mybatis的性能（建议写上）-->
+	<id property="id" column="id"/>
+	<result property="carNum" column="car_num"/>
+	<!-- 当属性名和数据库列名一致时，可以省略。但建议都写上。-->
+	<!-- javaType 用来指定属性类型。jdbcType 用来指定列类型。一般可以省略。-->
+	<result property="brand" column="brand" javaType="string" jdbcType="VARCHAR"/>
+	<result property="guidePrice" column="guide_price"/>
+	<result property="produceTime" column="produce_time"/>
+	<result property="carType" column="car_type"/>
+</resultMap>
+
+<!--resultMap 属性的值必须和 resultMap 标签中 id 属性值一致。-->
+<select id="selectAllByResultMap" resultMap="carResultMap">
+	select * from t_car
+</select>
+```
+
+
+
+### 是否开启驼峰命名自动映射
+
+使用前提：属性名遵循 Java 的命名规范，数据库表的列名遵循 SQL 的命名规范
+
+Java 命名规范：首字母小写，后面每个单词首字母大写，遵循驼峰命名方式
+
+SQL 命名规范：全部小写，单词之间采用下划线分割
+
+
+
+比如以下对应关系
+
+| 实体类中的属性名 | 数据库表中的列名 |
+| ---------------- | ---------------- |
+| stuNum           | stu_num          |
+| stuName          | stu_name         |
+
+
+
+启用该功能：配置 mybatis-config.xml
+
+```xml
+<settings>
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+</settings>
+```
+
+
+
+## 10.2 返回总记录条数
+
+```java
+/**
+* 获取总记录条数
+* @return
+*/
+Long selectTotal();
+```
+
+```xml
+<!--long是别名，可参考mybatis开发手册。-->
+<select id="selectTotal" resultType="long">
+	select count(*) from t_car
+</select>
+```
+
+```java
+@Test
+public void testSelectTotal(){
+    CarMapper carMapper = SqlSessionUtil.openSession().getMapper(CarMapper.class);
+    Long total = carMapper.selectTotal();
+    System.out.println(total);
+}
+```
+
+
+
+
+
+
+
+# 十一、动态 SQL
+
+顾名思义，动态 SQL 可以满足需要 SQL 语句拼接的业务场景，例如：批量删除、多条件查询。极大的便利了我们编写 SQL 语句的拼接
+
+
+
+## 11.1 if
+
+把 where 子句放到 if 标签中
+
+```xml
+<select id="findActiveBlogWithTitleLike" resultType="Blog">
+	SELECT * FROM BLOG WHERE state = ‘ACTIVE’
+	<if test="title != null">
+		AND title like #{title}
+	</if>
+</select>
+```
+
+这条语句提供了可选的查找文本功能。如果不传入 “title”，那么所有处于 “ACTIVE” 状态的 BLOG 都会返回；如果传入了 “title” 参数，那么就会对 “title” 一列进行模糊查找并返回对应的 BLOG 结果
+
+
+
+如果希望通过 “title” 和 “author” 两个参数进行可选搜索怎么办？只需要再加入一个条件即可
+
+```xml
+<select id="findActiveBlogLike" resultType="Blog">
+	SELECT * FROM BLOG WHERE state = ‘ACTIVE’
+	<if test="title != null">
+		AND title like #{title}
+	</if>
+	<if test="author != null and author.name != null">
+		AND author_name like #{author.name}
+	</if>
+</select>
+```
+
+
+
+## 11.2 choose、when、otherwise
+
+有时候，我们不想使用所有的条件，而只是想从多个条件中选择一个使用。针对这种情况，MyBatis 提供了 choose 元素，它有点像 Java 中的 switch 语句
+
+```xml
+<select id="findActiveBlogLike" resultType="Blog">
+  SELECT * FROM BLOG WHERE state = ‘ACTIVE’
+	<choose>
+		<when test="title != null">
+			AND title like #{title}
+		</when>
+		<when test="author != null and author.name != null">
+			AND author_name like #{author.name}
+		</when>
+		<otherwise>
+			AND featured = 1
+		</otherwise>
+	</choose>
+</select>
+```
+
+
+
+## 11.3 where、trim、set
+
+使用 where 标签，就不要在 SQL 中写 where 关键字了。如果子句的开头是 and 或 or，where 会自动去除，我们编写就更加灵活了
+
+示例如下：
+
+```xml
+<select id="findActiveBlogLike" resultType="Blog">
+  SELECT * FROM BLOG
+	<where>
+		<if test="state != null">
+		     state = #{state}
+		</if>
+		<if test="title != null">
+		    AND title like #{title}
+		</if>
+		<if test="author != null and author.name != null">
+		    AND author_name like #{author.name}
+		</if>
+	</where>
+</select>
+```
+
+
+
+我们还可以通过 trim 标签来定制 where 元素的功能，例如与 where 元素等价的自定义 trim 元素如下：
+
+```xml
+<!-- 
+	prefix：添加前缀
+	suffix：添加后缀
+	prefixOverrides：前缀覆盖掉（去掉）
+	suffixOverrides：后缀覆盖掉（去掉）
+-->
+<trim prefix="WHERE" prefixOverrides="AND |OR ">
+	...
+</trim>
+```
+
+
+
+set 标签用于动态更新语句
+
+```xml
+<update id="updateAuthorIfNecessary">
+	update Author
+	  <set>
+	  	<if test="username != null">username=#{username},</if>
+	  	<if test="password != null">password=#{password},</if>
+	  	<if test="email != null">email=#{email},</if>
+	  	<if test="bio != null">bio=#{bio}</if>
+	  </set>
+	where id=#{id}
+</update>
+```
+
+这个例子中，set 元素会动态地在行首插入 SET 关键字，并会删掉额外的逗号（这些逗号是在使用条件语句给列赋值时引入的）
+
+
+
+与 set 等价的 trim 元素如下：
+
+```xml
+<trim prefix="SET" suffixOverrides=",">
+	...
+</trim>
+```
+
