@@ -2048,3 +2048,52 @@ set 标签用于动态更新语句
 </trim>
 ```
 
+
+
+## 11.4 foreach
+
+```xml
+<select id="selectPostIn" resultType="domain.blog.Post">
+	SELECT * FROM post p WHERE id in
+    <!--
+		collection: 集合或数组
+		item: 本次迭代获取到的元素（集合或数组中的元素）
+		index: 当前迭代的序号
+		open: foreach 标签中所有内容的开始
+		separator: 分隔符
+		close: foreach 标签中所有内容的结束
+	-->
+	<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+		#{item}
+	</foreach>
+</select>
+```
+
+
+
+## 11.5 sql 标签和 include 标签
+
+sql 标签用来声明 sql 片段
+
+include 标签用来将声明的 sql 片段包含到某个 sql 语句中
+
+作用：代码复用，易维护
+
+```xml
+<sql id="multiplexCode">
+	复用的 sql 片段
+</sql>
+
+<select id="selectAllRetMap" resultType="map">
+  select <include refid="multiplexCode"/> from xxx
+</select>
+
+<select id="selectAllRetListMap" resultType="map">
+  select <include refid="multiplexCode"/> xxx from xxx
+</select>
+
+<select id="selectByIdRetMap" resultType="map">
+  select <include refid="multiplexCode"/> from xxx where ...
+</select>
+```
+
