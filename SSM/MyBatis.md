@@ -1832,6 +1832,8 @@ public void testSelectByNameAndAge(){
 
 ### 使用 resultMap 进行结果映射
 
+> 当属性名和数据库列名一致时，可以省略。但建议都写上
+
 ```xml
 <!--
 	id：这个结果映射的标识，作为 select 标签的 resultMap 属性的值。
@@ -1841,7 +1843,6 @@ public void testSelectByNameAndAge(){
 	<!-- 对象的唯一标识，官方解释是：为了提高mybatis的性能（建议写上）-->
 	<id property="id" column="id"/>
 	<result property="carNum" column="car_num"/>
-	<!-- 当属性名和数据库列名一致时，可以省略。但建议都写上。-->
 	<!-- javaType 用来指定属性类型。jdbcType 用来指定列类型。一般可以省略。-->
 	<result property="brand" column="brand" javaType="string" jdbcType="VARCHAR"/>
 	<result property="guidePrice" column="guide_price"/>
@@ -2085,15 +2086,298 @@ include 标签用来将声明的 sql 片段包含到某个 sql 语句中
 </sql>
 
 <select id="selectAllRetMap" resultType="map">
-  select <include refid="multiplexCode"/> from xxx
+	select <include refid="multiplexCode"/> from xxx
 </select>
 
 <select id="selectAllRetListMap" resultType="map">
-  select <include refid="multiplexCode"/> xxx from xxx
+	select <include refid="multiplexCode"/> xxx from xxx
 </select>
 
 <select id="selectByIdRetMap" resultType="map">
-  select <include refid="multiplexCode"/> from xxx where ...
+	select <include refid="multiplexCode"/> from xxx where ...
 </select>
 ```
 
+
+
+
+
+
+
+# 十二、高级映射及延迟加载
+
+在多表中，谁是主表，谁就是 JVM 中的主对象，例如学生班级表（多对一），学生表是主表，Student 对象就是主对象
+
+## 12.1 多对一
+
+常见的三种方式：
+
+- 一条 SQL 语句，级联属性映射
+- 一条 SQL 语句，association
+- 两条 SQL 语句，分步查询（比较常用：优点是可复用，而且支持懒加载）
+
+
+
+在主表对应的类中，添加关联的副表对象
+
+```java
+public class Student {
+    private Integer sid;
+    private String sname;
+    private Clazz clazz;
+    // set get方法
+    // 构造方法
+    // toString方法
+}
+```
+
+
+
+### 第一种方式：级联属性映射
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shameyang.mybatis.mapper.StudentMapper">
+
+    <resultMap id="studentResultMap" type="Student">
+        <id property="sid" column="sid"/>
+        <result property="sname" column="sname"/>
+        <!-- 级联属性映射 -->
+        <result property="clazz.cid" column="cid"/>
+        <result property="clazz.cname" column="cname"/>
+    </resultMap>
+
+    <select id="selectBySid" resultMap="studentResultMap">
+        select 
+        	s.*, c.* 
+        from 
+        	t_student s join t_clazz c 
+        on 
+        	s.cid = c.cid 
+        where 
+        	sid = #{sid}
+    </select>
+
+</mapper>
+```
+
+
+
+### 第二种方式：association
+
+其他位置不需要修改，只需要修改 resultMap 中的配置即可
+
+```xml
+<resultMap id="studentResultMap" type="Student">
+	<id property="sid" column="sid"/>
+	<result property="sname" column="sname"/>
+	<!-- 关联 Clazz 类 -->
+	<association property="clazz" javaType="Clazz">
+		<id property="cid" column="cid"/>
+		<result property="cname" column="cname"/>
+	</association>
+</resultMap>
+```
+
+
+
+### 第三种方式：分步查询
+
+第一步：修改 resultMap 中 association 的属性
+
+```xml
+<resultMap id="studentResultMap" type="Student">
+	<id property="sid" column="sid"/>
+	<result property="sname" column="sname"/>
+    <!-- select 指定第二步查询的方法 -->
+	<association property="clazz"
+               select="com.shameyang.mybatis.mapper.ClazzMapper.selectByCid"
+               column="cid"/>
+</resultMap>
+
+<select id="selectBySid" resultMap="studentResultMap">
+	select 
+    	sid, sname, cid 
+    from 
+    	t_student s 
+    where 
+    	sid = #{sid}
+</select>
+```
+
+第二步：ClazzMapper 接口中添加方法
+
+```java
+public interface ClazzMapper {
+
+    /**
+     * 根据 cid 获取 Clazz 信息
+     * @param cid
+     * @return
+     */
+    Clazz selectByCid(Integer cid);
+}
+```
+
+第三步：配置 ClazzMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shameyang.mybatis.mapper.ClazzMapper">
+    <select id="selectByCid" resultType="Clazz">
+        select 
+        	cid, cname 
+        from 
+        	t_clazz 
+        where 
+        	cid = #{cid}
+    </select>
+</mapper>
+```
+
+
+
+## 12.2 多对一延迟加载
+
+延迟加载即暂时不访问的数据先不查询，提高程序的执行效率
+
+延迟加载的实现很简单：在 association 标签中添加 fetchType="lazy" 即可实现局部延迟加载
+
+```xml
+<resultMap id="studentResultMap" type="Student">
+	<id property="sid" column="sid"/>
+	<result property="sname" column="sname"/>
+	<association property="clazz"
+	             select="com.shameyang.mybatis.mapper.ClazzMapper.selectByCid"
+	             column="cid"
+	             fetchType="lazy"/>
+</resultMap>
+```
+
+只有当使用到 cid 时，才会执行关联的语句
+
+
+
+上面的例子是局部延迟加载，我们还可以通过配置 mybatis-config.xml 进行全局设置
+
+```xml
+<settings>
+  <setting name="lazyLoadingEnabled" value="true"/>
+</settings>
+```
+
+
+
+开启全局延迟加载后，如果不希望某个 sql 延迟加载，将 fetchType 设置为 eager 即可：
+
+```xml
+<resultMap id="studentResultMap" type="Student">
+	<id property="sid" column="sid"/>
+	<result property="sname" column="sname"/>
+	<association property="clazz"
+	             select="com.shameyang.mybatis.mapper.ClazzMapper.selectByCid"
+	             column="cid"
+	             fetchType="eager"/>
+</resultMap>
+```
+
+
+
+## 12.3 一对多
+
+一对多，通常在一的一方中有 List 集合属性
+
+```java
+public class Clazz {
+    private Integer cid;
+    private String cname;
+    private List<Student> stus;
+    // set get方法
+    // 构造方法
+    // toString方法
+}
+```
+
+
+
+常见的两种实现方式：
+
+- collection
+- 分步查询
+
+
+
+### 第一种方式：collection
+
+```xml
+<resultMap id="clazzResultMap" type="Clazz">
+	<id property="cid" column="cid"/>
+	<result property="cname" column="cname"/>
+    <!-- 注意：是 ofType，表示集合中的类型 -->
+	<collection property="stus" ofType="Student">
+		<id property="sid" column="sid"/>
+		<result property="sname" column="sname"/>
+	</collection>
+</resultMap>
+
+<select id="selectClazzAndStusByCid" resultMap="clazzResultMap">
+	select * from t_clazz c join t_student s on c.cid = s.cid where c.cid = #{cid}
+</select>
+```
+
+
+
+### 第二种方式：分步查询
+
+与多对一同理，只是 association 换成了 collection
+
+第一步：配置 collection 标签
+
+```xml
+<resultMap id="clazzResultMap" type="Clazz">
+	<id property="cid" column="cid"/>
+	<result property="cname" column="cname"/>
+	<!--主要看这里-->
+	<collection property="stus"
+	            select="com.shameyang.mybatis.mapper.StudentMapper.selectByCid"
+	            column="cid"/>
+</resultMap>
+
+<!--sql语句也变化了-->
+<select id="selectClazzAndStusByCid" resultMap="clazzResultMap">
+	select * from t_clazz c where c.cid = #{cid}
+</select>
+```
+
+第二步：StudentMapper 接口中添加方法
+
+```java
+/**
+* 根据班级编号获取所有的学生。
+* @param cid
+* @return
+*/
+List<Student> selectByCid(Integer cid);
+```
+
+第三步：配置 StudentMapper.xml
+
+```xml
+<select id="selectByCid" resultType="Student">
+	select * from t_student where cid = #{cid}
+</select>
+```
+
+
+
+## 12.4 一对多延迟加载
+
+一对多的延迟加载与[多对一延迟加载](##12.2 多对一延迟加载)一样
