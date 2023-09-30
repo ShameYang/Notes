@@ -2381,3 +2381,294 @@ List<Student> selectByCid(Integer cid);
 ## 12.4 一对多延迟加载
 
 一对多的延迟加载与[多对一延迟加载](##12.2 多对一延迟加载)一样
+
+
+
+
+
+
+
+# 十三、MyBatis 的缓存
+
+缓存：cache
+
+缓存的作用：通过减少 IO 的方式，来提高程序的执行效率
+
+mybatis 的缓存：将 select 语句的查询结果放到缓存（内存）当中，下一次还是这条 select 语句的话，直接从缓存中取，不再查数据库。一方面是减少了 IO。另一方面不再执行繁琐的查找算法。效率大大提升
+
+mybatis 缓存包括：
+
+- 一级缓存：将查询到的数据存储到 SqlSession 中
+- 二级缓存：将查询到的数据存储到 SqlSessionFactory 中
+- 或者集成其它第三方的缓存：比如 EhCache【Java语言开发的】、Memcache【C语言开发的】等
+
+**缓存只针对于DQL语句，也就是说缓存机制只对应select语句。**
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/%E7%BC%93%E5%AD%98%E7%9A%84%E7%90%86%E8%A7%A3.png)
+
+
+
+## 13.1 一级缓存
+
+一级缓存默认开启，不需要配置
+
+原理：只要使用同一个 SqlSession 对象执行同一条 SQL 语句，就会走缓存
+
+
+
+一级缓存失效的情况：
+
+- 两次查询之间，手动清空了一级缓存
+
+  ```java
+  sqlSession.clearCache();
+  ```
+
+- 两次查询之间，执行了增删改操作
+
+
+
+## 13.2 二级缓存
+
+默认是开启二级缓存的
+
+```xml
+<!-- 默认为 true -->
+<setting name="cacheEnabled" value="true">
+```
+
+
+
+使用二级缓存，只需要在 SQL 的映射文件中添加一行：
+
+```xml
+<cache/>
+```
+
+注意：
+
+- 使用二级缓存的实体类对象必须是可序列化的，即必须实现 java.io.Serializable 接口
+
+- SqlSession 对象关闭或提交之后，一级缓存中的数据才会被写入到二级缓存当中。此时二级缓存才可用
+
+
+
+**二级缓存的相关配置：**
+
+- eviction：指定从缓存中移除某个对象的淘汰算法。默认采用LRU策略
+  - LRU：Least Recently Used。最近最少使用。优先淘汰在间隔时间内使用频率最低的对象。(其实还有一种淘汰算法LFU，最不常用)
+  - FIFO：First In First Out。一种先进先出的数据缓存器。先进入二级缓存的对象最先被淘汰
+  - SOFT：软引用。淘汰软引用指向的对象。具体算法和JVM的垃圾回收算法有关
+  - WEAK：弱引用。淘汰弱引用指向的对象。具体算法和JVM的垃圾回收算法有关
+
+- flushInterval：
+  
+  二级缓存的刷新时间间隔。单位毫秒。如果没有设置。就代表不刷新缓存，只要内存足够大，一直会向二级缓存中缓存数据。除非执行了增删改
+  
+- readOnly：
+  - true：多条相同的sql语句执行之后返回的对象是共享的同一个。性能好。但是多线程并发可能会存在安全问题
+  - false：多条相同的sql语句执行之后返回的对象是副本，调用了clone方法。性能一般。但安全
+
+- size：
+
+  设置二级缓存中最多可存储的java对象数量。默认值1024
+
+
+
+## 13.3 MyBatis 集成 EhCache
+
+我们可以集成第三方缓存，这里以 EhCache 为例：修改 cache 标签的属性即可
+
+第一步：引入 ehcache 依赖
+
+```xml
+<!-- mybatis 集成 ehcache 的组件 -->
+<dependency>
+  <groupId>org.mybatis.caches</groupId>
+  <artifactId>mybatis-ehcache</artifactId>
+  <version>1.2.2</version>
+</dependency>
+```
+
+第二步：在类的根路径下新建 ehcache.xml 文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd"
+         updateCheck="false">
+    <!--磁盘存储:将缓存中暂时不使用的对象,转移到硬盘,类似于Windows系统的虚拟内存-->
+    <diskStore path="e:/ehcache"/>
+  
+    <!--defaultCache：默认的管理策略-->
+    <!--eternal：设定缓存的elements是否永远不过期。如果为true，则缓存的数据始终有效，如果为false那么还要根据timeToIdleSeconds，timeToLiveSeconds判断-->
+    <!--maxElementsInMemory：在内存中缓存的element的最大数目-->
+    <!--overflowToDisk：如果内存中数据超过内存限制，是否要缓存到磁盘上-->
+    <!--diskPersistent：是否在磁盘上持久化。指重启jvm后，数据是否有效。默认为false-->
+    <!--timeToIdleSeconds：对象空闲时间(单位：秒)，指对象在多长时间没有被访问就会失效。只对eternal为false的有效。默认值0，表示一直可以访问-->
+    <!--timeToLiveSeconds：对象存活时间(单位：秒)，指对象从创建到失效所需要的时间。只对eternal为false的有效。默认值0，表示一直可以访问-->
+    <!--memoryStoreEvictionPolicy：缓存的3 种清空策略-->
+    <!--FIFO：first in first out (先进先出)-->
+    <!--LFU：Less Frequently Used (最少使用).意思是一直以来最少被使用的。缓存的元素有一个hit 属性，hit 值最小的将会被清出缓存-->
+    <!--LRU：Least Recently Used(最近最少使用). (ehcache 默认值).缓存的元素有一个时间戳，当缓存容量满了，而又需要腾出地方来缓存新的元素的时候，那么现有缓存元素中时间戳离当前时间最远的元素将被清出缓存-->
+    <defaultCache eternal="false" maxElementsInMemory="1000" overflowToDisk="false" diskPersistent="false"
+                  timeToIdleSeconds="0" timeToLiveSeconds="600" memoryStoreEvictionPolicy="LRU"/>
+
+</ehcache>
+```
+
+第三步：修改 SqlMapper.xml 文件中的 cache 标签，添加 type 属性
+
+```xml
+<cache type="org.mybatis.caches.ehcache.EhcacheCache"/>
+```
+
+
+
+
+
+
+
+# 十四、MyBatis 的逆向工程
+
+逆向工程就是：根据数据库表逆向生成 Java 的 pojo 类，SqlMapper.xml 以及 Mapper 接口等
+
+我们可以借助大佬写好的逆向工程插件，完成逆向工程
+
+
+
+## 14.1 逆向工程配置与生成
+
+第一步：基础环境配置
+
+- 新建 maven 模块
+
+- 打包方式：jar
+
+
+
+第二步：pom 文件中添加逆向工程插件
+
+```xml
+<!--定制构建过程-->
+<build>
+    <!--可配置多个插件-->
+    <plugins>
+        <!--其中的一个插件：mybatis逆向工程插件-->
+        <plugin>
+            <!--插件的GAV坐标-->
+            <groupId>org.mybatis.generator</groupId>
+            <artifactId>mybatis-generator-maven-plugin</artifactId>
+            <version>1.4.1</version>
+            <!--允许覆盖-->
+            <configuration>
+                <overwrite>true</overwrite>
+            </configuration>
+            <!--插件的依赖-->
+            <dependencies>
+                <!--mysql驱动依赖-->
+                <dependency>
+                    <groupId>com.mysql</groupId>
+                    <artifactId>mysql-connector-j</artifactId>
+                    <version>8.0.33</version>
+                </dependency>
+            </dependencies>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
+
+第三步：配置 generatorConfig.xml
+
+- 文件名必须叫做：generatorConfig.xml
+- 该文件必须放在类的根路径下
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <!--
+        targetRuntime有两个值：
+            MyBatis3Simple：生成的是基础版，只有基本的增删改查。
+            MyBatis3：生成的是增强版，除了基本的增删改查之外还有复杂的增删改查。
+    -->
+    <context id="DB2Tables" targetRuntime="MyBatis3">
+        <!--防止生成重复代码-->
+        <plugin type="org.mybatis.generator.plugins.UnmergeableXmlMappersPlugin"/>
+
+        <commentGenerator>
+            <!--是否去掉生成日期-->
+            <property name="suppressDate" value="true"/>
+            <!--是否去除注释-->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+
+        <!--连接数据库信息-->
+        <jdbcConnection driverClass="com.mysql.cj.jdbc.Driver"
+                        connectionURL="jdbc:mysql://localhost:3306/formybatis"
+                        userId="root"
+                        password="123456">
+            <!-- 解决table schema中有多个重名的表生成表结构不一致问题 -->
+            <property name="nullCatalogMeansCurrent" value="true"/>
+        </jdbcConnection>
+
+        <!-- 生成pojo包名和位置 -->
+        <javaModelGenerator targetPackage="com.shameyang.mybatis.pojo" targetProject="src/main/java">
+            <!--是否开启子包-->
+            <property name="enableSubPackages" value="true"/>
+            <!--是否去除字段名的前后空白-->
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+
+        <!-- 生成SQL映射文件的包名和位置 -->
+        <sqlMapGenerator targetPackage="com.shameyang.mybatis.mapper" targetProject="src/main/resources">
+            <!--是否开启子包-->
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+
+        <!-- 生成Mapper接口的包名和位置 -->
+        <javaClientGenerator
+                type="xmlMapper"
+                targetPackage="com.shameyang.mybatis.mapper"
+                targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+
+        <!-- 表名和对应的实体类名-->
+        <table tableName="t_student" domainObjectName="Student"/>
+
+    </context>
+</generatorConfiguration>
+```
+
+
+
+## 14.2 测试逆向工程（使用 QBC 风格）
+
+QBC 风格：Query By Criteria，一种查询方式，比较面向对象，看不到 sql 语句
+
+```java
+public class GeneratorTest {
+    @Test
+    public void testSelectByPrimaryKey() {
+        SqlSession sqlSession = SqlSessionUtil.openSession();
+        StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+        // QBC 风格
+        StudentExample studentExample = new StudentExample();
+        studentExample.createCriteria()
+                .andSnameEqualTo("Alice");
+        // 添加 or 条件
+        studentExample.or().andSnoBetween(2, 5);
+        List<Student> students = mapper.selectByExample(studentExample);
+        System.out.println(students);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+}
+```
+
