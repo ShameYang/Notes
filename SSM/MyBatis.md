@@ -2672,3 +2672,115 @@ public class GeneratorTest {
 }
 ```
 
+
+
+
+
+
+
+# 十五、MyBatis 使用 PageHelper
+
+## 15.1 回顾 limit 分页
+
+MySQL 的 limit 后面两个数字：
+
+- 第一个数字：startIndex（起始下标，下标从0开始）
+- 第二个数字：pageSize（每页显示的记录条数）
+
+已知页码 pageNum，每页显示的记录条数 pageSize
+
+- startIndex = (pageNum - 1) * pageSize
+
+
+
+标准通用的 MySQL 分页：
+
+```sql
+select
+	* 
+from
+	tableName
+limit
+	(pageNum - 1) * pageSize, pageSize
+/* 例如 pageNum = 3
+   limit 6, 3 就是从第7条记录开始，每页显示3条记录 */
+```
+
+
+
+获取数据不难，但是获取分页信息（例如总页数）比较难，因此我们可以借助 PageHelper 插件
+
+
+
+PageHelper 是 MyBatis 的一个插件，其作用是更加方便地进行分页查询
+
+
+
+## 15.2 使用 PageHelper
+
+第一步：引入依赖
+
+```xml
+<dependency>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper</artifactId>
+    <version>5.3.3</version>
+</dependency>
+```
+
+第二步：在 mybatis-config.xml 文件中配置插件
+
+```xml
+<plugins>
+    <plugin interceptor="com.github.pagehelper.PageHelper"/>
+</plugins>
+```
+
+第三步：编写 Java 程序
+
+- 查询语句之前开启分页功能
+- 查询语句之后封装 PageInfo 对象（PageInfo 对象将来会存储到 request 域当中，在页面上展示）
+
+```java
+@Test
+public void testSelectAll() {
+	SqlSession sqlSession = SqlSessionUtil.openSession();
+	StudentMapper mapper = sqlSession.getMapper(StudentMapper.class);
+    
+	int pageNum = 1;
+	int pageSize = 3;
+    // 开启分页
+	PageHelper.startPage(pageNum, pageSize);
+    
+    // 执行查询语句
+	List<Student> students = mapper.selectAll();
+    
+    // 获取分页信息对象
+	PageInfo<Student> pageInfo = new PageInfo<>(students, 5);
+    
+	System.out.println(pageInfo);
+	sqlSession.commit();
+	sqlSession.close();
+}
+```
+
+
+
+执行结果：
+PageInfo{pageNum=1, pageSize=3, size=3, startRow=1, endRow=3, total=5, pages=2, list=Page{count=true, pageNum=1, pageSize=3, startRow=0, endRow=3, total=5, pages=2, reasonable=false, pageSizeZero=false}[Student{sno=1, sname='tom', ssex='man'}, Student{sno=2, sname='jacky', ssex='man'}, Student{sno=8, sname='jacky', ssex='man'}], prePage=0, nextPage=2, isFirstPage=true, isLastPage=false, hasPreviousPage=false, hasNextPage=true, navigatePages=5, navigateFirstPage=1, navigateLastPage=2, navigatepageNums=[1, 2]}
+
+
+
+执行结果格式化：
+
+```
+PageInfo{
+	pageNum=1, pageSize=3, size=3, startRow=1, endRow=3, total=5, pages=2, 
+	list=Page{count=true, pageNum=1, pageSize=3, startRow=0, endRow=3, total=5, pages=2, reasonable=false, pageSizeZero=false}
+	[Student{sno=1, sname='tom', ssex='man'}, Student{sno=2, sname='jacky', ssex='man'}, 
+	Student{sno=8, sname='jacky', ssex='man'}], 
+	prePage=0, nextPage=2, isFirstPage=true, isLastPage=false, hasPreviousPage=false, hasNextPage=true, 
+	navigatePages=5, navigateFirstPage=1, navigateLastPage=2, navigatepageNums=[1, 2]
+}
+```
+
