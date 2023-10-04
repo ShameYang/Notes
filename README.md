@@ -21,7 +21,7 @@ My study notes
   - Maven 基础
 - SSM
   - MyBatis
-  - Spring
+  - Spring6
 - Git
   - MyGit
 - 计算机网络
