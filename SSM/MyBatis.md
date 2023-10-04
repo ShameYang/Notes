@@ -34,13 +34,20 @@
 ## 1.4 了解 MyBatis
 
 - MyBatis 本质上是对 JDBC 的封装，通过 MyBatis 完成 CRUD
+
 - MyBatis 属于持久层框架
+
 - ORM
   - Object：JVM 中的 Java 对象
+  
   - Relational：关系型数据库
+  
   - Mapping：将 JVM 中的 Java 对象映射到数据库表中一行记录，或将数据库表中一行记录映射成 JVM 中的一个 Java 对象
-  - <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/ORM%E6%80%9D%E6%83%B3.png" style="zoom:67%;float:left" />
+  
+    <img src="https://cdn.jsdelivr.net/gh/ShameYang/images/img/ORM%E6%80%9D%E6%83%B3.png" style="zoom:67%;float:left" />
+  
 - MyBatis 就是一个 ORM 框架，是半自动的 ORM，因为 SQL 语句需要程序员自己编写
+
 - MyBatis 框架特点
   - 支持定制化 SQL、存储过程、基本映射以及高级映射
   - 避免了几乎所有的 JDBC 代码手动设置参数以及获取结果集
@@ -2781,6 +2788,73 @@ PageInfo{
 	Student{sno=8, sname='jacky', ssex='man'}], 
 	prePage=0, nextPage=2, isFirstPage=true, isLastPage=false, hasPreviousPage=false, hasNextPage=true, 
 	navigatePages=5, navigateFirstPage=1, navigateLastPage=2, navigatepageNums=[1, 2]
+}
+```
+
+
+
+
+
+
+
+# 十六、MyBatis 的注解式开发
+
+MyBatis 中也提供了注解式的开发方式，采用注解可以减少 SQL 映射文件的配置
+
+使用注解式开发的话，SQL 语句是在 Java 程序中的，这种方式会给 SQL 语句的维护带来成本
+
+官方这么说的：
+
+> 使用注解来映射简单语句会使代码显得更加简洁，但对于稍微复杂一点的语句，Java 注解不仅力不从心，还会让你本就复杂的 SQL 语句更加混乱不堪。 因此，如果你需要做一些很复杂的操作，最好用 XML 来映射语句
+
+所以，简单的 SQL 我们使用注解，复杂的 SQL 还是使用之前的 XML
+
+
+
+## 16.1 @Insert
+
+```java
+public interface StudentMapper {
+    @Insert("insert into t_student(sno, sname, ssex) values(11, 'john', 'man')")
+    int insert();
+}
+```
+
+
+
+## 16.2 @Delete
+
+```java
+public interface StudentMapper {
+    @Delete("delete from t_student where sno = #{sno}")
+    int delete(Integer sno);
+}
+```
+
+
+
+## 16.3 @Update
+
+```java
+public interface StudentMapper {
+    @Update("update t_student set sname = #{sname} where sno = #{sno}")
+    int update(@Param("sno") Integer sno, @Param("sname") String sname);
+}
+```
+
+
+
+## 16.4 @Select
+
+```java
+public interface StudentMapper {
+    @Select("select * from t_student where sno = #{sno}")
+    @Results({
+            @Result(column = "sno", property = "sno", id = true),
+            @Result(column = "sname", property = "sname"),
+            @Result(column = "ssex", property = "ssex")
+    })
+    Student selectBySno(Integer sno);
 }
 ```
 
