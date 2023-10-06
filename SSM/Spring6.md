@@ -28,6 +28,10 @@ Inversion of Control，面向对象编程的一种思想（或者叫一种新型
 
 控制反转原则的核心：将对象的创建权、对象和对象之间关系的管理权交出去，由第三方容器负责创建和维护
 
+
+
+## 1.4 依赖注入
+
 控制反转常见的实现方式：依赖注入（Dependency Injection，简称 DI）
 
 - 依赖：对象和对象的关系
@@ -39,7 +43,7 @@ Inversion of Control，面向对象编程的一种思想（或者叫一种新型
 
 
 
-## 1.4 初识 Spring
+## 1.5 初识 Spring
 
 Spring 框架是一个实现了 IoC 思想的容器
 
@@ -353,7 +357,7 @@ public class Spring6Test {
 
 
 
-## 3.5 Spring6启用 Log4j2 日志框架
+## 3.5 Spring6启用 Log4j2日志框架
 
 Spring5之后，Spring 框架支持 Log4j2。下面演示如何启用该日志框架：
 
@@ -408,3 +412,174 @@ Logger logger = LoggerFactory.getLogger(Clazz.class);
 logger.info(logger);
 ```
 
+
+
+
+
+
+
+# 四、Spring 对 IoC 的实现
+
+## 4.1 set 注入
+
+通过 set 方法给属性赋值
+
+```java
+public class UserDao {
+    public void insert() {
+        System.out.println("UserDao insert...");
+    }
+}
+```
+
+```java
+public class UserService {
+    private UserDao userDao;
+
+    // 使用 set 方式注入，必须提供 set 方法
+    // 反射机制要调用这个方法给属性赋值
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void save(){
+        userDao.insert();
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userDaoBean" class="com.shameyang.spring6.dao.UserDao"/>
+
+    <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
+        <property name="userDao" ref="userDaoBean"/>
+    </bean>
+</beans>
+```
+
+```java
+public class DITest {
+    @Test
+    public void testDI() {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+        UserService userService = applicationContext.getBean("userServiceBean", UserService.class);
+        userService.save();
+    }
+}
+```
+
+
+
+## 4.2 构造注入
+
+通过构造方法给属性赋值
+
+```java
+public class OrderDao {
+    public void deleteById() {
+        System.out.println("OrderDao delete...");
+    }
+}
+```
+
+```java
+public class OrderService {
+    private OrderDao orderDao;
+
+    // 通过反射机制调用构造方法给属性赋值
+    public OrderService(OrderDao orderDao) {
+        this.orderDao = orderDao;
+    }
+
+    public void delete() {
+        orderDao.deleteById();
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean id="orderDaoBean" class="com.shameyang.spring6.dao.OrderDao"/>
+    <bean id="orderServiceBean" class="com.shameyang.spring6.service.OrderService">
+        <!-- 通过下标注入 -->
+        <constructor-arg index="0" ref="orderDaoBean"/>
+        <!-- 通过参数名注入 -->
+        <constructor-arg name="orderDao" ref="orderDaoBean">
+        <!-- 自动推断类型 -->
+        <constructor-arg ref="orderDaoBean">
+    </bean>
+</beans>
+```
+
+```java
+public class DITest {
+    @Test
+    public void testConstructorDI() {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+        OrderService orderService = applicationContext.getBean("orderServiceBean", OrderService.class);
+        orderService.delete();
+    }
+}
+```
+
+
+
+## 4.3 set 注入专题
+
+### 注入外部 Bean（常用）：使用 ref 属性
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userDaoBean" class="com.shameyang.spring6.dao.UserDao"/>
+
+    <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
+        <property name="userDao" ref="userDaoBean"/>
+    </bean>
+</beans>
+```
+
+### 注入内部 Bean（了解）：嵌套 bean 标签
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
+        <property name="userDao">
+			<bean class="com.shameyang.spring6.dao.UserDao"/>
+        </property>
+    </bean>
+</beans>
+```
+
+### 注入简单类型：使用 value 属性或 value 标签
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="userBean" class="com.shameyang.spring6.bean.User">
+        <!-- 如果像这种 int 类型的属性，我们称为简单类型，这种简单类型在注入的时候要使用 value 属性，不能使用 ref -->
+        <!-- <property name="age" value="20"/> -->
+        <property name="age">
+            <value>20</value>
+        </property>
+    </bean>
+</beans>
+```
