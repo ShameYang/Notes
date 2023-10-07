@@ -538,48 +538,159 @@ public class DITest {
 ### 注入外部 Bean（常用）：使用 ref 属性
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<bean id="userDaoBean" class="com.shameyang.spring6.dao.UserDao"/>
 
-    <bean id="userDaoBean" class="com.shameyang.spring6.dao.UserDao"/>
-
-    <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
-        <property name="userDao" ref="userDaoBean"/>
-    </bean>
-</beans>
+<bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
+	<property name="userDao" ref="userDaoBean"/>
+</bean>
 ```
 
 ### 注入内部 Bean（了解）：嵌套 bean 标签
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
-        <property name="userDao">
-			<bean class="com.shameyang.spring6.dao.UserDao"/>
-        </property>
-    </bean>
-</beans>
+<bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
+	<property name="userDao">
+	<bean class="com.shameyang.spring6.dao.UserDao"/>
+	</property>
+</bean>
 ```
 
 ### 注入简单类型：使用 value 属性或 value 标签
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-    <bean id="userBean" class="com.shameyang.spring6.bean.User">
-        <!-- 如果像这种 int 类型的属性，我们称为简单类型，这种简单类型在注入的时候要使用 value 属性，不能使用 ref -->
-        <!-- <property name="age" value="20"/> -->
-        <property name="age">
-            <value>20</value>
-        </property>
+<bean id="userBean" class="com.shameyang.spring6.bean.User">
+	<!-- value 属性 -->
+	<property name="age" value="20"/>
+	<!-- value 标签 -->
+	<property name="age">
+    	<value>20</value>
+	</property>
+</bean>
+```
+
+简单类型有哪些？
+
+- 基本数据类型、以及对应的包装类
+- Enum 子类
+- String 或其它的 CharSequence 子类
+- Number 子类
+- Date 子类
+- Temporal 子类
+- URI、URL
+- Locale
+- Class
+
+Spring 源码如下
+
+```java
+public class BeanUtils{
+    
+    //.......
+    
+    /**
+	 * Check if the given type represents a "simple" property: a simple value
+	 * type or an array of simple value types.
+	 * <p>See {@link #isSimpleValueType(Class)} for the definition of <em>simple
+	 * value type</em>.
+	 * <p>Used to determine properties to check for a "simple" dependency-check.
+	 * @param type the type to check
+	 * @return whether the given type represents a "simple" property
+	 * @see org.springframework.beans.factory.support.RootBeanDefinition#DEPENDENCY_CHECK_SIMPLE
+	 * @see org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#checkDependencies
+	 * @see #isSimpleValueType(Class)
+	 */
+	public static boolean isSimpleProperty(Class<?> type) {
+		Assert.notNull(type, "'type' must not be null");
+		return isSimpleValueType(type) || (type.isArray() && isSimpleValueType(type.getComponentType()));
+	}
+
+	/**
+	 * Check if the given type represents a "simple" value type: a primitive or
+	 * primitive wrapper, an enum, a String or other CharSequence, a Number, a
+	 * Date, a Temporal, a URI, a URL, a Locale, or a Class.
+	 * <p>{@code Void} and {@code void} are not considered simple value types.
+	 * @param type the type to check
+	 * @return whether the given type represents a "simple" value type
+	 * @see #isSimpleProperty(Class)
+	 */
+	public static boolean isSimpleValueType(Class<?> type) {
+		return (Void.class != type && void.class != type &&
+				(ClassUtils.isPrimitiveOrWrapper(type) ||
+				Enum.class.isAssignableFrom(type) ||
+				CharSequence.class.isAssignableFrom(type) ||
+				Number.class.isAssignableFrom(type) ||
+				Date.class.isAssignableFrom(type) ||
+				Temporal.class.isAssignableFrom(type) ||
+				URI.class == type ||
+				URL.class == type ||
+				Locale.class == type ||
+				Class.class == type));
+	}
+    
+    //........
+}
+```
+
+注意：Date 当作简单类型时，注意日期格式
+
+### 级联属性赋值（了解）
+
+要点：
+
+1. spring 配置文件要注意顺序，先 ref 再 value
+2. 级联属性必须有 getter 方法
+
+```xml
+<bean id="clazzBean" class="com.shameyang.spring6.beans.Clazz"/>
+
+    <bean id="student" class="com.shameyang.spring6.beans.Student">
+        <property name="name" value="张三"/>
+        <!-- 要点1：以下两行配置的顺序不能颠倒 -->
+        <property name="clazz" ref="clazzBean"/>
+        <!-- 要点2：clazz 属性必须有 getter 方法 -->
+        <property name="clazz.name" value="高三一班"/>
     </bean>
 </beans>
 ```
+
+### 注入数组
+
+简单类型用 value
+
+```xml
+<bean id="person" class="com.shameyang.spring6.bean.Person">
+    <property name="hobbies">
+        <array>
+            <value>sing</value>
+            <value>jump</value>
+            <value>rap</value>
+        </array>
+    </property>
+</bean>
+```
+
+非简单类型用 ref
+
+```xml
+<bean id="goods1" class="com.shameyang.spring6.beans.Goods">
+    <property name="name" value="西瓜"/>
+</bean>
+
+<bean id="goods2" class="com.shameyang.spring6.beans.Goods">
+    <property name="name" value="苹果"/>
+</bean>
+
+<bean id="order" class="com.shameyang.spring6.beans.Order">
+    <property name="goods">
+        <array>
+            <ref bean="goods1"/>
+            <ref bean="goods2"/>
+        </array>
+    </property>
+</bean>
+```
+
+### 注入 List、Set 集合
+
+将上边注入数组的 array 标签改为集合对应的标签即可，集合中元素是简单类型用 value，非简单类型用 ref
+
