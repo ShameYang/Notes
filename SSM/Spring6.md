@@ -959,3 +959,52 @@ jdbc.password=root123
 </beans>
 ```
 
+
+
+
+
+
+
+# 五、Bean 的作用域
+
+我们可以在 bean 标签中，使用 scope 属性配置 Bean 的作用域
+
+scope 的值有如下几种：
+
+- singleton（default）：默认的，单例
+- prototype：原型。每调用一次 getBean() 方法则获取一个新的 Bean 对象，或每次注入的时候都是新对象
+- request：一个请求对应一个 Bean（**仅限于在 WEB 应用中使用**）
+- session：一个会话对应一个 Bean（**仅限于在 WEB 应用中使用**）
+- global session：**portlet 应用中专用的**。如果在 Servlet 的 WEB 应用中使用 global session 的话，和 session 一个效果。（portlet 和 servlet 都是规范。servlet 运行在servlet 容器中，例如Tomcat。portlet 运行在 portlet 容器中）
+- application：一个应用对应一个 Bean（**仅限于在 WEB 应用中使用**）
+- websocket：一个 websocket 生命周期对应一个 Bean（**仅限于在 WEB 应用中使用**）
+- 自定义scope：很少使用
+
+
+
+自定义一个 Scope（了解即可）：线程级别的 Scope
+
+第一步：自定义 Scope（实现 Scope 接口）
+
+- spring 中内置了线程范围的类：org.springframework.context.support.SimpleThreadScope，可以直接使用
+
+第二步：将自定义 Scope 注册到 Spring 容器中
+
+```xml
+<bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+  <property name="scopes">
+    <map>
+      <entry key="myThread">
+        <bean class="org.springframework.context.support.SimpleThreadScope"/>
+      </entry>
+    </map>
+  </property>
+</bean>
+```
+
+第三步：使用 Scope
+
+```xml
+<bean ... scope="myThread" />
+```
+
