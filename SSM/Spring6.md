@@ -545,7 +545,9 @@ public class DITest {
 </bean>
 ```
 
-### 注入内部 Bean（了解）：嵌套 bean 标签
+### 注入内部 Bean（了解）
+
+嵌套 bean 标签
 
 ```xml
 <bean id="userServiceBean" class="com.shameyang.spring6.service.UserService">
@@ -641,9 +643,9 @@ public class BeanUtils{
 2. 级联属性必须有 getter 方法
 
 ```xml
-<bean id="clazzBean" class="com.shameyang.spring6.beans.Clazz"/>
+<bean id="clazzBean" class="com.shameyang.spring6.bean.Clazz"/>
 
-    <bean id="student" class="com.shameyang.spring6.beans.Student">
+    <bean id="student" class="com.shameyang.spring6.bean.Student">
         <property name="name" value="张三"/>
         <!-- 要点1：以下两行配置的顺序不能颠倒 -->
         <property name="clazz" ref="clazzBean"/>
@@ -655,7 +657,7 @@ public class BeanUtils{
 
 ### 注入数组
 
-简单类型用 value
+简单类型 array 嵌套 value
 
 ```xml
 <bean id="person" class="com.shameyang.spring6.bean.Person">
@@ -669,18 +671,18 @@ public class BeanUtils{
 </bean>
 ```
 
-非简单类型用 ref
+非简单类型 array 嵌套 ref
 
 ```xml
-<bean id="goods1" class="com.shameyang.spring6.beans.Goods">
+<bean id="goods1" class="com.shameyang.spring6.bean.Goods">
     <property name="name" value="西瓜"/>
 </bean>
 
-<bean id="goods2" class="com.shameyang.spring6.beans.Goods">
+<bean id="goods2" class="com.shameyang.spring6.bean.Goods">
     <property name="name" value="苹果"/>
 </bean>
 
-<bean id="order" class="com.shameyang.spring6.beans.Order">
+<bean id="order" class="com.shameyang.spring6.bean.Order">
     <property name="goods">
         <array>
             <ref bean="goods1"/>
@@ -693,4 +695,267 @@ public class BeanUtils{
 ### 注入 List、Set 集合
 
 将上边注入数组的 array 标签改为集合对应的标签即可，集合中元素是简单类型用 value，非简单类型用 ref
+
+### 注入 Map 集合
+
+map 标签嵌套 entry 标签
+
+```xml
+<bean id="peopleBean" class="com.shameyang.spring6.bean.People">
+	<property name="addrs">
+		<map>
+			<!-- 非简单类型，使用 key-ref 或 value-ref 属性 -->
+			<entry key="1" value="北京"/>
+			<entry key="2" value="上海"/>
+			<entry key="3" value="深圳"/>
+		</map>
+	</property>
+</bean>
+```
+
+### 注入 Properties
+
+props 标签嵌套 prop 标签
+
+```xml
+<bean id="peopleBean" class="com.shameyang.spring6.bean.People">
+	<property name="properties">
+		<props>
+			<prop key="driver">com.mysql.cj.jdbc.Driver</prop>
+			<prop key="url">jdbc:mysql://localhost:3306/spring</prop>
+			<prop key="username">root</prop>
+			<prop key="password">123456</prop>
+		</props>
+	</property>
+</bean>
+```
+
+### 注入 null 和空字符串
+
+注入null：
+
+- 不给属性赋值
+- \<null/>
+
+注入空字符串：
+
+- value = ""
+- \<value/>
+
+### 注入的值中含有特殊符号
+
+方案一：转义字符
+
+| 特殊字符 | 转义字符 |
+| -------- | -------- |
+| >        | \&gt;    |
+| <        | \&lt;    |
+| '        | \&apos;  |
+| "        | \&quot;  |
+| &        | \&amp;   |
+
+方案二：\<![CDATA[放在这里]]>，放在 CDATA 区中的数据不会被 XML 文件解析器解析
+
+```xml
+<bean id="mathBean" class="com.shameyang.spring6.bean.Math">
+	<property name="result">
+		<!-- 只能使用 value 标签 -->
+		<value><![CDATA[2 < 3]]></value>
+	</property>
+</bean>
+```
+
+
+
+## 4.4 p 命名空间注入
+
+基于 p 命名空间注入，可以简化之前的 set 方法注入
+
+第一步：在 spring 配置文件头部添加：xmlns:p="http://www.springframework.org/schema/p"
+
+第二步：对应的属性提供 setter 方法
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="customerBean" class="com.shameyang.spring6.bean.Customer" p:name="zhangsan" p:age="20"/>
+
+</beans>
+```
+
+
+
+## 4.5 c 命名空间注入
+
+基于 c 命名空间注入，可以简化之前的构造方法注入
+
+第一步：spring 配置文件头部添加：xmlns:c="http://www.springframework.org/schema/c"
+
+第二步：提供构造方法
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--<bean id="myTimeBean" class="com.shameyang.spring6.bean.MyTime" c:year="2000" c:month="1" c:day="1"/>-->
+
+    <bean id="myTimeBean" class="com.shameyang.spring6.bean.MyTime" c:_0="2000" c:_1="1" c:_2="1"/>
+
+</beans>
+```
+
+
+
+## 4.6 util 命名空间
+
+使用 util 命名空间可以实现配置复用
+
+引入 util 命名空间：在 spring 配置文件头部添加如下配置信息
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/spring-%E5%BC%95%E5%85%A5util%E5%91%BD%E5%90%8D%E7%A9%BA%E9%97%B4.png)
+
+例如：不同数据源共用数据库信息
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <util:properties id="prop">
+        <prop key="driver">com.mysql.cj.jdbc.Driver</prop>
+        <prop key="url">jdbc:mysql://localhost:3306/spring</prop>
+        <prop key="username">root</prop>
+        <prop key="password">123456</prop>
+    </util:properties>
+
+    <bean id="dataSource1" class="com.shameyang.spring6.bean.MyDataSource1">
+        <property name="properties" ref="prop"/>
+    </bean>
+
+    <bean id="dataSource2" class="com.shameyang.spring6.bean.MyDataSource2">
+        <property name="properties" ref="prop"/>
+    </bean>
+</beans>
+```
+
+
+
+## 4.7 基于 XML 的自动装配
+
+Spring 可以完成自动化注入，自动化注入又称为自动装配
+
+### 根据名称自动装配
+
+```xml
+<bean id="userService" class="com.shameyang.spring6.service.UserService" autowire="byName"/>
+<!-- id 对应 set 方法的属性名 -->
+<bean id="userDao" class="com.shameyang.spring6.dao.UserDao"/>
+```
+
+### 根据类型自动装配
+
+```xml
+<!--byType表示根据类型自动装配-->
+<bean id="userService" class="com.shameyang.spring6.service.UserService" autowire="byType"/>
+
+<bean class="com.shameyang.spring6.dao.UserDao"/>
+```
+
+
+
+## 4.8 引入外部属性配置文件
+
+编写数据源时需要连接数据库的信息，我们可以将信息写到外部配置文件中，这样用户修改会非常方便。下面介绍如何在 spring 中引入外部属性配置文件
+
+第一步：定义一个数据源类，并提供相关属性
+
+```java
+public class MyDataSource implements DataSource {
+    @Override
+    public String toString() {
+        return "MyDataSource{" +
+                "driver='" + driver + '\'' +
+                ", url='" + url + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
+    private String driver;
+    private String url;
+    private String username;
+    private String password;
+
+    public void setDriver(String driver) {
+        this.driver = driver;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    //......
+}
+```
+
+第二步：类路径下新建 jdbc.properties 文件，配置信息
+
+```properties
+jdbc.driver=com.mysql.cj.jdbc.Driver
+jdbc.url=jdbc:mysql://localhost:3306/spring
+jdbc.username=root
+jdbc.password=root123
+```
+
+第三步：在 spring 配置文件中引入 context 命名空间
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+</beans>
+```
+
+第四步：spring 中配置使用 jdbc.properties 文件
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:property-placeholder location="jdbc.properties"/>
+    
+    <bean id="dataSource" class="com.shameyang.spring6.bean.MyDataSource">
+        <property name="driver" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+</beans>
+```
 
