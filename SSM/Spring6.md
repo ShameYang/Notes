@@ -1008,3 +1008,171 @@ scope 的值有如下几种：
 <bean ... scope="myThread" />
 ```
 
+
+
+
+
+
+
+# 六、Bean 的获取方式
+
+Spring 提供了多种获取 Bean 对象的方式：
+
+- 构造方法
+- 简单工厂模式（静态工厂方法模式）
+- factory-bean
+- FactoryBean 接口
+
+
+
+## 6.1 构造方法
+
+我们之前使用的都是这种方式：在 spring 配置文件中直接配置类的全路径。默认情况下，会调用 Bean 的无参构造方法
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userBean" class="com.shameyang.spring6.bean.User"/>
+
+</beans>
+```
+
+
+
+## 6.2 简单工厂模式（静态工厂方法模式）
+
+假设已经定义了 UserBean。现在我们提供一个工厂类，工厂类里有一个静态方法
+
+```java
+public class UserFactory {
+    public static User get() {
+        return new User();
+    }
+}
+```
+
+然后在 spring 配置文件中指定创建该 Bean 的方法
+
+```xml
+<bean id="userBean" class="com.shameyang.spring6.bean.UserFactory" factory-method="get"/>
+```
+
+
+
+## 6.3 factory-bean（工厂方法模式）
+
+假设已经定义了 UserBean。现在定义具体工厂类（一个 Bean 对应一个 BeanFactory），工厂类中提供实例方法
+
+```java
+public class UserFactory {
+    public User get() {
+        return new User();
+    }
+}
+```
+
+然后在 spring 配置文件中指定 factory-bean 和 factory-method
+
+```xml
+<bean id="userFactory" class="com.shameyang.spring6.bean.UserFactory"/>
+<bean id="userBean" factory-bean="userFactory" factory-method="get"/>
+```
+
+
+
+## 6.4 实现 FactoryBean 接口
+
+我们可以编写一个类实现 FactoryBean 接口，这样 factory-bean 和 factory-method 就无需手动配置了
+
+- factory-bean 会自动指向实现 FactoryBean 接口的类
+- factory-method 会自动指向 getObject() 方法
+
+假设已经定义了 UserBean。现在编写一个类实现 FactoryBean 接口
+
+```java
+public class UserFactoryBean implements FactoryBean<User> {
+    @Override
+    public User getObject() throws Exception {
+        return new User();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return null;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        // true 表示单例
+        // false 表示原型
+        return true;
+    }
+}
+```
+
+在 spring 配置文件中配置 FactoryBean
+
+```xml
+<bean id="userBean" class="com.shameyang.spring6.bean.UserFactoryBean"/>
+```
+
+
+
+
+
+
+
+# 七、关于 FactoryBean
+
+## 7.1 FactoryBean 和 BeanFactory 的区别、
+
+FactoryBean 是一个 Bean，能够辅助 Spring 实例化其它 Bean 对象
+
+BeanFactory 是一个工厂，是 Spring IoC 容器的顶级对象，负责创建 Bean 对象
+
+
+
+## 7.2 注入自定义 Date
+
+在之前的学习中，java.util.Date 在注入时，如果当作简单类型需要使用规定的格式：Mon Jan 01 00:00:00 CST 2023
+
+如果想用自定义的格式（当作非简单类型），我们就可以使用 FactoryBean 来辅助完成
+
+第一步：编写 DateFactoryBean 实现 FactoryBean 接口
+
+```java
+public class DateFactoryBean implements FactoryBean<Date> {
+    private String date;
+    
+    public DateFactoryBean(String date) {
+        this.date = date;
+    }
+    
+    @Override
+    public Date getObject() throws Exception {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.parse(this.date);
+    }
+    
+    @Override
+    public Class<?> getObjectType() {
+        return null;
+    }
+}
+```
+
+第二步：编写 spring 配置文件
+
+```xml
+<bean id="dateBean" class="com.shameyang.spring6.bean.DateFactoryBean">
+	<constructor-arg name="date" value="2000-01-01"/>
+</bean>
+
+<bean id="..." class="...">
+    <property name="..." ref="dateBean">
+</bean>
+```
+
