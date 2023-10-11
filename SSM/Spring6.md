@@ -1176,3 +1176,240 @@ public class DateFactoryBean implements FactoryBean<Date> {
 </bean>
 ```
 
+
+
+
+
+
+
+# 八、Bean 的生命周期
+
+## 8.1 Bean 的生命周期五步
+
+第一步：实例化 Bean
+
+第二步：Bean 属性赋值
+
+第三步：初始化 Bean
+
+第四步：使用 Bean
+
+第五步：销毁 Bean
+
+
+
+注意：
+
+- 配置文件中的 init-method 指定初始化方法，destroy-method 指定销毁方法
+
+- 只有 spring 正常关闭才会执行销毁方法
+
+示例如下：
+
+```java
+public class User {
+    private String name;
+
+    public User() {
+        System.out.println("1.实例化 Bean");
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        System.out.println("2.Bean 属性赋值");
+    }
+
+    public void initBean(){
+        System.out.println("3.初始化 Bean");
+    }
+
+    public void destroyBean(){
+        System.out.println("5.销毁 Bean");
+    }
+
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--
+    	init-method 属性指定初始化方法
+    	destroy-method 属性指定销毁方法
+    -->
+    <bean id="userBean" class="com.shameyang.spring6.bean.User" init-method="initBean" destroy-method="destroyBean">
+        <property name="name" value="zhangsan"/>
+    </bean>
+
+</beans>
+```
+
+```java
+public class BeanLifecycleTest {
+    @Test
+    public void testLifecycle(){
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+        User userBean = applicationContext.getBean("userBean", User.class);
+        System.out.println("4.使用 Bean");
+        // 只有正常关闭 spring 容器才会执行销毁方法
+        ClassPathXmlApplicationContext context = (ClassPathXmlApplicationContext) applicationContext;
+        context.close();
+    }
+}
+```
+
+
+
+## 8.2 Bean 的生命周期七步
+
+在上面的五步中，如果想在初始化前和初始化后添加代码，可以加入“Bean 后处理器”
+
+
+
+Bean 后处理器实现步骤
+
+第一步：编写一个类，实现 BeanPostProcessor 类，重写 before 和 after 方法
+
+```java
+public class LogBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("Bean 后处理器的 before 方法执行，即将开始初始化");
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("Bean 后处理器的 after 方法执行，已完成初始化");
+        return bean;
+    }
+}
+```
+
+第二步：在 spring 配置文件中配置
+
+```xml
+<!-- 配置Bean后处理器，这个后处理器将作用于当前配置文件中所有的 bean -->
+<bean class="com.shameyang.spring6.bean.LogBeanPostProcessor"/>
+```
+
+
+
+## 8.3 Bean 的生命周期十步
+
+对 Bean 的生命周期更加细分，可以再增加三步，检查 Bean 是否实现了特定的接口，如果实现了，spring 容器会调用接口中的方法
+
+第一步：实例化 Bean
+
+第二步：Bean 属性赋值
+
+第三步：检查是否实现了 Aware 的相关接口
+
+Aware 相关接口
+
+- BeanNameAware
+
+  当实现了该接口，Spring 会传递 Bean 的名字
+
+- BeanClassLoaderAware
+
+  当实现了该接口，Spring 会传递 Bean 的类加载器
+
+- BeanFactoryAware
+
+  当实现了该接口，Spring 会传递 BeanFactory 对象
+
+第四步：Bean 后处理器 before 方法
+
+第五步：检查是否实现了 InitializingBean 接口
+
+第六步：初始化 Bean
+
+第七步：Bean 后处理器 after 方法
+
+第八步：使用 Bean
+
+第九步：检查是否实现了 DisposableBean 接口
+
+第十步：销毁 Bean
+
+
+
+
+
+示例如下：
+
+```java
+public class User implements BeanNameAware, BeanClassLoaderAware, BeanFactoryAware, InitializingBean, DisposableBean {
+    private String name;
+
+    public User() {
+        System.out.println("1.实例化Bean");
+    }
+
+    public void setName(String name) {
+        this.name = name;
+        System.out.println("2.Bean属性赋值");
+    }
+
+    public void initBean(){
+        System.out.println("6.初始化Bean");
+    }
+
+    public void destroyBean(){
+        System.out.println("10.销毁Bean");
+    }
+
+    @Override
+    public void setBeanClassLoader(ClassLoader classLoader) {
+        System.out.println("3.类加载器：" + classLoader);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        System.out.println("3.Bean工厂：" + beanFactory);
+    }
+
+    @Override
+    public void setBeanName(String name) {
+        System.out.println("3.bean名字：" + name);
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        System.out.println("9.DisposableBean destroy");
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        System.out.println("5.afterPropertiesSet执行");
+    }
+}
+```
+
+```java
+public class LogBeanPostProcessor implements BeanPostProcessor {
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("4.Bean后处理器的before方法执行，即将开始初始化");
+        return bean;
+    }
+
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        System.out.println("7.Bean后处理器的after方法执行，已完成初始化");
+        return bean;
+    }
+}
+```
+
+
+
+## 8.4 Bean 的作用域对生命周期管理的影响
+
+Spring 容器只对 singleton 的 Bean 进行完整的生命周期管理
+
+如果是 prototype 的 Bean，Spring 只负责创建，创建完毕后交给客户端代码管理
