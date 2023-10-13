@@ -1413,3 +1413,288 @@ public class LogBeanPostProcessor implements BeanPostProcessor {
 Spring 容器只对 singleton 的 Bean 进行完整的生命周期管理
 
 如果是 prototype 的 Bean，Spring 只负责创建，创建完毕后交给客户端代码管理
+
+
+
+## 8.5 自己 new 的对象如何被 spring 管理
+
+```java
+public class RegisterBeanTest {
+    @Test
+    public void testBeanRegister(){
+        // 自己 new 的对象
+        User user = new User();
+        System.out.println(user);
+
+        // 创建默认可列表 BeanFactory 对象
+        DefaultListableBeanFactory factory = new DefaultListableBeanFactory();
+        // 注册 Bean
+        factory.registerSingleton("userBean", user);
+        // 从 spring 容器中获取 bean
+        User userBean = factory.getBean("userBean", User.class);
+        System.out.println(userBean);
+    }
+}
+```
+
+
+
+
+
+
+
+# 九、Spring IoC 注解式开发
+
+注解主要为了简化 XML 的配置。Spring6倡导全注解开发
+
+
+
+## 9.1 声明 Bean 的注解
+
+负责声明 Bean 的注解，常见的有四个：
+
+- @Component
+- @Controller
+- @Service
+- @Repository
+
+@Controller、@Service、@Repository 都是@Component 的别名
+
+这四个注解的功能都是一样的，只是为了增强程序的可读性
+
+- 控制器上用@Controller
+- service 类上用@Service
+- dao 类上用@Repository
+
+他们都只有一个 value 属性，用来指定 bean 的 id，与之前配置文件中的 id 同理
+
+
+
+部分源码如下：
+
+```java
+@Target(value = {ElementType.TYPE})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface Component {
+    String value();
+}
+```
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Controller {
+    @AliasFor(
+        annotation = Component.class
+    )
+    String value() default "";
+}
+```
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Service {
+    @AliasFor(
+        annotation = Component.class
+    )
+    String value() default "";
+}
+```
+
+```java
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Component
+public @interface Repository {
+    @AliasFor(
+        annotation = Component.class
+    )
+    String value() default "";
+}
+```
+
+
+
+## 9.2 注解的使用
+
+第一步：加入 aop 的依赖
+
+加入 spring-context 依赖后，会关联加入 aop 的依赖
+
+
+
+第二步：在配置文件中添加 context 命名空间
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+</beans>
+```
+
+第三步：在配置文件中指定要扫描的包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <context:component-scan base-package="com.shameyang.spring6.bean"/>
+</beans>
+```
+
+第四步：在 Bean 类上使用注解
+
+```java
+@Component(value = "studentBean")
+public class Student {
+}
+```
+
+
+
+## 9.3 选择性实例化 Bean
+
+上边提到了四个实例化 Bean 的注解，由于业务需要，我们有时只需要让某一个注解参与 Bean 管理，其他的都不实例化
+
+有以下两种方式：use-default-filters="true|false"
+
+第一种：use-default-filters="false"，不使用默认的实例化规则，指定实例化的注解
+
+```xml
+<context:component-scan base-package="com.shameyang.spring6.bean3" use-default-filters="false">
+	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+```
+
+第二种：use-default-filters="true"，使用默认的实例化规则，排除不参与实例化的注解
+
+```xml
+<context:component-scan base-package="com.shameyang.spring6.bean3" use-default-filters="true">
+	<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+</context:component-scan>
+```
+
+
+
+## 9.4 负责注入的注解
+
+上边的注解，只是声明了 Bean，我们还需要给其赋值。给 Bean 属性赋值需要这些注解：
+
+- @Value
+- @Autowired
+- @Qualifier
+- @Resource
+
+
+
+### @Value
+
+该注解用来注入简单类型，可以出现在属性、setter 方法以及构造参数的形参上，非常灵活
+
+```java
+@Component(value = "studentBean")
+public class Student {
+    @Value("001")
+    private String sno;
+    private String sname;
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "sno='" + sno + '\'' +
+                ", sname='" + sname + '\'' +
+                '}';
+    }
+
+    @Value("jack")
+    public void setSname(String sname) {
+        this.sname = sname;
+    }
+}
+```
+
+
+
+### @AutoWired 和 @Qualifier
+
+注入非简单类型时，需要这两个注解
+
+- @AutoWired 注解可以出现在：属性、构造方法、构造方法的参数、setter 方法上
+- 带参的构造方法只有一个时，@AutoWired 可以省略
+- 只有 @AutoWired 会根据类型注入，如果想要根据名字注入需要添加 @Qualifier 注解
+
+
+
+### @Resource
+
+@Resource 也可以用于注入非简单类型
+
+它与@AutoWired 的区别：
+
+- 通用性
+
+  @Resource 是 JDK 扩展包中的，标准注解，更具有通用性
+
+  @AutoWired 注解是 Spring 框架自己的
+
+- 运用的地方不同
+
+  @Resource 用在属性、setter 方法上
+
+  @AutoWired 用在属性、setter 方法、构造方法和构造方法的参数上
+
+- 默认的装配方式不同
+
+  @Resource 默认根据名称 byName 装配
+
+  @AutoWired 默认根据类型 byType 装配
+
+
+
+## 9.5 全注解式开发
+
+全注解开发，即不使用 spring 配置文件，写一个配置类来代替配置文件
+
+```java
+package com.shameyang.spring6;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+/**
+ * @author ShameYang
+ * @date 2023/10/13 19:03
+ * @description 配置文件类代替 spring.xml
+ */
+@Configuration
+@ComponentScan("com.shameyang.spring6.bean")
+public class Spring6Configuration {
+}
+```
+
+测试程序修改：不再 new ClassPathXMLApplicationContext 对象了
+
+```java
+public class IoCAnnotationTest {
+    @Test
+    public void testNew() {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(Spring6Configuration.class);
+        Student student = applicationContext.getBean("studentBean", Student.class);
+        System.out.println(student);
+    }
+}
+```
+
