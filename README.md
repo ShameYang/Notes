@@ -24,4 +24,3 @@ My study notes
   - Spring6
 - Git
   - MyGit
-- 计算机网络

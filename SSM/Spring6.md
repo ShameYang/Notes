@@ -1698,3 +1698,369 @@ public class IoCAnnotationTest {
 }
 ```
 
+
+
+
+
+
+
+# 十、面向切面编程 AOP
+
+## 10.1 AOP 介绍
+
+Aspect Oriented Programming，面向切面编程，是一种编程技术
+
+将与核心业务无关的代码抽取出来，形成一个独立的组件，将业务看作纵向，以横向交叉的方式应用到业务流程的这个过程，即 AOP
+
+AOP 的优点：
+
+- 代码复用性增强
+- 代码易维护
+- 开发者更关注业务逻辑
+
+
+
+## 10.2 AOP 术语
+
+连接点 Joinpoint
+
+- 在程序的整个执行流程中，可以织入切面的位置
+
+切点 Pointcut
+
+- 在程序执行流程中，织入切面的方法
+
+通知 Advice
+
+- 又叫做增强，就是织入的代码
+- 通知包括
+  - 前置通知
+  - 后置通知
+  - 环绕通知
+  - 异常通知
+  - 最终通知
+
+切面 Aspect
+
+- 切点+通知
+
+织入 Weaving
+
+- 通知应用到目标对象上的过程
+
+代理对象 Proxy
+
+- 一个目标对象被织入通知后产生的新对象
+
+目标对象 Target
+
+- 被织入通知的对象
+
+
+
+示例代码如下：
+
+```java
+public class UserService{
+    public void do1(){
+        System.out.println("do 1");
+    }
+    // 核心业务方法
+    public void service(){
+        try {
+            // JoinPoint
+            // 前置通知
+            do1(); // Pointcut
+			// 后置通知，前后都有就是环绕通知
+        } catch(Exception e) {
+            // JoinPoint
+            //异常通知
+        } finally {
+            // JoinPoint
+            // 最终通知
+        }
+
+    }
+}
+```
+
+
+
+## 10.3 切点表达式
+
+切点表达式用来定义通知往哪些方法上切入
+
+语法格式：`execution([访问控制权限修饰符] 返回值类型 [全限定类名]方法名(形参列表) [异常])`
+
+访问控制权限修饰符：
+
+- 省略时表示4个权限都包括
+
+返回值类型：
+
+- *表示返回值类型任意
+
+全限定类名：
+
+- 两个点表示当前包以及子包下的所有类
+- 省略时表示所有的类
+
+方法名：
+
+- *表示所有方法
+- xxx*表示所有的xxx开始的方法
+
+形参列表：
+
+- （）表示无参方法
+- （..）参数类型和个数随意的方法
+- （*）只有一个参数的方法
+- （*, String）第一个参数类型随意，第二个参数为 String
+
+异常：
+
+- 省略时表示任意类型的异常
+
+
+
+示例如下：
+
+service 包下所有的类中以 delete 开始的所有 public 方法
+
+```java
+execution(public * com.shameyang.mall.service.*.delete*(..))
+```
+
+mall 包下所有的类的所有的方法
+
+```java
+execution(* com.shameyang.mall..*(..))
+```
+
+所有类的所有方法
+
+```java
+execution(* *(..))
+```
+
+
+
+## 10.4 基于 AspectJ 的 AOP 注解式开发
+
+第一步：配置 pom.xml 文件和 spring.xml
+
+pom.xml 中引入依赖（spring-context 关联引入了 spring-aop）
+
+```xml
+<repositories>
+    <repository>
+        <id>spring-milestones</id>
+        <name>Spring Milestones</name>
+        <url>https://repo.spring.io/milestone</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+<dependencies>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-context</artifactId>
+        <version>6.1.0-M2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-aspects</artifactId>
+        <version>6.1.0-M2</version>
+    </dependency>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+```
+
+spring.xml 中添加 context 命名空间和 aop 命名空间
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+</beans>
+```
+
+
+
+第二步：定义目标类和目标方法，并纳入 spring bean 管理
+
+```java
+package com.shameyang.spring6.service;
+
+import org.springframework.stereotype.Service;
+
+// 目标类
+@Service
+public class OrderService {
+    // 目标方法
+    public void generate() {
+        System.out.println("订单已生成");
+    }
+}
+```
+
+
+
+第三步：定义切面类，并纳入 spring bean 管理
+
+```java
+package com.shameyang.spring6.service;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+// 切面类
+@Aspect
+@Component
+public class MyAspect {    
+}
+```
+
+
+
+第四步：spring.xml 中开启组件扫描，启用自动代理
+
+```xml
+<context:component-scan base-package="com.shameyang.spring6.service"/>
+<aop:aspectj-autoproxy proxy-target-class="true"/>
+```
+
+
+
+第五步：切面类中添加通知，然后添加切点表达式
+
+```java
+@Aspect
+@Component
+public class MyAspect {
+    @Before("execution(* com.shameyang.spring6.service.OrderService.*(..))")
+    public void adviceBefore() {
+        System.out.println("前置通知...");
+    }
+
+    @Around("execution(* com.shameyang.spring6.service.OrderService.*(..))")
+    public void adviceAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        System.out.println("环绕通知开始...");
+        // 执行目标方法
+        proceedingJoinPoint.proceed();
+        System.out.println("环绕通知结束...");
+    }
+}
+```
+
+
+
+第六步：测试程序
+
+```java
+public class AOPTest {
+    @Test
+    public void testAOP() {
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("spring.xml");
+        OrderService orderService = applicationContext.getBean("orderService", OrderService.class);
+        orderService.generate();
+    }
+}
+```
+
+
+
+### 通知对应的注解
+
+前置通知：@Before
+
+后置通知：@AfterReturning
+
+环绕通知：@Around
+
+异常通知：@AfterThrowing
+
+最终通知：@After
+
+
+
+### 设置切面的优先级
+
+可以使用@Order 注解来标识切面，为 value 指定一个整型数，数字越小，优先级越高
+
+
+
+### 切点表达式复用
+
+我们可以将切点表达式单独定义出来，在需要的位置引入，这样就可以实现代码复用
+
+```java
+@Aspect
+@Component
+public class MyAspect {
+    @Pointcut("execution(* com.shameyang.spring6.service.OrderService.*(..))")
+    public void pointcut() {
+    }
+
+    @Before("pointcut()")
+    public void adviceBefore() {
+        System.out.println("前置通知...");
+    }
+
+    @Around("pointcut()")
+    public void adviceAround(ProceedingJoinPoint proceedingJoinPoint) throws Throwable {
+        System.out.println("环绕通知开始...");
+        // 执行目标方法
+        proceedingJoinPoint.proceed();
+        System.out.println("环绕通知结束...");
+    }
+}
+```
+
+
+
+### 全注解式开发
+
+编写一个类，代替 spring.xml 文件
+
+```java
+package com.shameyang.spring6.service;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+@Configuration
+@ComponentScan("com.shameyang.spring6.service")
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+public class Spring6Configuration {
+}
+```
+
+
+
+修改测试程序
+
+```java
+public class AOPTest {
+    @Test
+    public void testAOP() {
+        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(Spring6Configuration.class);
+        OrderService orderService = applicationContext.getBean("orderService", OrderService.class);
+        orderService.generate();
+    }
+}
+```
+
