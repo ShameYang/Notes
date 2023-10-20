@@ -2064,3 +2064,319 @@ public class AOPTest {
 }
 ```
 
+
+
+
+
+
+
+# 十一、Spring 对事务的支持
+
+## 11.1 事务管理 API
+
+Spring 对事务的管理底层是基于 AOP 实现的，采用 AOP 的方式进行了封装
+
+核心接口：PlatformTransactionManager，在 Spring6中的实现：
+
+- DataSourceTransactionManager：支持 JdbcTemplate、Mybatis、Hibernate 等事务管理
+- JtaTransactionManager：支持分布式事务管理
+
+
+
+## 11.2 声明式事务基于注解的实现方式
+
+第一步：spring.xml 中配置事务管理器
+
+```xml
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  <property name="dataSource" ref="dataSource"/>
+</bean>
+```
+
+第二步：spring.xml 中引入 tx 命名空间
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+```
+
+第三步：spring.xml 中配置“事务注解驱动器”
+
+```xml
+<tx:annotation-driven transaction-manager="transactionManager"/>
+```
+
+第四步：在 service 类或方法上添加@Transactional 注解
+
+
+
+### 11.2.1 事务中的重点属性
+
+```java
+// 事务传播行为
+Propagation propagation() default Propagation.REQUIRED;
+// 事务隔离级别
+Isolation isolation() default Isolation.DEFAULT;
+// 事务超时
+int timeout() default -1;
+// 只读事务
+boolean readOnly() default false;
+// 出现哪些异常时回滚
+Class<? extends Throwable>[] rollbackFor() default {};
+// 出现哪些异常时不回滚
+Class<? extends Throwable>[] noRollbackFor() default {};
+```
+
+#### propagation 事务传播行为
+
+事务传播行为用来描述某个事务传播行为修饰的方法被嵌套进另一个方法的事务时如何传播
+
+设置事务的传播行为：`@Transaction(propagation = Propagation.REQUIRED)`
+
+propagation 的 value 如下：
+
+| 属性值           | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| REQUIRED（默认） | 如果当前没有事务，就新建一个事务，如果已经存在一个事务中，加入到这个事务中 |
+| SUPPORTS         | 支持当前事务，如果当前没有事务，就以非事务方式执行           |
+| MANDATORY        | 使用当前的事务，如果当前没有事务，就抛出异常                 |
+| REQUIRES_NEW     | 新建事务，如果当前存在事务，把当前事务挂起                   |
+| NOT_SUPPORTED    | 以非事务方式执行操作，如果当前存在事务，就把当前事务挂起     |
+| NEVER            | 以非事务方式执行，如果当前存在事务，则抛出异常               |
+| NESTED           | 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与 REQUIRED 类似的操作 |
+
+#### isolation 事务隔离级别
+
+设置事务的隔离级别：`@Transaction(isolation = Isolation.XXX)`
+
+isolation 的 value 如下：
+
+| 属性值           | 描述                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| DEFAULT          | 不设置隔离级别                                               |
+| READ_UNCOMMITTED | 读未提交。能够读取到其他事务未提交的数据（脏读）             |
+| READ_COMMITTED   | 提已提交。其他事务提交以后才能读到，但是不可重复读           |
+| REPEATABLE_READ  | 可重复读。只要当前事务不结束，读取到的数据一直都是一样的（幻读） |
+| SERIALIZABLE     | 序列化。解决了幻读问题，事务排队执行，不支持并发             |
+
+#### timeout 事务超时
+
+设置事务超时时间：`@Transaction(timeout = ...s)`
+
+默认值为-1，表示没有时间限制
+
+当超过设置的时间，如果 DML 语句还没有执行完，则回滚
+
+#### readOnly 只读事务
+
+设置只读事务：`@Transaction(readOnly = true)`
+
+启动 spring 优化策略，提高 select 语句执行效率
+
+事务中只能执行 select 语句
+
+#### rollbackFor
+
+设置遇到哪些异常时回滚
+
+例如：只有发生 RuntimeException 异常或该异常的子类异常才回滚
+
+```java
+@Transaction(rollbackFor = RuntimeException.class)
+```
+
+#### norollbackFor
+
+设置遇到哪些异常时不回滚
+
+例如：发生 NullPointException 或该异常的子类异常时不回滚
+
+```java
+@Transaction(norollbackFor = NullPointException.class)
+```
+
+
+
+### 11.2.2 事务的全注解式开发
+
+编写一个类来代替配置文件
+
+```java
+@Configuration // 代替 spring.xml 文件
+@ComponentScan("...") // 组件扫描
+@EnableTransactionManagement // 开启事务注解
+public class Spring6Config {
+    @Bean(name = "dataSource")
+    public DataSource getDataSource(){
+        DruidDataSource dataSource = new DruidDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/spring6");
+        dataSource.setUsername("root");
+        dataSource.setPassword("123456");
+        return dataSource;
+    }
+
+    @Bean(name = "jdbcTemplate")
+    public JdbcTemplate getJdbcTemplate(DataSource dataSource){
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(dataSource);
+        return jdbcTemplate;
+    }
+
+    @Bean(name = "transactionManager")
+    public DataSourceTransactionManager getDataSourceTransactionManager(DataSource dataSource){
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+        dataSourceTransactionManager.setDataSource(dataSource);
+        return dataSourceTransactionManager;
+    }
+
+}
+```
+
+
+
+## 11.3 声明式事务基于 XML 的实现方式
+
+第一步：添加 AspectJ 依赖
+
+```xml
+<!--aspectj依赖-->
+<dependency>
+  <groupId>org.springframework</groupId>
+  <artifactId>spring-aspects</artifactId>
+  <version>6.1.0-M2</version>
+</dependency>
+```
+
+
+
+第二步：配置事务管理器
+
+```xml
+<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource"/>
+</bean>
+```
+
+
+
+第三步：配置通知
+
+```xml
+<tx:advice id="txAdvice" transaction-manager="txManager">
+    <tx:attributes>
+        <tx:method name="save*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
+        <tx:method name="del*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
+        <tx:method name="update*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
+        <tx:method name="transfer*" propagation="REQUIRED" rollback-for="java.lang.Throwable"/>
+    </tx:attributes>
+</tx:advice>
+```
+
+
+
+第四步：配置切面
+
+```xml
+<aop:config>
+    <aop:pointcut id="txPointcut" expression="execution(* com.shameyang.bank.service..*(..))"/>
+    <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut"/>
+</aop:config>
+```
+
+
+
+
+
+
+
+# 十二、Spring 整合 JUnit
+
+## 12.1 Spring 对 JUnit4的支持
+
+在单元测试类上使用@RunWith 和@ContextConfiguration 之后，测试类属性上可以使用@AutoWired
+
+相关依赖如下：
+
+```xml
+<!-- spring对junit的支持相关依赖 -->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>6.1.0-M2</version>
+</dependency>
+<!-- junit4依赖 -->
+<dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>4.13.2</version>
+    <scope>test</scope>
+</dependency>
+```
+
+
+
+单元测试类中使用相关注解：
+
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:spring.xml")
+public class SpringJUnit4Test {
+    @Autowired
+    private OrderService orderService;
+
+    @Test
+    public void testConstructorDI() {
+        orderService.delete();
+    }
+}
+```
+
+
+
+## 12.2 Spring 对 JUnit5的支持
+
+在单元测试类上使用@ExtendWith 和@ContextConfiguration 之后，测试类属性上可以使用@AutoWired
+
+相关依赖如下：
+
+```xml
+<!--spring对junit的支持相关依赖-->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-test</artifactId>
+    <version>6.1.0-M2</version>
+</dependency>
+<!--junit5依赖-->
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.10.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+
+
+单元测试类中使用相关注解：
+
+```java
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration("classpath:spring.xml")
+public class SpringJUnit4Test {
+    @Autowired
+    private OrderService orderService;
+
+    @Test
+    public void testConstructorDI() {
+        orderService.delete();
+    }
+}
+```
+
