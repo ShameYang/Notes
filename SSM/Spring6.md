@@ -2296,7 +2296,7 @@ public class Spring6Config {
 
 
 
-# 十二、Spring 整合 JUnit
+# 十二、Spring6 整合 JUnit
 
 ## 12.1 Spring 对 JUnit4的支持
 
@@ -2378,5 +2378,205 @@ public class SpringJUnit4Test {
         orderService.delete();
     }
 }
+```
+
+
+
+
+
+
+
+# 十三、Spring6 集成 MyBatis
+
+## 13.1 实现步骤
+
+① IDEA 中创建模块，引入依赖
+
+- spring-context
+- spring-jdbc
+- mysql 驱动
+- mybatis
+- mybatis-spring：mybatis 提供的与 spring 框架集成的依赖
+- 德鲁伊连接池
+- junit
+
+② 基于三层架构，创建相关的包
+
+- mapper
+
+- service
+
+  service.impl
+
+- pojo
+
+③ 编写 pojo 类
+
+④ 编写 mapper 接口
+
+⑤ 编写 mapper 配置文件
+
+⑥ 编写 service 接口及其实现类
+
+- 实现类中注入 Mapeer
+
+⑦ jdbc.properties
+
+⑧ mybatis-config.xml
+
+- 大部分的配置转移到 spring.xml 中
+- 该文件中编写 mybatis 相关的系统级配置
+
+⑨ spring.xml
+
+- 组件扫描
+- 引入外部的属性文件
+- SqlSessionFactoryBean 配置
+- Mapper 扫描配置器
+- 事务管理器 DataSourceTransactionManager
+- 启用事务注解
+
+
+
+## 13.2 具体实现
+
+引入依赖：
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.shameyanng</groupId>
+    <artifactId>spring6-006-mybatis</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>6.1.0-M2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>6.1.0-M2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <version>8.0.33</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>
+```
+
+
+
+mybatis-config.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <settings>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+    </settings>
+</configuration>
+```
+
+
+
+spring.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!-- 组件扫描 -->
+    <context:component-scan base-package="com.shameyang.bank"/>
+    
+    <!-- 外部属性配置文件 -->
+    <context:property-placeholder location="jdbc.properties"/>
+
+    <!-- 数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+    
+    <!-- SqlSessionFactoryBean -->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- mybatis核心配置文件路径 -->
+        <property name="configLocation" value="mybatis-config.xml"/>
+        <!-- 注入数据源 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 起别名 -->
+        <property name="typeAliasesPackage" value="com.shameyang.bank.pojo"/>
+    </bean>
+    
+    <!-- Mapper扫描器 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.shameyang.bank.mapper"/>
+    </bean>
+    
+    <!-- 事务管理器 -->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 开启事务注解 -->
+    <tx:annotation-driven transaction-manager="txManager"/>
+</beans>
 ```
 
