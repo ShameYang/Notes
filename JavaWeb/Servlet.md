@@ -717,7 +717,7 @@ public void service(ServletRequest request, ServletResponse response) {
     public Enumeration<String> getInitParameterNames();
     ```
 
-    ```java
+    ```xml
     <!--以上两个方法是 ServletContext 对象的方法，获取如下的配置信息-->
     	<context-param>
         	<param-name>pageSize</param-name>
