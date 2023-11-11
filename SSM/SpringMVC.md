@@ -1177,3 +1177,9 @@ public class UserController {
 | **简化数据响应** | **模板页面、转发和重定向、JSON数据、静态资源** |
 | restful风格设计  | 主要作用、具体规范、请求方式和请求参数选择     |
 | 功能扩展         | 全局异常处理、拦截器、参数校验注解             |
+
+
+
+调用流程
+
+![](https://cdn.jsdelivr.net/gh/ShameYang/images/img/springmvc-%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B.png)
