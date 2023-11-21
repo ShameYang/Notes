@@ -15,18 +15,23 @@ My study notes
   
 - JavaWeb
   
-  HTML
-  
-  CSS
-  
-  JS
-  - AJAX
-  
   Servlet
   
   JSP
   
   MVC
+  
+- 前端基础
+  
+  HTML
+  
+  CSS
+  
+  JS
+  
+  - AJAX
+  
+  Vue
   
 - Maven
   
