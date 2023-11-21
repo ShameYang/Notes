@@ -44,7 +44,7 @@ My study notes
   
   SpringBoot3
   
-  Mybatis-Plus
+  MyBatis-Plus
   
 - Git
   
