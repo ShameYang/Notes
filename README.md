@@ -1,60 +1,44 @@
 # Notes
 My study notes
 
-|--- Git
+```
+Git
+|--- MyGit（一些总结）
 
-​		|--- MyGit（一些总结）
+Java
+|--- JavaSE
+|--- Java8
 
-|--- Java
+JavaWeb
+|--- Servlet
+|--- JSP
+|--- MVC
 
-​		|--- JavaSE
+Linux
+|--- Linux 基础
 
-​		|--- Java8
+Maven
+|--- Maven 基础
 
-|--- JavaWeb
+MySQL
+|---MySQL 基础
+|--- JDBC
 
-​		|--- Servlet
-
-​		|--- JSP
-
-​		|--- MVC
-
-|--- Maven
-
-​		|--- Maven 基础
-
-|--- MySQL
-
-​		|---MySQL 基础
-
-​		|--- JDBC
-
+SSM
+|--- MyBatis
+|--- Spring6
+|--- SpringMVC
 |--- SSM
+|--- SpringBoot3
+|--- MyBatis-Plus
 
-​		|--- MyBatis
+前端基础
+|--- HTML
+|--- CSS		
+|--- JS
+|--- AJAX
+|--- Vue
 
-​		|--- Spring6
-
-​		|--- SpringMVC
-
-​		|--- SSM
-
-​		|--- SpringBoot3
-
-​		|--- MyBatis-Plus
-
-|--- 前端基础
-
-​		|--- HTML
-
-​		|--- CSS
-
-​		|--- JS
-
-​		|--- AJAX
-
-​		|--- Vue
-
-|--- 计算机基础
-
-​		|--- 计算机网络
+计算机基础
+|--- 计算机网络
+```
