@@ -157,7 +157,7 @@ public class ServiceJavaConfig {
 
 第一步：准备外部配置文件 jdbc.properties
 
-```java
+```properties
 jdbc.user=root
 jdbc.password=root
 jdbc.url=jdbc:mysql:///mybatis-example
@@ -174,7 +174,7 @@ jdbc.driver=com.mysql.cj.jdbc.Driver
 
   mybatis 配置文件：
 
-  ```java
+  ```xml
   <?xml version="1.0" encoding="UTF-8" ?>
   <!DOCTYPE configuration
           PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
