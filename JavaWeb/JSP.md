@@ -647,7 +647,7 @@ EL 表达式中的运算符
 
 
 
-使用 JTSL 标签库步骤：
+使用 JSTL 标签库步骤：
 
 - 第一步：引入 JSTL 标签库对应的 jar 包
 
@@ -665,10 +665,12 @@ EL 表达式中的运算符
 
     <%@taglib prefix="" uri="" %>
 
-    ```
+    ```jsp
     <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-    这个是核心标签库
-    prefix="这里随便起名字，核心标签库，大家默认叫 c"
+    <%-- 
+      这个是核心标签库
+      prefix="这里随便起名字，核心标签库，大家默认叫 c"
+    --%>
     ```
 
 - 第三步：在需要使用标签的位置使用即可
@@ -677,19 +679,23 @@ EL 表达式中的运算符
 
 JSTL 标签的原理
 
-```
+```jsp
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-以上 uri 后边的路径实际指向了 xxx.tld 文件
-tld 文件是一个 xml 配置文件
-在 tld 文件中描述了“标签”和“java 类”之间的关系
-c.tld 文件在 jakarta.servlet.jsp.jstl-2.0.0.jar 里边的 META-INF 目录下
 ```
+
+以上 uri 后边的路径实际指向了 xxx.tld 文件
+
+- tld 文件是一个 xml 配置文件
+
+  在 tld 文件中描述了“标签”和“java 类”之间的关系
+
+  c.tld 文件在 jakarta.servlet.jsp.jstl-2.0.0.jar 里边的 META-INF 目录下
 
 
 
 源码解析：配置文件 tld
 
-```
+```xml
 <tag>
     <description>
         对该标签的描述
@@ -726,7 +732,7 @@ c.tld 文件在 jakarta.servlet.jsp.jstl-2.0.0.jar 里边的 META-INF 目录下
   </c:forEach>
   ```
 
-  ```
+  ```jsp
   <c:forEach var="i" begin="1" end="10" step="2">
   	${i}
   </c:forEach>
