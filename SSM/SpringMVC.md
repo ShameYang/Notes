@@ -1,6 +1,6 @@
 # 前言
 
-参考视频：[b站尚硅谷赵伟风](https://www.bilibili.com/video/BV1AP411s7D7?p=124&spm_id_from=pageDriver&vd_source=ca277c9be3ac177cc2c26f2f391d0252)
+参考视频：[b站尚硅谷赵伟风](https://www.bilibili.com/video/BV1AP411s7D7?p=1&vd_source=ca277c9be3ac177cc2c26f2f391d0252)
 
 参考笔记：[springmvc参考笔记](https://www.wolai.com/mY4orG21749UeVBHsefaAb)
 
@@ -1072,7 +1072,7 @@ public class UserController {
     配置 @EnableWebMvc后，SpringMVC 会默认装配好一个 LocalValidatorFactoryBean，通过在处理方法的入参上标注 @Validated 注解即可让 SpringMVC 在完成数据绑定后执行数据校验的工作。
 
 2. **操作演示**
-    
+   
     导入依赖
     
     ```xml

@@ -27,10 +27,6 @@
 
 
 
-
-
-
-
 ## B/S 结构的系统通信原理
 
 WEB 系统的访问过程
@@ -59,10 +55,6 @@ WEB 系统的通信步骤
 - 第六步：将文件响应到浏览器上
 - 第七步：浏览器接收到来自服务器的代码
 - 第八步：浏览器渲染，执行代码，展示效果
-
-
-
-
 
 
 
@@ -108,10 +100,6 @@ WEB 服务器和应用服务器的关系
 
 
 
-
-
-
-
 # 配置 Tomcat 服务器
 
 环境变量
@@ -131,17 +119,11 @@ WEB 服务器和应用服务器的关系
 
 
 
-
-
-
-
 ## 解决 Tomcat 服务器在 DOS 命令窗口的乱码问题（控制台乱码）
 
 将 CATALINA_HOME/conf/logging.properties 中的内容修改如下：
 
 java.util.logging.ConsoleHandler.encoding = GBK
-
-
 
 
 
@@ -154,8 +136,6 @@ java.util.logging.ConsoleHandler.encoding = GBK
 3. 在 test 目录下新建一个 index.html 文件（编写其中的内容）
 4. 启动 Tomcat 服务器
 5. 打开浏览器，地址栏输入 http://localhost:8080/test/index.html
-
-
 
 
 
@@ -245,8 +225,6 @@ public class BankServlet implements Servlet {
   - 规范了一个 web 应用配置文件存放的路径
   - 规范了一个 web 应用配置文件的内容
   - 规范了一个合法有效的 web 应用的目录结构
-
-
 
 
 
@@ -374,8 +352,6 @@ webapproot
 
 
 
-
-
 ## 向浏览器响应一段 HTML 代码
 
 ```java
@@ -388,17 +364,11 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
-
-
 ## Servlet 中连接数据库
 
 因为 Servlet 是 Java 程序，所以 Servlet 中可以编写 JDBC 代码连接数据库
 
 在一个 webapp 中去连接数据库，需要将驱动 jar 包放到 WEB-INF/lib 目录下
-
-
-
-
 
 
 
@@ -493,10 +463,6 @@ public void service(ServletRequest request, ServletResponse response) {
 
 
 
-
-
-
-
 # Servlet 对象的生命周期
 
 Servlet 对象的生命周期由 Tomcat 服务器负责
@@ -526,8 +492,6 @@ Servlet 对象是单例的
 
 
 
-
-
 # 类和接口
 
 ## Servlet 接口中的方法
@@ -547,10 +511,6 @@ Servlet 对象是单例的
   销毁 Servlet 对象前会调用一次，只执行一次
 
   释放资源的代码可以写在该方法中
-
-
-
-
 
 
 
@@ -637,10 +597,6 @@ GenericServlet 是抽象类，其中有一个抽象方法 service
 
 
 
-
-
-
-
 ## ServletConfig 接口
 
 > ServletConfig 接口中的方法都被 GenericServlet 重写了，我们也可以继承 GenericServlet 调用方法
@@ -667,10 +623,6 @@ public ServletContext getServletContext(); // 获取 ServletContext 对象
 
 public String getServletName(); // 获取Servlet的name
 ```
-
-
-
-
 
 
 
@@ -759,8 +711,6 @@ public Object getAttribute(String name); // Object v = map.get(k)
 //删（删除 ServletContext 应用域中的数据）
 public void removeAttribute(String name); // map.remove(k);
 ```
-
-
 
 
 
@@ -868,10 +818,6 @@ GET 请求和 POST 请求的区别
 
 
 
-
-
-
-
 ## HttpServlet 类
 
 HttpServlet 类是专门为 HTTP 协议准备的，比 GenericServlet 更适合 HTTP 协议下的开发
@@ -892,8 +838,6 @@ http 包下的接口和类
 
 继承 HttpServlet 重写 service
 - 可以重写，但是由于覆盖了 service，享受不到 405 错误
-
-
 
 
 
@@ -1001,20 +945,12 @@ String servletPath = request.getServletPath();
 
 
 
-
-
-
-
 # 最终的 Servlet 类开发
 
 - 第一步：编写一个 Servlet 类，直接继承 HttpServlet
 - 第二步：重写 doGet 或 doPost 方法
 - 第三步：将 Servlet 类配置到 web.xml 中
 - 第四步：准备前端的页面（form 表单），form 表单中指定请求路径
-
-
-
-
 
 
 
@@ -1056,10 +992,6 @@ String servletPath = request.getServletPath();
   - CATALINA_HOME/cof/web.xml 文件中（全局配置）
   
     注意：局部优先（就近原则）
-
-
-
-
 
 
 
@@ -1448,10 +1380,6 @@ protected void service(HttpServletRequest req, HttpServletResponse resp)
 
 
 
-
-
-
-
 # web 应用中资源的跳转
 
 一个 web 应用中，可以用过两种方式完成资源的跳转：
@@ -1500,10 +1428,6 @@ protected void service(HttpServletRequest req, HttpServletResponse resp)
 
 
 
-
-
-
-
 # Servlet 注解式开发
 
 Servlet 3.0之后，推出了各种 Servlet 基于注解式开发，将配置信息直接写到 Java 类中
@@ -1531,10 +1455,6 @@ Servlet 3.0之后，推出了各种 Servlet 基于注解式开发，将配置信
 
 
 
-
-
-
-
 # 纯 Servlet 开发的缺陷
 
 我们的 java 程序中，前端代码与后端代码写在一起，存在许多缺陷：
@@ -1547,8 +1467,6 @@ Servlet 3.0之后，推出了各种 Servlet 基于注解式开发，将配置信
 
 
 这时就需要用到 JSP 进行优化了，可以参考 JSP 部分的笔记
-
-
 
 
 
@@ -1625,8 +1543,6 @@ Cookie 禁用，session 机制怎么实现？
 
 
 
-
-
 ## Session 改造 oa 项目
 
 用户登录界面中
@@ -1657,10 +1573,6 @@ if (session != null && session.getAttribute("username") != null) {
     response.sendRedirect(request.getContextPath());
 }
 ```
-
-
-
-
 
 
 
@@ -1732,8 +1644,6 @@ request.getCookies();
 
 
 
-
-
 ## Cookie 实现十天内免登录
 
 先实现登录功能
@@ -1754,10 +1664,6 @@ request.getCookies();
 - 部门列表页面
 - 登录页面
 - 上边两个页面，要用 java 程序控制
-
-
-
-
 
 
 
@@ -1823,10 +1729,6 @@ request.getCookies();
   - 在程序编译阶段不会确定调用顺序，调用顺序由 web.xml 文件中的顺序决定（符合 OCP 开闭原则）
 - 责任链设计模式的核心思想
   - 在程序运行阶段，动态组合程序的调用顺序
-
-
-
-
 
 
 

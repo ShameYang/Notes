@@ -1049,8 +1049,8 @@ eval 函数作用：将字符串作为一段 JS 代码解释并执行
 	  var data = {
 	  	"total": 2,
 	  	"students": [
-        {"sno": 001, "sname": "tom", "sex": "man"},
-	  	  {"sno": 002, "sname": "jack", "sex": "man"}
+        	{"sno": 001, "sname": "tom", "sex": "man"},
+	  	 	{"sno": 002, "sname": "jack", "sex": "man"}
 	  	]
 	  };  
 	  window.onload = function() {
