@@ -30,8 +30,8 @@ SpringBoot 可以简化 Spring 应用的创建及部署（底层是 Spring），
 开发步骤：
 
 1. 创建 Maven 工程
-2. 添加依赖（springboot 父工程依赖，web 启动器依赖）
-3. 编写启动引导类（springboot 项目运行入口）
+2. 添加依赖（SpringBoot 父工程依赖，Web 启动器依赖）
+3. 编写启动引导类（Springboot 项目运行入口）
 4. 编写处理器 Controller
 5. 启动项目（运行启动类即可）
 

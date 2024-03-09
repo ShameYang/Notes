@@ -1248,7 +1248,7 @@ public class ArrayReduce {
 // 冒泡排序
 public class BubbleSort {
 	public static void main(String[] args) {
-         int temp = 0;
+        int temp = 0;
 		int[] arr = {2, 4, 1, 5, 3};
 		for (int i = 1; i < arr.length; i++) {
 			for (int j = 0; j < arr.length - i - 1; j++) {
