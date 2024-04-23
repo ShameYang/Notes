@@ -1,4 +1,7 @@
+> **！！！该仓库已停止维护，查看最新笔记请前往我的博客：[ShameYang's Blog](https://shameyang.vip)**
+
 # Notes
+
 My study notes
 
 ```
